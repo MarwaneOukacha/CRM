@@ -6,10 +6,10 @@ spring:
       enabled: false
   gateway:
     routes:
-      - id: user-service
-        uri: lb://user-service
+      - id: product-service
+        uri: lb://product-service
         predicates:
-          - Path=/users/**
+          - Path=/products/**
 
 
 
