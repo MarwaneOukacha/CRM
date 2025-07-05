@@ -9,5 +9,4 @@ public class MediaResponseDTO {
     private String name;
     private String type;
     private String url;
-    private UUID productId;
 }

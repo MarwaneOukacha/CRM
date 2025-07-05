@@ -6,7 +6,9 @@ import com.crm.product.enums.ProductStatus;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @Entity
@@ -15,7 +17,8 @@ import java.util.UUID;
 @Builder
 @AttributeOverride(name = "id", column = @Column(name = "product_id"))
 @Data
-@ToString
+@ToString(callSuper = true, exclude = "media") @EqualsAndHashCode(callSuper = true)
+@Table(name = "product")
 public class Product extends AbstractEntity {
 
     private String name;
@@ -35,5 +38,16 @@ public class Product extends AbstractEntity {
 
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
     private List<Media> media;
+
+    private Double stockQuantity;
+    @ElementCollection
+    @CollectionTable(
+            name = "product_characteristics",
+            joinColumns = @JoinColumn(name = "product_id")
+    )
+    @MapKeyColumn(name = "characteristic_key")
+    @Column(name = "characteristic_value")
+    private Map<String, String> characteristics = new HashMap<>();
+
 
 }

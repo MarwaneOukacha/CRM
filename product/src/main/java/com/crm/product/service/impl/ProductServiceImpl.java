@@ -3,7 +3,7 @@ package com.crm.product.service.impl;
 import com.crm.product.dao.ProductDao;
 import com.crm.product.entities.Product;
 import com.crm.product.entities.dto.SearchProductCriteria;
-import com.crm.product.entities.dto.request.AddProductRequestDTO;
+import com.crm.product.entities.dto.request.ProductRequestDTO;
 import com.crm.product.entities.dto.response.ProductResponseDTO;
 import com.crm.product.entities.dto.response.ProductSearchResponseDTO;
 import com.crm.product.mapper.ProductMapper;
@@ -26,12 +26,22 @@ public class ProductServiceImpl implements ProductService {
     private final ProductMapper productMapper;
 
     @Override
-    public void addProduct(AddProductRequestDTO dto) {
+    public ProductResponseDTO addProduct(ProductRequestDTO dto) {
         log.info("Adding product: {}", dto);
+
         Product product = productMapper.toEntity(dto);
-        productDao.save(product);
-        log.debug("Product saved with ID: {}", product.getId());
+
+        // Set the back-reference in Media entities before saving
+        if (product.getMedia() != null) {
+            product.getMedia().forEach(media -> media.setProduct(product));
+        }
+
+        Product savedProduct = productDao.save(product);
+
+        log.debug("Product saved with ID: {}", savedProduct.getId());
+        return productMapper.toResponseDTO(savedProduct);
     }
+
 
     @Override
     public ProductResponseDTO getByID(String id) {
@@ -66,11 +76,12 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public ProductResponseDTO updateProduct(String id, AddProductRequestDTO updatedDto) {
+    public ProductResponseDTO updateProduct(String id, ProductRequestDTO updatedDto) {
         log.info("Updating product with ID: {}", id);
 
         Product existingProduct = productDao.updateProduct(id, updatedDto);
         log.info("Product updated successfully: {}", existingProduct);
+
 
         return productMapper.toResponseDTO(existingProduct);
     }

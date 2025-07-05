@@ -21,9 +21,6 @@ public abstract class AbstractEntity {
     @Column(updatable = false, nullable = false)
     private UUID id;
 
-    @Column(name = "is_active", nullable = false)
-    private Boolean isActive = true;
-
     @Column(name = "created_at", updatable = false)
     @CreationTimestamp
     private LocalDateTime created;

@@ -1,7 +1,7 @@
 package com.crm.product.controller;
 
 import com.crm.product.entities.dto.SearchProductCriteria;
-import com.crm.product.entities.dto.request.AddProductRequestDTO;
+import com.crm.product.entities.dto.request.ProductRequestDTO;
 import com.crm.product.entities.dto.response.ProductResponseDTO;
 import com.crm.product.entities.dto.response.ProductSearchResponseDTO;
 import com.crm.product.service.ProductService;
@@ -21,9 +21,9 @@ public class ProductController {
     private final ProductService productService;
 
     @PostMapping
-    public void addProduct(@RequestBody AddProductRequestDTO request) {
+    public ProductResponseDTO addProduct( @RequestBody ProductRequestDTO request) {
         log.info("Received request to add product: {}", request);
-        productService.addProduct(request);
+        return productService.addProduct(request);
     }
 
     @GetMapping("/{id}")
@@ -59,7 +59,7 @@ public class ProductController {
     @PutMapping("/{id}")
     public ProductResponseDTO updateProduct(
             @PathVariable String id,
-            @RequestBody AddProductRequestDTO request
+            @RequestBody ProductRequestDTO request
     ) {
         log.info("Updating product with ID: {} and payload: {}", id, request);
         return productService.updateProduct(id, request);

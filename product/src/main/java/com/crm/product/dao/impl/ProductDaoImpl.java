@@ -1,9 +1,11 @@
 package com.crm.product.dao.impl;
 
 import com.crm.product.dao.ProductDao;
+import com.crm.product.entities.Media;
 import com.crm.product.entities.Product;
 import com.crm.product.entities.dto.SearchProductCriteria;
-import com.crm.product.entities.dto.request.AddProductRequestDTO;
+import com.crm.product.entities.dto.request.MediaRequestDTO;
+import com.crm.product.entities.dto.request.ProductRequestDTO;
 import com.crm.product.repository.ProductRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.ToString;
@@ -12,16 +14,12 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.util.UUID;
-
+import java.util.*;
 
 
 import jakarta.persistence.criteria.Predicate;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.jpa.domain.Specification;
-
-import java.util.ArrayList;
-import java.util.List;
 
 
 @Service
@@ -33,10 +31,11 @@ public class ProductDaoImpl implements ProductDao {
     private final ProductRepository productRepository;
 
     @Override
-    public void save(Product product) {
+    public Product save(Product product) {
         log.info("Saving product: {}", product);
-        productRepository.save(product);
+        Product save = productRepository.save(product);
         log.debug("Product saved successfully with ID: {}", product.getId());
+        return save;
     }
 
     @Override
@@ -64,7 +63,8 @@ public class ProductDaoImpl implements ProductDao {
                 String keyword = "%" + criteria.getKeyword().toLowerCase() + "%";
                 predicates.add(cb.or(
                         cb.like(cb.lower(root.get("name")), keyword),
-                        cb.like(cb.lower(root.get("description")), keyword)
+                        cb.like(cb.lower(root.get("description")), keyword),
+                        cb.like(cb.lower(root.get("material")), keyword)
                 ));
             }
 
@@ -108,7 +108,7 @@ public class ProductDaoImpl implements ProductDao {
     }
 
     @Override
-    public Product updateProduct(String id, AddProductRequestDTO updatedDto) {
+    public Product updateProduct(String id, ProductRequestDTO updatedDto) {
         UUID uuid;
         try {
             uuid = UUID.fromString(id);
@@ -117,42 +117,104 @@ public class ProductDaoImpl implements ProductDao {
             throw new IllegalArgumentException("Invalid product ID format");
         }
 
-        Product existingProduct = productRepository.findById(UUID.fromString(id)).get();
-        if (existingProduct == null) {
-            log.warn("Product not found with ID: {}", id);
-            throw new EntityNotFoundException("Product not found with ID: " + id);
-        }
+        Product existingProduct = productRepository.findById(uuid)
+                .orElseThrow(() -> {
+                    log.warn("Product not found with ID: {}", id);
+                    return new EntityNotFoundException("Product not found with ID: " + id);
+                });
 
         // Update fields only if not null (or not blank for strings)
         if (updatedDto.getName() != null && !updatedDto.getName().isBlank()) {
+            log.debug("Updating name: '{}' -> '{}'", existingProduct.getName(), updatedDto.getName());
             existingProduct.setName(updatedDto.getName());
+        } else {
+            log.debug("Skipping update of name");
         }
 
         if (updatedDto.getDescription() != null && !updatedDto.getDescription().isBlank()) {
+            log.debug("Updating description: '{}' -> '{}'", existingProduct.getDescription(), updatedDto.getDescription());
             existingProduct.setDescription(updatedDto.getDescription());
+        } else {
+            log.debug("Skipping update of description");
+        }
+
+        if (updatedDto.getMaterial() != null && !updatedDto.getMaterial().isBlank()) {
+            log.debug("Updating material: '{}' -> '{}'", existingProduct.getMaterial(), updatedDto.getMaterial());
+            existingProduct.setMaterial(updatedDto.getMaterial());
+        } else {
+            log.debug("Skipping update of material");
         }
 
         if (updatedDto.getPrice() != null) {
+            log.debug("Updating price: '{}' -> '{}'", existingProduct.getPrice(), updatedDto.getPrice());
             existingProduct.setPrice(updatedDto.getPrice());
+        } else {
+            log.debug("Skipping update of price");
         }
 
-        if (updatedDto.getCategory() != null ) {
+        if (updatedDto.getCategory() != null) {
+            log.debug("Updating category: '{}' -> '{}'", existingProduct.getCategory(), updatedDto.getCategory());
             existingProduct.setCategory(updatedDto.getCategory());
+        } else {
+            log.debug("Skipping update of category");
         }
 
-        if (updatedDto.getStatus() != null ) {
+        if (updatedDto.getStatus() != null) {
+            log.debug("Updating status: '{}' -> '{}'", existingProduct.getStatus(), updatedDto.getStatus());
             existingProduct.setStatus(updatedDto.getStatus());
+        } else {
+            log.debug("Skipping update of status");
         }
 
-        // Optional: block changing partnerId
+        if (updatedDto.getStockQuantity() != null) {
+            log.debug("Updating stockQuantity: '{}' -> '{}'", existingProduct.getStockQuantity(), updatedDto.getStockQuantity());
+            existingProduct.setStockQuantity(updatedDto.getStockQuantity());
+        } else {
+            log.debug("Skipping update of stockQuantity");
+        }
+
         if (updatedDto.getPartnerId() != null &&
-                !existingProduct.getPartnerId().toString().equals(updatedDto.getPartnerId())) {
+                (existingProduct.getPartnerId() == null ||
+                        !existingProduct.getPartnerId().toString().equals(updatedDto.getPartnerId()))) {
             log.warn("Changing partnerId is not allowed: {}", updatedDto.getPartnerId());
             throw new IllegalStateException("Changing partner ID is not allowed");
+        } else {
+            log.debug("PartnerId remains unchanged: '{}'", existingProduct.getPartnerId());
         }
 
-        return productRepository.save(existingProduct);
+        // Update characteristics map
+        if (updatedDto.getCharacteristics() != null) {
+            Map<String, String> existingCharacteristics = existingProduct.getCharacteristics();
+            updatedDto.getCharacteristics().forEach((key, value) -> {
+                log.debug("Updating characteristic '{}' : '{}'", key, value);
+                existingCharacteristics.put(key, value);
+            });
+        } else {
+            log.debug("Skipping update of characteristics");
+        }
+
+        // Update media
+        if (updatedDto.getMedia() != null) {
+            List<Media> updatedMedia = updatedDto.getMedia().stream().map(mediaDto -> {
+                Media media = new Media();
+                media.setUrl(mediaDto.getUrl());
+                media.setType(mediaDto.getType());
+                media.setProduct(existingProduct);
+                return media;
+            }).toList();
+
+            log.debug("Replacing media list with {} items", updatedMedia.size());
+            existingProduct.setMedia(updatedMedia);
+        } else {
+            log.debug("Skipping update of media");
+        }
+
+        Product savedProduct = productRepository.save(existingProduct);
+        log.info("Product updated successfully: {}", savedProduct);
+        return savedProduct;
     }
+
+
 }
 
 

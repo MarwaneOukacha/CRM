@@ -1,24 +1,22 @@
 package com.crm.product.entities;
 
 import com.crm.product.entities.model.AbstractEntity;
-import jakarta.persistence.AttributeOverride;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.ManyToOne;
+import jakarta.persistence.*;
 import lombok.*;
 
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
 @AttributeOverride(name = "id", column = @Column(name = "media_id"))
 @Data
-@ToString
+@ToString(callSuper = true)
+@EqualsAndHashCode(callSuper = true)
 public class Media extends AbstractEntity {
-
+    private String name;
     private String url;
     private String type; // IMAGE or VIDEO
 
-    @ManyToOne
+    @ManyToOne()
+    @JoinColumn(name = "product_id", nullable = false)
     private Product product;
 }
