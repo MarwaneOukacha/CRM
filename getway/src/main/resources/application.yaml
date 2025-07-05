@@ -1,15 +1,22 @@
+server:
+  port: 8080
+
 spring:
   application:
     name: gateway-service
+
+  config:
+    import: optional:configserver:http://localhost:8888
+
   cloud:
-    config:
-      enabled: false
-  gateway:
-    routes:
-      - id: product-service
-        uri: lb://product-service
-        predicates:
-          - Path=/products/**
+    gateway:
+      server:
+        webflux:
+          routes:
+            - id: product-service
+              uri: lb://product-service
+              predicates:
+                - Path=/products/**
 
 
 
@@ -17,8 +24,6 @@ eureka:
   client:
     service-url:
       defaultZone: http://localhost:8761/eureka
-
-server:
-  port: 8080
-
+    register-with-eureka: true
+    fetch-registry: true
 

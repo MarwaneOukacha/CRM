@@ -15,6 +15,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 
 import jakarta.persistence.criteria.Predicate;
@@ -199,9 +200,10 @@ public class ProductDaoImpl implements ProductDao {
                 Media media = new Media();
                 media.setUrl(mediaDto.getUrl());
                 media.setType(mediaDto.getType());
+                media.setName(mediaDto.getName());
                 media.setProduct(existingProduct);
                 return media;
-            }).toList();
+            }).collect(Collectors.toList());
 
             log.debug("Replacing media list with {} items", updatedMedia.size());
             existingProduct.setMedia(updatedMedia);
