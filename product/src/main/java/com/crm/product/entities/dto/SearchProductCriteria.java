@@ -1,13 +1,12 @@
 package com.crm.product.entities.dto;
 
-import com.crm.product.entities.dto.response.MediaResponseDTO;
-import com.crm.product.enums.Category;
+import com.crm.product.entities.Category;
 import com.crm.product.enums.ProductStatus;
 import lombok.Data;
-
-import java.util.List;
+import lombok.ToString;
 
 @Data
+@ToString
 public class SearchProductCriteria {
     private String keyword;
     private Category category;
