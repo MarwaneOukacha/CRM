@@ -2,6 +2,7 @@ package com.crm.product.dao;
 
 import com.crm.product.entities.Color;
 import com.crm.product.entities.dto.SearchColorCriteria;
+import com.crm.product.entities.dto.request.ColorRequestDTO;
 import com.crm.product.entities.dto.request.ColorUpdateRequestDTO;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

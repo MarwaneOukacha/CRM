@@ -35,22 +35,22 @@ public class Product extends AbstractEntity {
     @Enumerated(EnumType.STRING)
     private ProductStatus status; // FOR_SALE, FOR_RENT, IN_STOCK, FROM_PARTNER
 
-    @ManyToOne
-    @JoinColumn(name = "occasion_id", nullable = false)
-    private Occasion occasion;
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ProductOccasion> productOccasion = new ArrayList<>();
 
     @ManyToOne
     @JoinColumn(name = "category_id", nullable = false)
     private Category category;
 
-    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
-    private List<Material> materials = new ArrayList<>();
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ProductMaterial> productMaterials = new ArrayList<>();
 
-    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
-    private List<Color> colors = new ArrayList<>();
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ProductColor> productColors = new ArrayList<>();
 
-    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
-    private List<Designer> designers = new ArrayList<>();
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ProductDesigner> productDesigners = new ArrayList<>();
+
 
     private String agencyId;
     private String type;

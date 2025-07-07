@@ -8,6 +8,6 @@ import lombok.ToString;
 public class ColorUpdateRequestDTO {
     private String name;
     private String status;
-    private String productId;
+    private String color;
 
 }

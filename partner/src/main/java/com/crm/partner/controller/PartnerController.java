@@ -7,6 +7,7 @@ import com.crm.partner.entities.dto.response.PartnerProfileResponseDTO;
 import com.crm.partner.entities.dto.response.PartnerRegisterResponseDTO;
 import com.crm.partner.entities.dto.response.PartnerUpdateResponseDTO;
 import com.crm.partner.services.PartnerService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
@@ -16,13 +17,11 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("/partners")
+@RequiredArgsConstructor
 public class PartnerController {
 
     private final PartnerService partnerService;
 
-    public PartnerController(PartnerService partnerService) {
-        this.partnerService = partnerService;
-    }
 
     // POST /partners/register
     @PostMapping("/register")

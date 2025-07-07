@@ -8,7 +8,6 @@ import lombok.ToString;
 public class MaterialUpdateRequestDTO {
     private String name;
     private String status;
-    private String productId;
 
 }
 

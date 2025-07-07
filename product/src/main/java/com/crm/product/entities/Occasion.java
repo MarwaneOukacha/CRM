@@ -15,6 +15,6 @@ import java.util.List;
 public class Occasion extends AbstractEntity {
     private String name;
     private String status;
-    @OneToMany(mappedBy = "occasion", cascade = CascadeType.ALL)
-    private List<Product> products = new ArrayList<>();
+    @OneToMany(mappedBy = "occasion", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ProductOccasion> productOccasion = new ArrayList<>();
 }

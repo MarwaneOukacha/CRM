@@ -8,6 +8,4 @@ import lombok.ToString;
 public class DesignerUpdateRequestDTO {
     private String name;
     private String status;
-    private String productId;
-
 }

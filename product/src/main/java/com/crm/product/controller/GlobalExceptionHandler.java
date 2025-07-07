@@ -23,7 +23,6 @@ public class GlobalExceptionHandler {
         body.put("error", ex.getCause());
         body.put("message", ex.getMessage());
         body.put("path", "");
-        log.info("ERROR: ", ex.getCause());
         return new ResponseEntity<>(body, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
@@ -36,7 +35,6 @@ public class GlobalExceptionHandler {
         body.put("error", "Bad Request");
         body.put("message", ex.getMessage());
         body.put("path", "");
-        log.info("ERROR: ", ex.getCause());
         return new ResponseEntity<>(body, HttpStatus.BAD_REQUEST);
     }
 

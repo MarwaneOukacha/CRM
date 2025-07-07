@@ -5,8 +5,8 @@ import lombok.ToString;
 
 @Data
 @ToString
-public class CaratUpdateRequestDTO {
-    private String name;
-    private String status;
-}
+    public class CaratUpdateRequestDTO {
+        private String name;
+        private String status;
+    }
 
