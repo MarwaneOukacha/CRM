@@ -1,0 +1,301 @@
+import React, { useEffect, useState } from "react";
+import { PencilLine, Trash, Plus } from "lucide-react";
+import Modal from "react-modal";
+import * as XLSX from "xlsx";
+import { saveAs } from "file-saver";
+import axiosInstance from "../utils/axiosInstance";
+
+Modal.setAppElement("#root");
+
+const DailySales = () => {
+  const [sales, setSales] = useState([]);
+  const [editOpen, setEditOpen] = useState(false);
+  const [addOpen, setAddOpen] = useState(false);
+  const [deleteOpen, setDeleteOpen] = useState(false);
+  const [selectedSale, setSelectedSale] = useState(null);
+
+  const fetchSales = async () => {
+    try {
+      const response = await axiosInstance.get("/daily-sales", {
+        params: { page: 0, size: 100 },
+      });
+      setSales(response.data.content);
+    } catch (error) {
+      console.error("Failed to fetch sales:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchSales();
+  }, []);
+
+  const exportToExcel = () => {
+    const data = sales.map(({ id, days, percent, status }) => ({
+      ID: id,
+      Days: days,
+      Percent: percent,
+      Status: status,
+    }));
+
+    const worksheet = XLSX.utils.json_to_sheet(data);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "DailySales");
+    const wbout = XLSX.write(workbook, { bookType: "xlsx", type: "array" });
+    const blob = new Blob([wbout], { type: "application/octet-stream" });
+    saveAs(blob, "daily_sales.xlsx");
+  };
+
+  const openAddModal = () => {
+    setSelectedSale({ days: "", percent: "", status: "ACTIVE" });
+    setAddOpen(true);
+  };
+
+  const handleAddChange = (e) => {
+    const { name, value } = e.target;
+    setSelectedSale((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const saveAdd = async (e) => {
+    e.preventDefault();
+    try {
+      await axiosInstance.post("/daily-sales", selectedSale);
+      fetchSales();
+      setAddOpen(false);
+    } catch (error) {
+      console.error("Failed to create daily sale:", error);
+    }
+  };
+
+  const openEditModal = (sale) => {
+    setSelectedSale(sale);
+    setEditOpen(true);
+  };
+
+  const handleEditChange = (e) => {
+    const { name, value } = e.target;
+    setSelectedSale((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const saveEdit = async (e) => {
+    e.preventDefault();
+    try {
+      await axiosInstance.put(`/daily-sales/${selectedSale.id}`, selectedSale);
+      fetchSales();
+      setEditOpen(false);
+    } catch (error) {
+      console.error("Failed to update daily sale:", error);
+    }
+  };
+
+  const openDeleteModal = (sale) => {
+    setSelectedSale(sale);
+    setDeleteOpen(true);
+  };
+
+  const confirmDelete = async () => {
+    try {
+      await axiosInstance.delete(`/daily-sales/${selectedSale.id}`);
+      fetchSales();
+      setDeleteOpen(false);
+    } catch (error) {
+      console.error("Failed to delete daily sale:", error);
+    }
+  };
+
+  return (
+    <div className="p-6 max-w-7xl mx-auto">
+      <div className="flex justify-between items-center mb-6">
+        <h2 className="text-2xl font-semibold text-gray-900 dark:text-gray-100">
+          Daily Sales Management
+        </h2>
+        <div className="flex gap-4">
+          <button
+            onClick={openAddModal}
+            className="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-md shadow-sm"
+          >
+            <Plus className="mr-2 h-4 w-4" />
+            Add Sale
+          </button>
+          <button
+            onClick={exportToExcel}
+            className="inline-flex items-center px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-sm font-medium rounded-md shadow-sm"
+          >
+            Export Excel
+          </button>
+        </div>
+      </div>
+
+      <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+        <thead className="bg-gray-50 dark:bg-gray-800">
+          <tr>
+            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">#</th>
+            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Days</th>
+            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Percent</th>
+            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Status</th>
+            <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Actions</th>
+          </tr>
+        </thead>
+        <tbody className="bg-white dark:bg-gray-900 divide-y divide-gray-200 dark:divide-gray-700">
+          {sales.map((sale, index) => (
+            <tr key={sale.id} className="hover:bg-gray-100 dark:hover:bg-gray-800">
+              <td className="px-6 py-4 text-sm font-medium text-gray-900 dark:text-gray-100">{index + 1}</td>
+              <td className="px-6 py-4 text-sm font-medium text-gray-900 dark:text-gray-100">{sale.days}</td>
+              <td className="px-6 py-4 text-sm font-medium text-gray-900 dark:text-gray-100">{sale.percent}</td>
+              <td className="px-6 py-4">
+                <span className={`inline-flex px-2 text-xs leading-5 font-semibold rounded-full ${
+                  sale.status === "ACTIVE"
+                    ? "bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-200"
+                    : "bg-yellow-100 text-yellow-800 dark:bg-yellow-800 dark:text-yellow-200"
+                }`}>
+                  {sale.status}
+                </span>
+              </td>
+              <td className="px-6 py-4 text-right flex gap-4 justify-end">
+                <button onClick={() => openEditModal(sale)} className="text-blue-600 hover:text-blue-900 dark:hover:text-blue-400">
+                  <PencilLine size={20} />
+                </button>
+                <button onClick={() => openDeleteModal(sale)} className="text-red-600 hover:text-red-900 dark:hover:text-red-400">
+                  <Trash size={20} />
+                </button>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+
+      {/* Add Modal */}
+      <Modal
+        isOpen={addOpen}
+        onRequestClose={() => setAddOpen(false)}
+        contentLabel="Add Sale"
+        overlayClassName="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50"
+        className="bg-white dark:bg-gray-900 rounded-lg shadow-xl max-w-lg w-full p-6 outline-none"
+      >
+        <h3 className="text-xl font-semibold mb-4 text-gray-900 dark:text-gray-100">Add Daily Sale</h3>
+        <form onSubmit={saveAdd} className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium mb-1">Days</label>
+            <input
+              type="number"
+              name="days"
+              value={selectedSale?.days}
+              onChange={handleAddChange}
+              className="w-full px-3 py-2 border rounded-md dark:bg-gray-800 dark:border-gray-700 dark:text-gray-100"
+              required
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium mb-1">Percent</label>
+            <input
+              type="number"
+              name="percent"
+              value={selectedSale?.percent}
+              onChange={handleAddChange}
+              className="w-full px-3 py-2 border rounded-md dark:bg-gray-800 dark:border-gray-700 dark:text-gray-100"
+              required
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium mb-1">Status</label>
+            <select
+              name="status"
+              value={selectedSale?.status}
+              onChange={handleAddChange}
+              className="w-full px-3 py-2 border rounded-md dark:bg-gray-800 dark:border-gray-700 dark:text-gray-100"
+            >
+              <option value="ACTIVE">Active</option>
+              <option value="INACTIVE">Inactive</option>
+            </select>
+          </div>
+          <div className="flex justify-end gap-4">
+            <button type="button" onClick={() => setAddOpen(false)} className="px-4 py-2 rounded border">
+              Cancel
+            </button>
+            <button type="submit" className="px-4 py-2 rounded bg-blue-600 text-white hover:bg-blue-700">
+              Add
+            </button>
+          </div>
+        </form>
+      </Modal>
+
+      {/* Edit Modal */}
+      <Modal
+        isOpen={editOpen}
+        onRequestClose={() => setEditOpen(false)}
+        contentLabel="Edit Sale"
+        overlayClassName="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50"
+        className="bg-white dark:bg-gray-900 rounded-lg shadow-xl max-w-lg w-full p-6 outline-none"
+      >
+        <h3 className="text-xl font-semibold mb-4 text-gray-900 dark:text-gray-100">Edit Daily Sale</h3>
+        <form onSubmit={saveEdit} className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium mb-1">Days</label>
+            <input
+              type="number"
+              name="days"
+              value={selectedSale?.days}
+              onChange={handleEditChange}
+              className="w-full px-3 py-2 border rounded-md dark:bg-gray-800 dark:border-gray-700 dark:text-gray-100"
+              required
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium mb-1">Percent</label>
+            <input
+              type="number"
+              name="percent"
+              value={selectedSale?.percent}
+              onChange={handleEditChange}
+              className="w-full px-3 py-2 border rounded-md dark:bg-gray-800 dark:border-gray-700 dark:text-gray-100"
+              required
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium mb-1">Status</label>
+            <select
+              name="status"
+              value={selectedSale?.status}
+              onChange={handleEditChange}
+              className="w-full px-3 py-2 border rounded-md dark:bg-gray-800 dark:border-gray-700 dark:text-gray-100"
+            >
+              <option value="ACTIVE">Active</option>
+              <option value="INACTIVE">Inactive</option>
+            </select>
+          </div>
+          <div className="flex justify-end gap-4">
+            <button type="button" onClick={() => setEditOpen(false)} className="px-4 py-2 rounded border">
+              Cancel
+            </button>
+            <button type="submit" className="px-4 py-2 rounded bg-blue-600 text-white hover:bg-blue-700">
+              Save
+            </button>
+          </div>
+        </form>
+      </Modal>
+
+      {/* Delete Modal */}
+      <Modal
+        isOpen={deleteOpen}
+        onRequestClose={() => setDeleteOpen(false)}
+        contentLabel="Delete Sale"
+        overlayClassName="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50"
+        className="bg-white dark:bg-gray-900 rounded-lg shadow-xl max-w-md w-full p-6 outline-none"
+      >
+        <h3 className="text-xl font-semibold mb-4 text-gray-900 dark:text-gray-100">Confirm Delete</h3>
+        <p className="text-gray-700 dark:text-gray-300">
+          Are you sure you want to delete this sale?
+        </p>
+        <div className="flex justify-end gap-4 mt-6">
+          <button onClick={() => setDeleteOpen(false)} className="px-4 py-2 rounded border">
+            Cancel
+          </button>
+          <button onClick={confirmDelete} className="px-4 py-2 rounded bg-red-600 text-white hover:bg-red-700">
+            Delete
+          </button>
+        </div>
+      </Modal>
+    </div>
+  );
+};
+
+export default DailySales;
