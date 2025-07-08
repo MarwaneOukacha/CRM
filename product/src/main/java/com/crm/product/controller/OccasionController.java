@@ -1,11 +1,14 @@
 package com.crm.product.controller;
 
+import com.crm.product.entities.dto.SearchOccasionCriteria;
 import com.crm.product.entities.dto.request.OccasionRequestDTO;
 import com.crm.product.entities.dto.request.OccasionUpdateRequestDTO;
 import com.crm.product.entities.dto.response.OccasionResponseDTO;
 import com.crm.product.service.OccasionService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -32,9 +35,9 @@ public class OccasionController {
     }
 
     @GetMapping
-    public List<OccasionResponseDTO> getAll() {
+    public Page<OccasionResponseDTO> search(SearchOccasionCriteria criteria, Pageable pageable) {
         log.info("Getting all occasions");
-        return occasionService.getAll();
+        return occasionService.search(criteria,pageable);
     }
 
     @PutMapping("/{id}")

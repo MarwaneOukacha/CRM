@@ -1,14 +1,22 @@
 package com.crm.product.dao.impl;
 
 import com.crm.product.dao.OccasionDao;
+import com.crm.product.entities.Category;
 import com.crm.product.entities.Occasion;
+import com.crm.product.entities.dto.SearchCategoryCriteria;
+import com.crm.product.entities.dto.SearchOccasionCriteria;
 import com.crm.product.entities.dto.request.OccasionUpdateRequestDTO;
 import com.crm.product.repository.OccasionRepository;
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.persistence.criteria.Predicate;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -50,5 +58,29 @@ public class OccasionDaoImpl implements OccasionDao {
         if (dto.getName() != null) occasion.setName(dto.getName());
         if (dto.getStatus() != null) occasion.setStatus(dto.getStatus());
         return occasionRepository.save(occasion);
+    }
+
+    @Override
+    public Page<Occasion> findAllWithCriteria(SearchOccasionCriteria criteria, Pageable pageable) {
+        log.info("OccasionDaoImpl::findAllWithCriteria - Searching categories with criteria: {}", criteria);
+
+        Specification<Occasion> specification = (root, query, cb) -> {
+            List<Predicate> predicates = new ArrayList<>();
+
+            if (criteria.getKeyword() != null && !criteria.getKeyword().isEmpty()) {
+                String keyword = "%" + criteria.getKeyword().toLowerCase() + "%";
+                Predicate namePredicate = cb.like(cb.lower(root.get("name")), keyword);
+                Predicate statusPredicate = cb.like(cb.lower(root.get("status")), keyword);
+
+                predicates.add(cb.or(namePredicate, statusPredicate));
+            }
+
+
+
+            return cb.and(predicates.toArray(new Predicate[0]));
+        };
+        Page<Occasion> result = occasionRepository.findAll(specification, pageable);
+        log.info("CategoryDaoImpl::findAllWithCriteria - Found {} categories", result.getTotalElements());
+        return result;
     }
 }

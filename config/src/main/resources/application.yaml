@@ -11,7 +11,6 @@ spring:
           uri: https://github.com/MarwaneOukacha/CRM.git  # replace with your config repo
           default-label: main
           search-paths: config
-          clone-on-start: true
 
 eureka:
   client:

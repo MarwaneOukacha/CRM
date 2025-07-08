@@ -14,6 +14,9 @@ const Colors = () => {
   const [addOpen, setAddOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [selectedColor, setSelectedColor] = useState(null);
+  const [searchName, setSearchName] = useState("");
+  const [pageInfo, setPageInfo] = useState({ page: 0, size: 10, totalElements: 0 });
+
 
   const fetchColors = async () => {
     try {
@@ -100,6 +103,32 @@ const Colors = () => {
     }
   };
 
+   const handleSearchChange = (e) => {
+    setSearchName(e.target.value);
+  };
+
+  const fetch = async (page = 0, size = 10, keyword = "") => {
+    try {
+      const criteria = {};
+      if (keyword.trim()) criteria.keyword = keyword.trim();
+
+      const pageable = { page, size };
+      const response = await colorService.search(criteria, pageable);
+      setColors(response.data.content);
+      setPageInfo({
+        page: response.data.number,
+        size: response.data.size,
+        totalElements: response.data.totalElements,
+      });
+    } catch (error) {
+      console.error("Failed to fetch colors:", error);
+    }
+  };
+  const handleSearchSubmit = (e) => {
+    e.preventDefault();
+    fetch(0, pageInfo.size, searchName);
+  };
+
   return (
     <div className="p-6 max-w-7xl mx-auto">
       <div className="flex justify-between items-center mb-6">
@@ -122,7 +151,21 @@ const Colors = () => {
           </button>
         </div>
       </div>
-
+      <form onSubmit={handleSearchSubmit} className="mb-4 flex gap-2">
+        <input
+          type="text"
+          placeholder="Search by name..."
+          value={searchName}
+          onChange={handleSearchChange}
+          className="w-64 px-3 py-2 border border-gray-300 rounded-md dark:bg-gray-800 dark:border-gray-700 dark:text-gray-100"
+        />
+        <button
+          type="submit"
+          className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-md"
+        >
+          Search
+        </button>
+      </form>
       <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
         <thead className="bg-gray-50 dark:bg-gray-800">
           <tr>
@@ -148,7 +191,7 @@ const Colors = () => {
             <tr key={color.id} className="hover:bg-gray-100 dark:hover:bg-gray-800">
               <td className="px-6 py-4 text-sm font-medium text-gray-900 dark:text-gray-100">{index + 1}</td>
               <td className="px-6 py-4 text-sm font-medium text-gray-900 dark:text-gray-100">{color.name}</td>
-              <td className="px-6 py-4 text-sm font-medium text-gray-900 dark:text-gray-100">{color.hexCode}</td>
+              <td className="px-6 py-4 text-sm font-medium text-gray-900 dark:text-gray-100">{color.color}</td>
               <td className="px-6 py-4 text-sm whitespace-nowrap">
                 <span
                   className={`inline-flex px-2 text-xs leading-5 font-semibold rounded-full ${
@@ -209,10 +252,10 @@ const Colors = () => {
                 Hex Code
               </label>
               <input
-                id="hexCode"
-                name="hexCode"
+                id="color"
+                name="color"
                 type="text"
-                value={selectedColor.hexCode}
+                value={selectedColor.color}
                 onChange={handleAddChange}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md dark:bg-gray-800 dark:border-gray-700 dark:text-gray-100"
                 required
@@ -274,10 +317,10 @@ const Colors = () => {
                 Hex Code
               </label>
               <input
-                id="hexCode"
-                name="hexCode"
+                id="color"
+                name="color"
                 type="text"
-                value={selectedColor.hexCode}
+                value={selectedColor.color}
                 onChange={handleEditChange}
                 className="w-full px-3 py-2 border rounded-md"
               />

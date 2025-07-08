@@ -4,6 +4,7 @@ import Modal from "react-modal";
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
 import axiosInstance from "../utils/axiosInstance";
+import occasionService from "../services/occasionService";
 
 Modal.setAppElement("#root");
 
@@ -13,15 +14,46 @@ const Occasions = () => {
   const [addOpen, setAddOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [selectedOccasion, setSelectedOccasion] = useState(null);
+  const [searchName, setSearchName] = useState("");
+  const [pageInfo, setPageInfo] = useState({ page: 0, size: 10, totalElements: 0 });
+  
 
   const fetchOccasions = async () => {
     try {
-      const response = await axiosInstance.get("/occasions");
-      setOccasions(response.data);
+      const response = await occasionService.search();
+      setOccasions(response.data.content);
     } catch (error) {
       console.error("Failed to fetch occasions:", error);
     }
   };
+
+  const fetch = async (page = 0, size = 10, keyword = "") => {
+    try {
+      const criteria = {};
+      if (keyword.trim()) criteria.keyword = keyword.trim();
+
+      const pageable = { page, size };
+      const response = await occasionService.search(criteria, pageable.page,pageable.size);
+      setOccasions(response.data.content);
+      setPageInfo({
+        page: response.data.number,
+        size: response.data.size,
+        totalElements: response.data.totalElements,
+      });
+    } catch (error) {
+      console.error("Failed to fetch occasions:", error);
+    }
+  };
+  const handleSearchChange = (e) => {
+    setSearchName(e.target.value);
+  };
+
+   const handleSearchSubmit = (e) => {
+    e.preventDefault();
+    console.log("tklikaat")
+    fetch(0, pageInfo.size, searchName);
+  };
+  
 
   useEffect(() => {
     fetchOccasions();
@@ -63,7 +95,7 @@ const Occasions = () => {
   const saveAdd = async (e) => {
     e.preventDefault();
     try {
-      await axiosInstance.post("/occasions", selectedOccasion);
+      await occasionService.create(selectedOccasion);
       fetchOccasions();
       setAddOpen(false);
     } catch (error) {
@@ -74,7 +106,7 @@ const Occasions = () => {
   const saveEdit = async (e) => {
     e.preventDefault();
     try {
-      await axiosInstance.put(`/occasions/${selectedOccasion.id}`, selectedOccasion);
+      await occasionService.update(selectedOccasion.id, selectedOccasion);
       fetchOccasions();
       setEditOpen(false);
     } catch (error) {
@@ -84,7 +116,7 @@ const Occasions = () => {
 
   const confirmDelete = async () => {
     try {
-      await axiosInstance.delete(`/occasions/${selectedOccasion.id}`);
+      await occasionService.delete(selectedOccasion.id);
       fetchOccasions();
       setDeleteOpen(false);
     } catch (error) {
@@ -111,7 +143,21 @@ const Occasions = () => {
           </button>
         </div>
       </div>
-
+      <form onSubmit={handleSearchSubmit} className="mb-4 flex gap-2">
+        <input
+          type="text"
+          placeholder="Search by name..."
+          value={searchName}
+          onChange={handleSearchChange}
+          className="w-64 px-3 py-2 border border-gray-300 rounded-md dark:bg-gray-800 dark:border-gray-700 dark:text-gray-100"
+        />
+        <button
+          type="submit"
+          className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-md"
+        >
+          Search
+        </button>
+      </form>
       <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
         <thead className="bg-gray-50 dark:bg-gray-800">
           <tr>

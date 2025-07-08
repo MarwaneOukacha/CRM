@@ -7,7 +7,7 @@ const caratService = {
 
   getById: (id) => axiosInstance.get(`${BASE_URL}/${id}`),
 
-  search: (criteria = {}, page = 0, size = 100) =>
+  search: (criteria = {}, page = 0, size = 10) =>
     axiosInstance.get(BASE_URL, {
       params: { ...criteria, page, size },
     }),

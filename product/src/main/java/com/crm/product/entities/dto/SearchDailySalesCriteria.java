@@ -5,7 +5,5 @@ import lombok.Data;
 
 @Data
 public class SearchDailySalesCriteria {
-    private int days;
-    private int percent;
-    private Status status;
+    private String keyword;
 }

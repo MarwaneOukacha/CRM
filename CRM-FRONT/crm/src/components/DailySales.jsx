@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { PencilLine, Trash, Plus } from "lucide-react";
 import Modal from "react-modal";
 import dailySalesService from "../services/dailySalesService";
+import { setDay } from "date-fns";
 
 Modal.setAppElement("#root");
 
@@ -11,6 +12,8 @@ const DailySales = () => {
   const [addOpen, setAddOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [selectedSale, setSelectedSale] = useState(null);
+  const [searchName, setSearchName] = useState("");
+  const [pageInfo, setPageInfo] = useState({ page: 0, size: 10, totalElements: 0 });
 
   const fetchSales = async () => {
     try {
@@ -66,6 +69,33 @@ const DailySales = () => {
       console.error("Failed to update daily sale:", error);
     }
   };
+  
+   const handleSearchChange = (e) => {
+    setSearchName(e.target.value);
+  };
+
+   const fetch = async (page = 0, size = 10, keyword = "") => {
+    try {
+      const criteria = {};
+      if (keyword.trim()) criteria.keyword = keyword.trim();
+
+      const pageable = { page, size };
+      const response = await dailySalesService.search(criteria,pageable.page,pageable.size);
+      setSales(response.data.content);
+      setPageInfo({
+        page: response.data.number,
+        size: response.data.size,
+        totalElements: response.data.totalElements,
+      });
+    } catch (error) {
+      console.error("Failed to fetch sales:", error);
+    }
+  };
+
+  const handleSearchSubmit = (e) => {
+    e.preventDefault();
+    fetch(0, pageInfo.size, searchName);
+  };
 
   const openDeleteModal = (sale) => {
     setSelectedSale(sale);
@@ -97,7 +127,21 @@ const DailySales = () => {
           Add Sale
         </button>
       </div>
-
+      <form onSubmit={handleSearchSubmit} className="mb-4 flex gap-2">
+        <input
+          type="text"
+          placeholder="Search by name..."
+          value={searchName}
+          onChange={handleSearchChange}
+          className="w-64 px-3 py-2 border border-gray-300 rounded-md dark:bg-gray-800 dark:border-gray-700 dark:text-gray-100"
+        />
+        <button
+          type="submit"
+          className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-md"
+        >
+          Search
+        </button>
+      </form>
       <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
         <thead className="bg-gray-50 dark:bg-gray-800">
           <tr>

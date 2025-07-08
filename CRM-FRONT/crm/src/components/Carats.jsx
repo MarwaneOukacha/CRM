@@ -13,6 +13,9 @@ const Carats = () => {
   const [addOpen, setAddOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [selectedCarat, setSelectedCarat] = useState(null);
+  const [searchName, setSearchName] = useState("");
+  const [pageInfo, setPageInfo] = useState({ page: 0, size: 10, totalElements: 0 });
+
 
   const fetchCarats = async () => {
     try {
@@ -21,6 +24,9 @@ const Carats = () => {
     } catch (error) {
       console.error("Failed to fetch carats:", error);
     }
+  };
+   const handleSearchChange = (e) => {
+    setSearchName(e.target.value);
   };
 
   useEffect(() => {
@@ -87,6 +93,28 @@ const Carats = () => {
     }
   };
 
+  const fetch = async (page = 0, size = 10, name = "") => {
+    try {
+      const criteria = {};
+      if (name.trim()) criteria.name = name.trim();
+
+      const pageable = { page, size };
+      const response = await caratService.search(criteria, pageable.page,pageable.size);
+      setCarats(response.data.content);
+      setPageInfo({
+        page: response.data.number,
+        size: response.data.size,
+        totalElements: response.data.totalElements,
+      });
+    } catch (error) {
+      console.error("Failed to fetch karats:", error);
+    }
+  };
+
+  const handleSearchSubmit = (e) => {
+    e.preventDefault();
+    fetch(0, pageInfo.size, searchName);
+  };
   // Delete carat
   const confirmDelete = async () => {
     try {
@@ -107,7 +135,7 @@ const Carats = () => {
             onClick={openAddModal}
             className="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-md shadow-sm"
           >
-            <Plus className="mr-2 h-4 w-4" /> Add Carat
+            <Plus className="mr-2 h-4 w-4" /> Add Karat
           </button>
           <button
             onClick={exportToExcel}
@@ -117,7 +145,21 @@ const Carats = () => {
           </button>
         </div>
       </div>
-
+      <form onSubmit={handleSearchSubmit} className="mb-4 flex gap-2">
+        <input
+          type="text"
+          placeholder="Search by name..."
+          value={searchName}
+          onChange={handleSearchChange}
+          className="w-64 px-3 py-2 border border-gray-300 rounded-md dark:bg-gray-800 dark:border-gray-700 dark:text-gray-100"
+        />
+        <button
+          type="submit"
+          className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-md"
+        >
+          Search
+        </button>
+      </form>
       <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
         <thead className="bg-gray-50 dark:bg-gray-800">
           <tr>

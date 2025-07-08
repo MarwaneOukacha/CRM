@@ -5,7 +5,6 @@ import lombok.ToString;
 
 @Data
 @ToString
-public class SearchDesignerCriteria {
+public class SearchOccasionCriteria {
     private String keyword;
-
 }

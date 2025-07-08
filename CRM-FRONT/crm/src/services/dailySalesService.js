@@ -5,7 +5,7 @@ const dailySalesService = {
   getById: (id) => axiosInstance.get(`/daily-sales/${id}`),
   update: (id, data) => axiosInstance.put(`/daily-sales/${id}`, data),
   delete: (id) => axiosInstance.delete(`/daily-sales/${id}`),
-  search: ({ page = 0, size = 50, ...criteria }) =>
+  search: (criteria = {}, page = 0, size = 10) =>
     axiosInstance.get("/daily-sales", {
       params: { page, size, ...criteria },
     }),

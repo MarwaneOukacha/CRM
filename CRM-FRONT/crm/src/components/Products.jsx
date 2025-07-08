@@ -13,6 +13,8 @@ const Products = () => {
   const [addOpen, setAddOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
+  const [searchName, setSearchName] = useState("");
+    const [pageInfo, setPageInfo] = useState({ page: 0, size: 10, totalElements: 0 });
 
   // Pagination states
   const [page, setPage] = useState(0);
@@ -20,6 +22,10 @@ const Products = () => {
   const [totalPages, setTotalPages] = useState(0);
 
   const navigate = useNavigate();
+
+  const handleSearchChange = (e) => {
+    setSearchName(e.target.value);
+  };
 
   const fetchProducts = async (pageNumber = 0) => {
     try {
@@ -106,6 +112,28 @@ const Products = () => {
     setDeleteOpen(true);
   };
 
+  const fetch = async (page = 0, size = 10, keyword = "") => {
+    try {
+      const criteria = {};
+      if (keyword.trim()) criteria.keyword = keyword.trim();
+
+      const pageable = { page, size };
+      const response = await productService.search(criteria, pageable);
+      setProducts(response.data.content);
+      setPageInfo({
+        page: response.data.number,
+        size: response.data.size,
+        totalElements: response.data.totalElements,
+      });
+    } catch (error) {
+      console.error("Failed to fetch products:", error);
+    }
+  };
+  const handleSearchSubmit = (e) => {
+    e.preventDefault();
+    fetch(0, pageInfo.size, searchName);
+  };
+
   const confirmDelete = async () => {
     try {
       await productService.delete(selectedProduct.id);
@@ -151,7 +179,21 @@ const Products = () => {
           </button>
         </div>
       </div>
-
+      <form onSubmit={handleSearchSubmit} className="mb-4 flex gap-2">
+        <input
+          type="text"
+          placeholder="Search by name..."
+          value={searchName}
+          onChange={handleSearchChange}
+          className="w-64 px-3 py-2 border border-gray-300 rounded-md dark:bg-gray-800 dark:border-gray-700 dark:text-gray-100"
+        />
+        <button
+          type="submit"
+          className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-md"
+        >
+          Search
+        </button>
+      </form>
       <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
         <thead className="bg-gray-50 dark:bg-gray-800">
           <tr>

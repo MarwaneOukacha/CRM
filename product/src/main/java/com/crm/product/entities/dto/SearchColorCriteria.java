@@ -6,7 +6,6 @@ import lombok.ToString;
 @Data
 @ToString
 public class SearchColorCriteria {
-    private String name;
-    private String status;
+    private String keyword;
 
 }

@@ -52,13 +52,15 @@ public class DesignerDaoImpl implements DesignerDao {
         Specification<Designer> specification = (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
 
-            if (criteria.getName() != null && !criteria.getName().isEmpty()) {
-                predicates.add(cb.like(cb.lower(root.get("name")), "%" + criteria.getName().toLowerCase() + "%"));
+            if (criteria.getKeyword() != null && !criteria.getKeyword().isEmpty()) {
+                String keyword=criteria.getKeyword();
+                Predicate namePredicate = cb.like(cb.lower(root.get("name")), keyword);
+                Predicate statusPredicate = cb.like(cb.lower(root.get("status")), keyword);
+
+                predicates.add(cb.or(namePredicate, statusPredicate));
             }
 
-            if (criteria.getStatus() != null && !criteria.getStatus().isEmpty()) {
-                predicates.add(cb.equal(cb.lower(root.get("status")), criteria.getStatus().toLowerCase()));
-            }
+
 
             return cb.and(predicates.toArray(new Predicate[0]));
         };

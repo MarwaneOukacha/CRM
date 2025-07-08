@@ -2,13 +2,17 @@ package com.crm.product.service.impl;
 
 import com.crm.product.dao.OccasionDao;
 import com.crm.product.entities.Occasion;
+import com.crm.product.entities.dto.SearchOccasionCriteria;
 import com.crm.product.entities.dto.request.OccasionRequestDTO;
 import com.crm.product.entities.dto.request.OccasionUpdateRequestDTO;
+import com.crm.product.entities.dto.response.MaterialResponseDTO;
 import com.crm.product.entities.dto.response.OccasionResponseDTO;
 import com.crm.product.mapper.OccasionMapper;
 import com.crm.product.service.OccasionService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -50,5 +54,14 @@ public class OccasionServiceImpl implements OccasionService {
     public OccasionResponseDTO update(UUID id, OccasionUpdateRequestDTO dto) {
         Occasion updated = occasionDao.update(id, dto);
         return occasionMapper.toResponseDTO(updated);
+    }
+
+    @Override
+    public Page<OccasionResponseDTO> search(SearchOccasionCriteria criteria, Pageable pageable) {
+        Page<Occasion> allWithCriteria = occasionDao.findAllWithCriteria(criteria, pageable);
+        Page<OccasionResponseDTO> results = occasionDao.findAllWithCriteria(criteria, pageable)
+                .map(occasionMapper::toResponseDTO);
+
+        return results;
     }
 }

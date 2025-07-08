@@ -49,17 +49,12 @@ public class DailySalesDaoImpl implements DailySalesDao {
         Specification<DailySales> specification = (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
 
-            if (criteria.getDays() != 0) {
-                predicates.add(cb.equal(root.get("days"), criteria.getDays()));
+            if (criteria.getKeyword() != null && !criteria.getKeyword().isEmpty()) {
+                String kw = "%" + criteria.getKeyword().toLowerCase() + "%";
+                Predicate namePredicate = cb.like(cb.lower(root.get("status")), kw);
+                predicates.add(cb.or(namePredicate));
             }
 
-            if (criteria.getPercent() != 0) {
-                predicates.add(cb.equal(root.get("percent"), criteria.getPercent()));
-            }
-
-            if (criteria.getStatus() != null) {
-                predicates.add(cb.equal(root.get("status"), criteria.getStatus()));
-            }
 
             return cb.and(predicates.toArray(new Predicate[0]));
         };
