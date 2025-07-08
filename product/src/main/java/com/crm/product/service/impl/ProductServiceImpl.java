@@ -118,7 +118,7 @@ public class ProductServiceImpl implements ProductService {
 
         Product existingProduct = productDao.findById(UUID.fromString(id));
 
-        // Update fields if they are not null (null checks to prevent overwriting)
+        // === Basic fields ===
         if (dto.getName() != null) existingProduct.setName(dto.getName());
         if (dto.getDescription() != null) existingProduct.setDescription(dto.getDescription());
         if (dto.getPrice() != null) existingProduct.setPrice(dto.getPrice());
@@ -127,45 +127,70 @@ public class ProductServiceImpl implements ProductService {
         if (dto.getFavorite() != null) existingProduct.setFavorite(dto.getFavorite());
         if (dto.getCart() != null) existingProduct.setCart(dto.getCart());
         if (dto.getSize() != null) existingProduct.setSize(dto.getSize());
+
         if (dto.getCaratId() != null) {
-            // Assuming productDao or another service can fetch Carat entity by id
-            existingProduct.setCarat(caratDao.findById(dto.getCaratId()));
+            Carat carat = caratDao.findById(dto.getCaratId());
+            existingProduct.setCarat(carat);
         }
+
         if (dto.getStatus() != null) existingProduct.setStatus(dto.getStatus());
+
         if (dto.getCategoryId() != null) {
-            // Assuming you have a method to find Category by id
-            existingProduct.setCategory(categoryDao.findById(dto.getCategoryId()));
+            Category category = categoryDao.findById(dto.getCategoryId());
+            existingProduct.setCategory(category);
         }
-        // Handle occasions, materials, colors, designers associations:
+
+        // === Occasions ===
         if (dto.getOccasionIds() != null) {
-            existingProduct.setProductOccasion(productDao.findOccasionsByIds(dto.getOccasionIds()));
+            List<ProductOccasion> occasions = productDao.findOccasionsByIds(dto.getOccasionIds());
+            occasions.forEach(o -> o.setProduct(existingProduct));
+
+            existingProduct.getProductOccasion().clear();
+            existingProduct.getProductOccasion().addAll(occasions);
         }
+        // === Materials ===
         if (dto.getMaterialIds() != null) {
-            existingProduct.setProductMaterials(productDao.findMaterialsByIds(dto.getMaterialIds()));
+            List<ProductMaterial> materials = productDao.findMaterialsByIds(dto.getMaterialIds());
+            materials.forEach(m -> m.setProduct(existingProduct));
+            existingProduct.getProductMaterials().clear();
+            existingProduct.getProductMaterials().addAll(materials);
         }
+
+        // === Colors ===
         if (dto.getColorIds() != null) {
-            existingProduct.setProductColors(productDao.findColorsByIds(dto.getColorIds()));
+            List<ProductColor> colors = productDao.findColorsByIds(dto.getColorIds());
+            colors.forEach(c -> c.setProduct(existingProduct));
+            existingProduct.getProductColors().clear();
+            existingProduct.getProductColors().addAll(colors);
         }
+
+        // === Designers ===
         if (dto.getDesignerIds() != null) {
-            existingProduct.setProductDesigners(productDao.findDesignersByIds(dto.getDesignerIds()));
+            List<ProductDesigner> designers = productDao.findDesignersByIds(dto.getDesignerIds());
+            designers.forEach(d -> d.setProduct(existingProduct));
+            existingProduct.getProductDesigners().clear();
+            existingProduct.getProductDesigners().addAll(designers);
         }
+
+        // === Media ===
+        if (dto.getMedia() != null) {
+            List<Media> mediaList = productMapper.fromMediaRequestDTOList(dto.getMedia(), existingProduct);
+            mediaList.forEach(m -> m.setProduct(existingProduct));
+            existingProduct.getMedia().clear();
+            existingProduct.getMedia().addAll(mediaList);
+        }
+
         if (dto.getAgencyId() != null) existingProduct.setAgencyId(dto.getAgencyId());
         if (dto.getType() != null) existingProduct.setType(dto.getType());
         if (dto.getWeight() != null) existingProduct.setWeight(dto.getWeight());
         if (dto.getPartnerId() != null) existingProduct.setPartnerId(UUID.fromString(dto.getPartnerId()));
 
-        // Handle Media list
-        if (dto.getMedia() != null) {
-            existingProduct.getMedia().clear();
-            existingProduct.getMedia().addAll(productMapper.fromMediaRequestDTOList(dto.getMedia(), existingProduct));
-        }
-
+        // === Save ===
         Product updatedProduct = productDao.updateProduct(existingProduct.getId(), existingProduct);
-
         ProductResponseDTO responseDTO = productMapper.toResponseDto(updatedProduct);
 
         log.info("ProductServiceImpl::update - Updated product: {}", responseDTO);
-
         return responseDTO;
     }
+
 }

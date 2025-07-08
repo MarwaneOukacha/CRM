@@ -134,15 +134,15 @@ public class ProductDaoImpl implements ProductDao {
                 .collect(Collectors.toList());
 
         List<Designer> designers = designerRepository.findAllById(uuidList);
+
         return designers.stream()
                 .map(designer -> {
                     ProductDesigner pd = new ProductDesigner();
-                    pd.setDesigner(designer);
-                    return pd;
+                    pd.setDesigner(designer); // ✅ Set designer
+                    return pd;                // product will be set by caller
                 })
                 .collect(Collectors.toList());
     }
-
 
     @Override
     public List<ProductColor> findColorsByIds(List<String> ids) {
@@ -153,12 +153,12 @@ public class ProductDaoImpl implements ProductDao {
                 .collect(Collectors.toList());
 
         List<Color> colors = colorRepository.findAllById(uuidList);
+
         return colors.stream()
                 .map(color -> {
                     ProductColor pc = new ProductColor();
-                    pc.setColor(color);
-                    // product will be set by caller
-                    return pc;
+                    pc.setColor(color); // ✅ Set color
+                    return pc;          // product will be set by caller
                 })
                 .collect(Collectors.toList());
     }
@@ -172,15 +172,16 @@ public class ProductDaoImpl implements ProductDao {
                 .collect(Collectors.toList());
 
         List<Material> materials = materialRepository.findAllById(uuidList);
+
         return materials.stream()
                 .map(material -> {
                     ProductMaterial pm = new ProductMaterial();
-                    pm.setMaterial(material);
-                    // product will be set by caller
-                    return pm;
+                    pm.setMaterial(material); // ✅ Set material
+                    return pm;                // product will be set by caller
                 })
                 .collect(Collectors.toList());
     }
+
 
     @Override
     public List<ProductOccasion> findOccasionsByIds(List<String> ids) {
@@ -191,12 +192,13 @@ public class ProductDaoImpl implements ProductDao {
                 .collect(Collectors.toList());
 
         List<Occasion> occasions = occasionRepository.findAllById(uuidList);
+
+        // Ensure each ProductOccasion has its Occasion set, and product is left for the caller
         return occasions.stream()
                 .map(occasion -> {
                     ProductOccasion po = new ProductOccasion();
-                    po.setOccasion(occasion);
-                    // product will be set by caller
-                    return po;
+                    po.setOccasion(occasion); // Must be set
+                    return po; // product will be set later
                 })
                 .collect(Collectors.toList());
     }

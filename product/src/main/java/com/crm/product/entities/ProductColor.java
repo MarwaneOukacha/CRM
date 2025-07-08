@@ -9,7 +9,6 @@ import lombok.ToString;
 @Table(name = "product_color")
 @AttributeOverride(name = "id", column = @Column(name = "product_color_id"))
 @Data
-@ToString
 public class ProductColor extends AbstractEntity{
 
     @ManyToOne

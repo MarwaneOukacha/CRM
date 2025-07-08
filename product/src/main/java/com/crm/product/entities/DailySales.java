@@ -13,7 +13,6 @@ import lombok.*;
 @Builder
 @AttributeOverride(name = "id", column = @Column(name = "DailySales_id"))
 @Data
-@ToString(callSuper = true, exclude = "media")
 @Table(name = "DailySales")
 public class DailySales extends AbstractEntity {
     private int days;

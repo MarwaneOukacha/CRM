@@ -13,7 +13,6 @@ import java.util.List;
 @Entity
 @Table(name = "occasion")
 @Data
-@ToString
 @AttributeOverride(name = "id", column = @Column(name = "occasion_id"))
 public class Occasion extends AbstractEntity {
     private String name;
