@@ -27,29 +27,34 @@ public class ColorServiceImpl implements ColorService {
 
     @Override
     public ColorResponseDTO create(ColorRequestDTO color) {
-        log.info("Creating color: {}", color);
+        log.info("ColorServiceImpl::create - Creating color: {}", color);
         Color color1 = colorMapper.toColor(color);
         return colorMapper.toResponseDTO(colorDao.save(color1));
     }
 
     @Override
     public ColorResponseDTO getById(String id) {
+        log.info("ColorServiceImpl::getById - Fetching color with id: {}", id);
         return colorMapper.toResponseDTO(colorDao.findById(UUID.fromString(id)));
     }
 
     @Override
     public Page<ColorResponseDTO> search(SearchColorCriteria criteria, Pageable pageable) {
+        log.info("ColorServiceImpl::search - Searching colors with criteria: {}", criteria);
         return colorDao.findAllWithCriteria(criteria, pageable)
                 .map(colorMapper::toResponseDTO);
     }
 
     @Override
     public void delete(String id) {
+        log.info("ColorServiceImpl::delete - Deleting color with id: {}", id);
         colorDao.delete(UUID.fromString(id));
+        log.info("ColorServiceImpl::delete - Successfully deleted color with id: {}", id);
     }
 
     @Override
     public ColorUpdateResponseDTO update(String id, ColorUpdateRequestDTO dto) {
+        log.info("ColorServiceImpl::update - Updating color with id: {}, data: {}", id, dto);
         return colorMapper.toUpdateResponseDTO(colorDao.updateColor(id, dto));
     }
 }

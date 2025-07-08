@@ -1,6 +1,5 @@
 package com.crm.product.service.impl;
 
-
 import com.crm.product.dao.CaratDao;
 import com.crm.product.entities.Carat;
 import com.crm.product.entities.dto.SearchCaratCriteria;
@@ -28,31 +27,44 @@ public class CaratServiceImpl implements CaratService {
 
     @Override
     public CaratResponseDTO create(CaratRequestDTO dto) {
+        log.info("CaratServiceImpl::create - Creating carat with data: {}", dto);
         Carat carat = new Carat();
         carat.setName(dto.getName());
         carat.setStatus(dto.getStatus());
-        return caratMapper.toResponseDTO(caratDao.save(carat));
+        Carat saved = caratDao.save(carat);
+        log.info("CaratServiceImpl::create - Successfully created carat with ID: {}", saved.getId());
+        return caratMapper.toResponseDTO(saved);
     }
 
     @Override
     public CaratResponseDTO getById(String id) {
-        return caratMapper.toResponseDTO(caratDao.findById(UUID.fromString(id)));
+        log.info("CaratServiceImpl.getById - Fetching carat with ID: {}", id);
+        Carat carat = caratDao.findById(UUID.fromString(id));
+        log.info("CaratServiceImpl::getById - Found carat: {}", carat);
+        return caratMapper.toResponseDTO(carat);
     }
 
     @Override
     public Page<CaratResponseDTO> search(SearchCaratCriteria criteria, Pageable pageable) {
-        return caratDao.findAllWithCriteria(criteria, pageable)
+        log.info("CaratServiceImpl::search - Searching carats with criteria: {}", criteria);
+        Page<CaratResponseDTO> result = caratDao.findAllWithCriteria(criteria, pageable)
                 .map(caratMapper::toResponseDTO);
+        log.info("CaratServiceImpl::search - Found {} carats", result.getTotalElements());
+        return result;
     }
 
     @Override
     public void delete(String id) {
+        log.info("CaratServiceImpl::delete - Deleting carat with ID: {}", id);
         caratDao.delete(UUID.fromString(id));
+        log.info("CaratServiceImpl::delete - Successfully deleted carat with ID: {}", id);
     }
 
     @Override
     public CaratUpdateResponseDTO update(String id, CaratUpdateRequestDTO dto) {
+        log.info("CaratServiceImpl::update - Updating carat with ID: {}, data: {}", id, dto);
         Carat updated = caratDao.updateCarat(id, dto);
+        log.info("CaratServiceImpl::update - Successfully updated carat with ID: {}", id);
         return caratMapper.toUpdateResponseDTO(updated);
     }
 }

@@ -25,6 +25,6 @@ public class ProductSearchResponseDTO {
     private String agencyId;
     private String type;
     private Double weight;
-    private String partnerId;
+    private String Id;
     private List<MediaRequestDTO> media;
 }

@@ -29,18 +29,21 @@ public class ColorDaoImpl implements ColorDao {
 
     @Override
     public Color save(Color color) {
-
+        log.info("ColorDaoImpl::save - Saving color: {}", color);
         return colorRepository.save(color);
     }
 
     @Override
     public Color findById(UUID id) {
+        log.info("ColorDaoImpl::findById - Finding color by id: {}", id);
         return colorRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Color not found"));
     }
 
     @Override
     public Page<Color> findAllWithCriteria(SearchColorCriteria criteria, Pageable pageable) {
+        log.info("ColorDaoImpl::findAllWithCriteria - Searching colors with criteria: {}", criteria);
+
         Specification<Color> specification = (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
 
@@ -55,29 +58,36 @@ public class ColorDaoImpl implements ColorDao {
             return cb.and(predicates.toArray(new Predicate[0]));
         };
 
-        return colorRepository.findAll(specification, pageable);
+        Page<Color> result = colorRepository.findAll(specification, pageable);
+        log.info("ColorDaoImpl::findAllWithCriteria - Found {} colors", result.getTotalElements());
+        return result;
     }
 
     @Override
     public void delete(UUID id) {
+        log.info("ColorDaoImpl::delete - Deleting color with id: {}", id);
         colorRepository.deleteById(id);
+        log.info("ColorDaoImpl::delete - Successfully deleted color with id: {}", id);
     }
 
     @Override
     public Color updateColor(String id, ColorUpdateRequestDTO updatedDto) {
+        log.info("ColorDaoImpl::updateColor - Updating color with id: {}, data: {}", id, updatedDto);
         Color color = findById(UUID.fromString(id));
 
         if (updatedDto.getName() != null && !updatedDto.getName().isEmpty()) {
             color.setName(updatedDto.getName());
         }
 
-        if (updatedDto.getStatus() != null && !updatedDto.getStatus().isEmpty()) {
+        if (updatedDto.getStatus() != null ) {
             color.setStatus(updatedDto.getStatus());
         }
         if (updatedDto.getColor() != null && !updatedDto.getColor().isEmpty()) {
             color.setColor(updatedDto.getColor());
         }
 
-        return colorRepository.save(color);
+        Color updated = colorRepository.save(color);
+        log.info("ColorDaoImpl::updateColor - Updated color with id: {}", updated.getId());
+        return updated;
     }
 }

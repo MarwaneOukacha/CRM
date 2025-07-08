@@ -2,8 +2,8 @@ package com.crm.product.controller;
 
 import com.crm.product.entities.dto.SearchProductCriteria;
 import com.crm.product.entities.dto.request.ProductRequestDTO;
+import com.crm.product.entities.dto.request.ProductUpdateRequestDTO;
 import com.crm.product.entities.dto.response.ProductResponseDTO;
-import com.crm.product.entities.dto.response.ProductSearchResponseDTO;
 import com.crm.product.service.ProductService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -11,6 +11,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/products")
@@ -21,47 +22,32 @@ public class ProductController {
     private final ProductService productService;
 
     @PostMapping
-    public ProductResponseDTO addProduct( @RequestBody ProductRequestDTO request) {
-        log.info("Received request to add product: {}", request);
-        return productService.addProduct(request);
+    public ProductResponseDTO create(@RequestBody ProductRequestDTO productRequestDTO) {
+        log.info("Received request to create product: {}", productRequestDTO);
+        return productService.create(productRequestDTO);
     }
 
     @GetMapping("/{id}")
-    public ProductResponseDTO getProductById(@PathVariable String id) {
-        log.info("Fetching product with ID: {}", id);
-        return productService.getByID(id);
+    public ProductResponseDTO getById(@PathVariable String id) {
+        log.info("Received request to get product by id: {}", id);
+        return productService.getById(id);
     }
 
     @GetMapping
-    public Page<ProductSearchResponseDTO> searchProducts(
-            SearchProductCriteria criteria,
-            Pageable pageable
-    ) {
-        log.info("Searching products with criteria: {}", criteria);
-        return productService.findAllWithCriteria(criteria, pageable);
-    }
-
-    @DeleteMapping("/{id}")
-    public void deleteProduct(@PathVariable String id) {
-        log.info("Deleting product with ID: {}", id);
-        productService.remove(id);
-    }
-
-    @GetMapping("/partner/{partnerId}")
-    public Page<ProductSearchResponseDTO> getByPartner(
-            @PathVariable String partnerId,
-            Pageable pageable
-    ) {
-        log.info("Fetching products for partner ID: {}", partnerId);
-        return productService.getByPartnerId(partnerId, pageable);
+    public Page<ProductResponseDTO> search(SearchProductCriteria criteria, Pageable pageable) {
+        log.info("Received request to search products with criteria: {}", criteria);
+        return productService.search(criteria, pageable);
     }
 
     @PutMapping("/{id}")
-    public ProductResponseDTO updateProduct(
-            @PathVariable String id,
-            @RequestBody ProductRequestDTO request
-    ) {
-        log.info("Updating product with ID: {} and payload: {}", id, request);
-        return productService.updateProduct(id, request);
+    public ProductResponseDTO update(@PathVariable String id, @RequestBody ProductUpdateRequestDTO dto) {
+        log.info("Received request to update product with id {}: {}", id, dto);
+        return productService.update(id, dto);
+    }
+
+    @DeleteMapping("/{id}")
+    public void delete(@PathVariable String id) {
+        log.info("Received request to delete product with id: {}", id);
+        productService.delete(id);
     }
 }

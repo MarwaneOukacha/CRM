@@ -23,32 +23,40 @@ public class MaterialController {
     @PostMapping
     public MaterialResponseDTO create(@RequestBody MaterialRequestDTO material) {
         log.info("Received request to create material: {}", material);
-        return materialService.create(material);
+        MaterialResponseDTO response = materialService.create(material);
+        log.info("Material created successfully: {}", response);
+        return response;
     }
 
     @PutMapping("/{id}")
     public MaterialUpdateResponseDTO update(@PathVariable String id,
                                             @RequestBody MaterialUpdateRequestDTO dto) {
         log.info("Received request to update material with id {}: {}", id, dto);
-        return materialService.update(id, dto);
+        MaterialUpdateResponseDTO response = materialService.update(id, dto);
+        log.info("Material updated successfully with id {}: {}", id, response);
+        return response;
     }
 
     @DeleteMapping("/{id}")
     public void delete(@PathVariable String id) {
         log.info("Received request to delete material with id: {}", id);
         materialService.delete(id);
+        log.info("Material deleted successfully with id: {}", id);
     }
 
     @GetMapping("/{id}")
     public MaterialResponseDTO getById(@PathVariable String id) {
         log.info("Fetching material by id: {}", id);
-        return materialService.findById(id);
+        MaterialResponseDTO response = materialService.findById(id);
+        log.info("Material fetched successfully by id {}: {}", id, response);
+        return response;
     }
 
     @GetMapping
     public Page<MaterialResponseDTO> search(SearchMaterialCriteria criteria, Pageable pageable) {
         log.info("Searching materials with criteria: {}", criteria);
-        return materialService.search(criteria, pageable);
+        Page<MaterialResponseDTO> response = materialService.search(criteria, pageable);
+        log.info("Found {} materials matching criteria", response.getTotalElements());
+        return response;
     }
 }
-

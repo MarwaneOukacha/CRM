@@ -22,27 +22,40 @@ public class CaratController {
 
     @PostMapping
     public CaratResponseDTO create(@RequestBody CaratRequestDTO dto) {
-        log.info("Creating carat: {}", dto);
-        return caratService.create(dto);
+        log.info("Received request to create Carat: {}", dto);
+        CaratResponseDTO response = caratService.create(dto);
+        log.info("Successfully created Carat with id: {}", response.getId());
+        return response;
     }
 
     @GetMapping("/{id}")
     public CaratResponseDTO getById(@PathVariable String id) {
-        return caratService.getById(id);
+        log.info("Fetching Carat with id: {}", id);
+        CaratResponseDTO response = caratService.getById(id);
+        log.info("Found Carat: {}", response);
+        return response;
     }
 
     @GetMapping
     public Page<CaratResponseDTO> search(SearchCaratCriteria criteria, Pageable pageable) {
-        return caratService.search(criteria, pageable);
+        log.info("Searching Carats with criteria: {}", criteria);
+        Page<CaratResponseDTO> results = caratService.search(criteria, pageable);
+        log.info("Found {} Carats matching criteria", results.getTotalElements());
+        return results;
     }
 
     @PutMapping("/{id}")
     public CaratUpdateResponseDTO update(@PathVariable String id, @RequestBody CaratUpdateRequestDTO dto) {
-        return caratService.update(id, dto);
+        log.info("Updating Carat with id {} using data: {}", id, dto);
+        CaratUpdateResponseDTO response = caratService.update(id, dto);
+        log.info("Successfully updated Carat with id: {}", id);
+        return response;
     }
 
     @DeleteMapping("/{id}")
     public void delete(@PathVariable String id) {
+        log.info("Deleting Carat with id: {}", id);
         caratService.delete(id);
+        log.info("Successfully deleted Carat with id: {}", id);
     }
 }

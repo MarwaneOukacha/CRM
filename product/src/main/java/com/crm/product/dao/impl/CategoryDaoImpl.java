@@ -4,7 +4,6 @@ import com.crm.product.dao.CategoryDao;
 import com.crm.product.entities.Category;
 import com.crm.product.entities.dto.SearchCategoryCriteria;
 import com.crm.product.entities.dto.request.CategoryUpdateRequestDTO;
-import com.crm.product.mapper.CategoryMapper;
 import com.crm.product.repository.CategoryRepository;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.persistence.criteria.Predicate;
@@ -26,22 +25,22 @@ public class CategoryDaoImpl implements CategoryDao {
 
     private final CategoryRepository categoryRepository;
 
-
-
     @Override
     public Category save(Category category) {
+        log.info("CategoryDaoImpl::save - Saving category: {}", category);
         return categoryRepository.save(category);
     }
 
     @Override
     public Category findById(UUID id) {
+        log.info("CategoryDaoImpl::findById - Finding category by id: {}", id);
         return categoryRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Category not found"));
     }
 
     @Override
     public Page<Category> findAllWithCriteria(SearchCategoryCriteria criteria, Pageable pageable) {
-        log.info("Searching categories with criteria: {}", criteria);
+        log.info("CategoryDaoImpl::findAllWithCriteria - Searching categories with criteria: {}", criteria);
 
         Specification<Category> specification = (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
@@ -58,24 +57,24 @@ public class CategoryDaoImpl implements CategoryDao {
                 predicates.add(cb.equal(cb.lower(root.get("parent")), criteria.getParent().toLowerCase()));
             }
 
-
             return cb.and(predicates.toArray(new Predicate[0]));
         };
 
         Page<Category> result = categoryRepository.findAll(specification, pageable);
-        log.debug("Found {} categories matching criteria", result.getTotalElements());
+        log.info("CategoryDaoImpl::findAllWithCriteria - Found {} categories", result.getTotalElements());
         return result;
     }
 
-
-
     @Override
     public void delete(UUID id) {
+        log.info("CategoryDaoImpl::delete - Deleting category with id: {}", id);
         categoryRepository.deleteById(id);
+        log.info("CategoryDaoImpl::delete - Successfully deleted category with id: {}", id);
     }
 
     @Override
     public Category updateCategory(String id, CategoryUpdateRequestDTO updatedDto) {
+        log.info("CategoryDaoImpl::updateCategory - Updating category with id: {}, data: {}", id, updatedDto);
         Category existing = findById(UUID.fromString(id));
         if(updatedDto.getName()!=null && !updatedDto.getName().isEmpty()){
             existing.setName(updatedDto.getName());
@@ -83,6 +82,8 @@ public class CategoryDaoImpl implements CategoryDao {
         if(updatedDto.getParent()!=null && !updatedDto.getParent().isEmpty()){
             existing.setParent(updatedDto.getParent());
         }
-        return categoryRepository.save(existing);
+        Category updated = categoryRepository.save(existing);
+        log.info("CategoryDaoImpl::updateCategory - Updated category with id: {}", updated.getId());
+        return updated;
     }
 }

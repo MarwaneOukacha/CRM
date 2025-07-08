@@ -1,11 +1,11 @@
 package com.crm.product.entities.dto.request;
 
+import com.crm.product.entities.dto.AbstractDTO;
 import lombok.Data;
 import lombok.ToString;
 
 @Data
 @ToString
-public class MaterialRequestDTO {
-    private String name;
-    private String status;
+public class MaterialRequestDTO extends AbstractDTO {
+
 }

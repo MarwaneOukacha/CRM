@@ -1,17 +1,19 @@
 package com.crm.product.entities;
 
 import com.crm.product.entities.model.AbstractEntity;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Table;
+import com.crm.product.enums.Status;
+import jakarta.persistence.*;
 import lombok.Data;
 
 @Entity
 @Table(name = "carat")
 @Data
+@AttributeOverride(name = "id", column = @Column(name = "carat_id"))
 public class Carat extends AbstractEntity {
 
     private String name;
-    private String status;
+    @Enumerated(EnumType.STRING)
+    private Status status;
 
 }
 

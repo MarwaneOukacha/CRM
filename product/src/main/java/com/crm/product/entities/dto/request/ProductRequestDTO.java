@@ -1,15 +1,19 @@
 package com.crm.product.entities.dto.request;
 
 import com.crm.product.entities.Category;
+import com.crm.product.entities.dto.response.MediaResponseDTO;
 import com.crm.product.enums.ProductStatus;
-import lombok.Data;
-import lombok.ToString;
+import lombok.*;
 
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 @ToString
+@Builder
 public class ProductRequestDTO {
     private String name;
     private String description;
@@ -22,9 +26,13 @@ public class ProductRequestDTO {
     private String caratId;
     private ProductStatus status;
     private String categoryId;
+    private List<String> occasionIds;
+    private List<String> materialIds;
+    private List<String> colorIds;
+    private List<String> designerIds;
     private String agencyId;
     private String type;
     private Double weight;
-    private String partnerId;
+    private UUID partnerId;
     private List<MediaRequestDTO> media;
 }

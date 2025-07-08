@@ -27,17 +27,21 @@ public class CaratDaoImpl implements CaratDao {
 
     @Override
     public Carat save(Carat carat) {
+        log.info("CaratDaoImpl::save - Saving carat: {}", carat);
         return caratRepository.save(carat);
     }
 
     @Override
     public Carat findById(UUID id) {
+        log.info("CaratDaoImpl::findById - Looking for carat with ID: {}", id);
         return caratRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Carat not found with id: " + id));
     }
 
     @Override
     public Page<Carat> findAllWithCriteria(SearchCaratCriteria criteria, Pageable pageable) {
+        log.info("CaratDaoImpl::findAllWithCriteria - Searching carats with criteria: {}", criteria);
+
         Specification<Carat> specification = (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
 
@@ -52,26 +56,33 @@ public class CaratDaoImpl implements CaratDao {
             return cb.and(predicates.toArray(new Predicate[0]));
         };
 
-        return caratRepository.findAll(specification, pageable);
+        Page<Carat> result = caratRepository.findAll(specification, pageable);
+        log.info("CaratDaoImpl::findAllWithCriteria - Found {} carats", result.getTotalElements());
+        return result;
     }
 
     @Override
     public void delete(UUID id) {
+        log.info("CaratDaoImpl::delete - Deleting carat with ID: {}", id);
         caratRepository.deleteById(id);
+        log.info("CaratDaoImpl::delete - Successfully deleted carat with ID: {}", id);
     }
 
     @Override
     public Carat updateCarat(String id, CaratUpdateRequestDTO updatedDto) {
+        log.info("CaratDaoImpl::updateCarat - Updating carat with ID: {}, Data: {}", id, updatedDto);
         Carat carat = findById(UUID.fromString(id));
 
         if (updatedDto.getName() != null && !updatedDto.getName().isEmpty()) {
             carat.setName(updatedDto.getName());
         }
 
-        if (updatedDto.getStatus() != null && !updatedDto.getStatus().isEmpty()) {
+        if (updatedDto.getStatus() != null ) {
             carat.setStatus(updatedDto.getStatus());
         }
 
-        return caratRepository.save(carat);
+        Carat updated = caratRepository.save(carat);
+        log.info("CaratDaoImpl::updateCarat - Successfully updated carat with ID: {}", updated.getId());
+        return updated;
     }
 }

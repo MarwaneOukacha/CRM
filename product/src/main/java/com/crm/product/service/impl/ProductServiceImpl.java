@@ -1,21 +1,23 @@
 package com.crm.product.service.impl;
 
+import com.crm.product.dao.CaratDao;
+import com.crm.product.dao.CategoryDao;
 import com.crm.product.dao.ProductDao;
-import com.crm.product.entities.Product;
-import com.crm.product.entities.dto.SearchProductCriteria;
+import com.crm.product.entities.*;
+import com.crm.product.entities.dto.*;
 import com.crm.product.entities.dto.request.ProductRequestDTO;
+import com.crm.product.entities.dto.request.ProductUpdateRequestDTO;
 import com.crm.product.entities.dto.response.ProductResponseDTO;
-import com.crm.product.entities.dto.response.ProductSearchResponseDTO;
 import com.crm.product.mapper.ProductMapper;
 import com.crm.product.service.ProductService;
-import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.util.UUID;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -24,68 +26,146 @@ public class ProductServiceImpl implements ProductService {
 
     private final ProductDao productDao;
     private final ProductMapper productMapper;
+    private final CategoryDao categoryDao;
+    private final CaratDao caratDao;
 
     @Override
-    public ProductResponseDTO addProduct(ProductRequestDTO dto) {
-        log.info("Adding product: {}", dto);
+    public ProductResponseDTO create(ProductRequestDTO dto) {
+        log.info("ProductServiceImpl::create - Creating product with data: {}", dto);
 
-        Product product = productMapper.toEntity(dto);
+        Product product = productMapper.fromRequestDto(dto);
 
-        // Set the back-reference in Media entities before saving
-        if (product.getMedia() != null) {
-            product.getMedia().forEach(media -> media.setProduct(product));
+        // === Fetch and map relations safely ===
+        List<ProductOccasion> occasions = productDao.findOccasionsByIds(
+                Optional.ofNullable(dto.getOccasionIds())
+                        .orElse(List.of())
+        );
+
+        List<ProductMaterial> materials = productDao.findMaterialsByIds(
+                Optional.ofNullable(dto.getMaterialIds()).orElse(List.of())
+        );
+
+        List<ProductColor> colors = productDao.findColorsByIds(
+                Optional.ofNullable(dto.getColorIds()).orElse(List.of())
+        );
+
+        List<ProductDesigner> designers = productDao.findDesignersByIds(
+                Optional.ofNullable(dto.getDesignerIds()).orElse(List.of())
+        );
+
+        // Set product to each child entity
+        occasions.forEach(o -> o.setProduct(product));
+        materials.forEach(m -> m.setProduct(product));
+        colors.forEach(c -> c.setProduct(product));
+        designers.forEach(d -> d.setProduct(product));
+
+        product.setProductOccasion(occasions);
+        product.setProductMaterials(materials);
+        product.setProductColors(colors);
+        product.setProductDesigners(designers);
+
+        // === Handle media ===
+        if (dto.getMedia() != null && !dto.getMedia().isEmpty()) {
+            List<Media> media = productMapper.fromMediaRequestDTOList(dto.getMedia(), product);
+            media.forEach(m -> m.setProduct(product));
+            product.setMedia(media);
         }
 
+        // === Save product ===
         Product savedProduct = productDao.save(product);
+        ProductResponseDTO responseDTO = productMapper.toResponseDto(savedProduct);
 
-        log.debug("Product saved with ID: {}", savedProduct.getId());
-        return productMapper.toResponseDTO(savedProduct);
+        log.info("ProductServiceImpl::create - Created product with ID: {}", responseDTO.getId());
+        return responseDTO;
     }
 
 
+
     @Override
-    public ProductResponseDTO getByID(String id) {
-        log.info("Getting product by ID: {}", id);
+    public ProductResponseDTO getById(String id) {
+        log.info("ProductServiceImpl::getById - Fetching product with ID: {}", id);
+
         Product product = productDao.findById(UUID.fromString(id));
-        if (product == null) {
-            log.warn("Product not found for ID: {}", id);
-            throw new EntityNotFoundException("Product not found");
-        }
-        return productMapper.toResponseDTO(product);
+        ProductResponseDTO responseDTO = productMapper.toResponseDto(product);
+
+        log.info("ProductServiceImpl::getById - Found product: {}", responseDTO);
+        return responseDTO;
     }
 
     @Override
-    public Page<ProductSearchResponseDTO> findAllWithCriteria(SearchProductCriteria criteria, Pageable pageable) {
-        log.info("Searching products with criteria: {}", criteria);
-        return productDao.findAllWithCriteria(criteria, pageable)
-                .map(productMapper::toSearchResponseDTO);
+    public Page<ProductResponseDTO> search(SearchProductCriteria criteria, Pageable pageable) {
+        log.info("ProductServiceImpl::search - Searching products with criteria: {}", criteria);
+
+        Page<Product> page = productDao.findAllWithCriteria(criteria, pageable);
+        Page<ProductResponseDTO> dtoPage = page.map(productMapper::toResponseDto);
+
+        log.info("ProductServiceImpl::search - Found {} products", dtoPage.getTotalElements());
+        return dtoPage;
     }
 
     @Override
-    public void remove(String id) {
-        log.info("Removing product with ID: {}", id);
+    public void delete(String id) {
+        log.info("ProductServiceImpl::delete - Deleting product with ID: {}", id);
+
         productDao.delete(UUID.fromString(id));
-        log.debug("Product removed with ID: {}", id);
+
+        log.info("ProductServiceImpl::delete - Deleted product with ID: {}", id);
     }
 
     @Override
-    public Page<ProductSearchResponseDTO> getByPartnerId(String partnerId, Pageable pageable) {
-        log.info("Getting products by partner ID: {}", partnerId);
-        return productDao.findByPartnerId(UUID.fromString(partnerId), pageable)
-                .map(productMapper::toSearchResponseDTO);
+    public ProductResponseDTO update(String id, ProductUpdateRequestDTO dto) {
+        log.info("ProductServiceImpl::update - Updating product with ID: {} and data: {}", id, dto);
+
+        Product existingProduct = productDao.findById(UUID.fromString(id));
+
+        // Update fields if they are not null (null checks to prevent overwriting)
+        if (dto.getName() != null) existingProduct.setName(dto.getName());
+        if (dto.getDescription() != null) existingProduct.setDescription(dto.getDescription());
+        if (dto.getPrice() != null) existingProduct.setPrice(dto.getPrice());
+        if (dto.getCode() != null) existingProduct.setCode(dto.getCode());
+        if (dto.getClicks() != null) existingProduct.setClicks(dto.getClicks());
+        if (dto.getFavorite() != null) existingProduct.setFavorite(dto.getFavorite());
+        if (dto.getCart() != null) existingProduct.setCart(dto.getCart());
+        if (dto.getSize() != null) existingProduct.setSize(dto.getSize());
+        if (dto.getCaratId() != null) {
+            // Assuming productDao or another service can fetch Carat entity by id
+            existingProduct.setCarat(caratDao.findById(dto.getCaratId()));
+        }
+        if (dto.getStatus() != null) existingProduct.setStatus(dto.getStatus());
+        if (dto.getCategoryId() != null) {
+            // Assuming you have a method to find Category by id
+            existingProduct.setCategory(categoryDao.findById(dto.getCategoryId()));
+        }
+        // Handle occasions, materials, colors, designers associations:
+        if (dto.getOccasionIds() != null) {
+            existingProduct.setProductOccasion(productDao.findOccasionsByIds(dto.getOccasionIds()));
+        }
+        if (dto.getMaterialIds() != null) {
+            existingProduct.setProductMaterials(productDao.findMaterialsByIds(dto.getMaterialIds()));
+        }
+        if (dto.getColorIds() != null) {
+            existingProduct.setProductColors(productDao.findColorsByIds(dto.getColorIds()));
+        }
+        if (dto.getDesignerIds() != null) {
+            existingProduct.setProductDesigners(productDao.findDesignersByIds(dto.getDesignerIds()));
+        }
+        if (dto.getAgencyId() != null) existingProduct.setAgencyId(dto.getAgencyId());
+        if (dto.getType() != null) existingProduct.setType(dto.getType());
+        if (dto.getWeight() != null) existingProduct.setWeight(dto.getWeight());
+        if (dto.getPartnerId() != null) existingProduct.setPartnerId(UUID.fromString(dto.getPartnerId()));
+
+        // Handle Media list
+        if (dto.getMedia() != null) {
+            existingProduct.getMedia().clear();
+            existingProduct.getMedia().addAll(productMapper.fromMediaRequestDTOList(dto.getMedia(), existingProduct));
+        }
+
+        Product updatedProduct = productDao.updateProduct(existingProduct.getId(), existingProduct);
+
+        ProductResponseDTO responseDTO = productMapper.toResponseDto(updatedProduct);
+
+        log.info("ProductServiceImpl::update - Updated product: {}", responseDTO);
+
+        return responseDTO;
     }
-
-    @Override
-    public ProductResponseDTO updateProduct(String id, ProductRequestDTO updatedDto) {
-        log.info("Updating product with ID: {}", id);
-
-        Product existingProduct = productDao.updateProduct(id, updatedDto);
-        log.info("Product updated successfully: {}", existingProduct);
-
-
-        return productMapper.toResponseDTO(existingProduct);
-    }
-
-
 }
-

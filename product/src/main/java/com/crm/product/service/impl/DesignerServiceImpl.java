@@ -27,30 +27,44 @@ public class DesignerServiceImpl implements DesignerService {
 
     @Override
     public DesignerResponseDTO create(DesignerRequestDTO dto) {
+        log.info("DesignerServiceImpl::create - Creating designer: {}", dto);
         Designer designer = designerDao.save(dto);
-        return designerMapper.toResponseDTO(designer);
+        DesignerResponseDTO response = designerMapper.toResponseDTO(designer);
+        log.info("DesignerServiceImpl::create - Created designer with id: {}", response.getId());
+        return response;
     }
 
     @Override
     public DesignerResponseDTO getById(String id) {
+        log.info("DesignerServiceImpl::getById - Fetching designer by id: {}", id);
         Designer designer = designerDao.findById(UUID.fromString(id));
-        return designerMapper.toResponseDTO(designer);
+        DesignerResponseDTO response = designerMapper.toResponseDTO(designer);
+        log.info("DesignerServiceImpl::getById - Found designer: {}", response);
+        return response;
     }
 
     @Override
     public Page<DesignerResponseDTO> search(SearchDesignerCriteria criteria, Pageable pageable) {
-        return designerDao.findAllWithCriteria(criteria, pageable)
+        log.info("DesignerServiceImpl::search - Searching designers with criteria: {}", criteria);
+        Page<DesignerResponseDTO> results = designerDao.findAllWithCriteria(criteria, pageable)
                 .map(designerMapper::toResponseDTO);
+        log.info("DesignerServiceImpl::search - Found {} designers", results.getTotalElements());
+        return results;
     }
 
     @Override
     public void delete(String id) {
+        log.info("DesignerServiceImpl::delete - Deleting designer with id: {}", id);
         designerDao.delete(UUID.fromString(id));
+        log.info("DesignerServiceImpl::delete - Deleted designer with id: {}", id);
     }
 
     @Override
     public DesignerUpdateResponseDTO update(String id, DesignerUpdateRequestDTO dto) {
+        log.info("DesignerServiceImpl::update - Updating designer with id: {}, data: {}", id, dto);
         Designer updated = designerDao.updateDesigner(id, dto);
-        return designerMapper.toUpdateResponseDTO(updated);
+        DesignerUpdateResponseDTO response = designerMapper.toUpdateResponseDTO(updated);
+        log.info("DesignerServiceImpl::update - Updated designer with id: {}", id);
+        return response;
     }
 }

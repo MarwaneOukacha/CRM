@@ -1,13 +1,15 @@
 package com.crm.product.entities;
 
 import com.crm.product.entities.model.AbstractEntity;
-import jakarta.persistence.Entity;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
+import lombok.Data;
+import lombok.ToString;
 
 @Entity
 @Table(name = "product_material")
+@AttributeOverride(name = "id", column = @Column(name = "product_material_id"))
+@Data
+@ToString
 public class ProductMaterial extends AbstractEntity {
 
     @ManyToOne

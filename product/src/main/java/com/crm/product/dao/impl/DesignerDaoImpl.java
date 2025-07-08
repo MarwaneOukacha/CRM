@@ -28,20 +28,27 @@ public class DesignerDaoImpl implements DesignerDao {
 
     @Override
     public Designer save(DesignerRequestDTO dto) {
+        log.info("DesignerDaoImpl::save - Saving new designer: {}", dto);
         Designer designer = new Designer();
         designer.setName(dto.getName());
         designer.setStatus(dto.getStatus());
-        return designerRepository.save(designer);
+        Designer saved = designerRepository.save(designer);
+        log.info("DesignerDaoImpl::save - Saved designer with id: {}", saved.getId());
+        return saved;
     }
 
     @Override
     public Designer findById(UUID id) {
-        return designerRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Designer not found"));
+        log.info("DesignerDaoImpl::findById - Finding designer by id: {}", id);
+        Designer found = designerRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Designer not found with id: " + id));
+        log.info("DesignerDaoImpl::findById - Found designer: {}", found);
+        return found;
     }
 
     @Override
     public Page<Designer> findAllWithCriteria(SearchDesignerCriteria criteria, Pageable pageable) {
+        log.info("DesignerDaoImpl::findAllWithCriteria - Searching designers with criteria: {}", criteria);
         Specification<Designer> specification = (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
 
@@ -56,26 +63,33 @@ public class DesignerDaoImpl implements DesignerDao {
             return cb.and(predicates.toArray(new Predicate[0]));
         };
 
-        return designerRepository.findAll(specification, pageable);
+        Page<Designer> result = designerRepository.findAll(specification, pageable);
+        log.info("DesignerDaoImpl::findAllWithCriteria - Found {} designers", result.getTotalElements());
+        return result;
     }
 
     @Override
     public void delete(UUID id) {
+        log.info("DesignerDaoImpl::delete - Deleting designer with id: {}", id);
         designerRepository.deleteById(id);
+        log.info("DesignerDaoImpl::delete - Deleted designer with id: {}", id);
     }
 
     @Override
     public Designer updateDesigner(String id, DesignerUpdateRequestDTO updatedDto) {
+        log.info("DesignerDaoImpl::updateDesigner - Updating designer with id: {}, data: {}", id, updatedDto);
         Designer designer = findById(UUID.fromString(id));
 
         if (updatedDto.getName() != null && !updatedDto.getName().isEmpty()) {
             designer.setName(updatedDto.getName());
         }
 
-        if (updatedDto.getStatus() != null && !updatedDto.getStatus().isEmpty()) {
+        if (updatedDto.getStatus() != null) {
             designer.setStatus(updatedDto.getStatus());
         }
 
-        return designerRepository.save(designer);
+        Designer updated = designerRepository.save(designer);
+        log.info("DesignerDaoImpl::updateDesigner - Updated designer with id: {}", updated.getId());
+        return updated;
     }
 }

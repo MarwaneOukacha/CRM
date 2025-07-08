@@ -1,12 +1,12 @@
 package com.crm.product.entities.dto.request;
 
+import com.crm.product.entities.dto.AbstractDTO;
 import lombok.Data;
 import lombok.ToString;
 
 @Data
 @ToString
-    public class CaratUpdateRequestDTO {
-        private String name;
-        private String status;
+    public class CaratUpdateRequestDTO extends AbstractDTO {
+
     }
 

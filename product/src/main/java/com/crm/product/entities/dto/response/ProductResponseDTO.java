@@ -3,15 +3,16 @@ package com.crm.product.entities.dto.response;
 import com.crm.product.entities.Media;
 import com.crm.product.entities.dto.request.MediaRequestDTO;
 import com.crm.product.enums.ProductStatus;
-import lombok.Data;
-import lombok.ToString;
+import lombok.*;
 
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
 @Data
-@ToString
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class ProductResponseDTO {
     private UUID id;
     private String name;
@@ -22,12 +23,16 @@ public class ProductResponseDTO {
     private int favorite;
     private int cart;
     private double size;
-    private String caratId;
+    private UUID caratId;
     private ProductStatus status;
-    private String categoryId;
+    private UUID categoryId;
+    private List<OccasionResponseDTO> occasionIds;
+    private List<MaterialResponseDTO> materialIds;
+    private List<ColorResponseDTO> colorIds;
+    private List<DesignerResponseDTO> designerIds;
     private String agencyId;
     private String type;
     private Double weight;
-    private String partnerId;
-    private List<MediaRequestDTO> media;
+    private UUID partnerId;
+    private List<MediaResponseDTO> media;
 }

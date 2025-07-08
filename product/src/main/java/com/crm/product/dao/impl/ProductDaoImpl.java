@@ -1,227 +1,205 @@
 package com.crm.product.dao.impl;
 
 import com.crm.product.dao.ProductDao;
-import com.crm.product.entities.Media;
-import com.crm.product.entities.Product;
+import com.crm.product.entities.*;
 import com.crm.product.entities.dto.SearchProductCriteria;
-import com.crm.product.entities.dto.request.MediaRequestDTO;
-import com.crm.product.entities.dto.request.ProductRequestDTO;
-import com.crm.product.repository.ProductRepository;
+import com.crm.product.repository.*;
 import jakarta.persistence.EntityNotFoundException;
-import lombok.ToString;
+import jakarta.persistence.criteria.Predicate;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
-
-
-import jakarta.persistence.criteria.Predicate;
-import lombok.RequiredArgsConstructor;
-import org.springframework.data.jpa.domain.Specification;
-
 
 @Service
 @RequiredArgsConstructor
-@ToString
 @Slf4j
 public class ProductDaoImpl implements ProductDao {
 
     private final ProductRepository productRepository;
+    private final DesignerRepository designerRepository;
+    private final ColorRepository colorRepository;
+    private final MaterialRepository materialRepository;
+    private final OccasionRepository occasionRepository;
 
     @Override
     public Product save(Product product) {
-        log.info("Saving product: {}", product);
-        Product save = productRepository.save(product);
-        log.debug("Product saved successfully with ID: {}", product.getId());
-        return save;
+        log.info("ProductDaoImpl::save - Saving product: {}", product);
+        Product saved = productRepository.save(product);
+        log.info("ProductDaoImpl::save - Saved product with id: {}", saved.getId());
+        return saved;
     }
 
     @Override
     public Product findById(UUID id) {
-        log.info("Finding product by ID: {}", id);
-        return productRepository.findById(id)
-                .map(product -> {
-                    log.debug("Product found: {}", product);
-                    return product;
-                })
-                .orElseGet(() -> {
-                    log.warn("No product found with ID: {}", id);
-                    return null;
-                });
+        log.info("ProductDaoImpl::findById - Finding product by id: {}", id);
+        Product product = productRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Product not found with id: " + id));
+        log.info("ProductDaoImpl::findById - Found product: {}", product);
+        return product;
     }
 
     @Override
     public Page<Product> findAllWithCriteria(SearchProductCriteria criteria, Pageable pageable) {
-        log.info("Searching products with criteria: {}", criteria);
-
+        log.info("ProductDaoImpl::findAllWithCriteria - Searching products with criteria: {}", criteria);
         Specification<Product> specification = (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
 
             if (criteria.getKeyword() != null && !criteria.getKeyword().isEmpty()) {
-                String keyword = "%" + criteria.getKeyword().toLowerCase() + "%";
-                predicates.add(cb.or(
-                        cb.like(cb.lower(root.get("name")), keyword),
-                        cb.like(cb.lower(root.get("description")), keyword),
-                        cb.like(cb.lower(root.get("material")), keyword)
-                ));
-            }
-
-            if (criteria.getCategory() != null) {
-                predicates.add(cb.equal(root.get("category"), criteria.getCategory()));
+                String kw = "%" + criteria.getKeyword().toLowerCase() + "%";
+                Predicate namePredicate = cb.like(cb.lower(root.get("name")), kw);
+                Predicate descPredicate = cb.like(cb.lower(root.get("description")), kw);
+                predicates.add(cb.or(namePredicate, descPredicate));
             }
 
             if (criteria.getStatus() != null) {
                 predicates.add(cb.equal(root.get("status"), criteria.getStatus()));
             }
 
+            if (criteria.getCategory() != null) {
+                predicates.add(cb.equal(root.get("category"), criteria.getCategory()));
+            }
+
+            if (criteria.getMaterial() != null && !criteria.getMaterial().isEmpty()) {
+                // Assuming productMaterials join exists and material name is matched
+                predicates.add(cb.equal(root.join("productMaterials").get("material").get("name"), criteria.getMaterial()));
+            }
+
             if (criteria.getMinPrice() != null) {
-                predicates.add(cb.greaterThanOrEqualTo(root.get("price"), criteria.getMinPrice()));
+                predicates.add(cb.ge(root.get("price"), criteria.getMinPrice()));
             }
 
             if (criteria.getMaxPrice() != null) {
-                predicates.add(cb.lessThanOrEqualTo(root.get("price"), criteria.getMaxPrice()));
+                predicates.add(cb.le(root.get("price"), criteria.getMaxPrice()));
             }
 
             return cb.and(predicates.toArray(new Predicate[0]));
         };
 
         Page<Product> result = productRepository.findAll(specification, pageable);
-        log.debug("Found {} products matching criteria", result.getTotalElements());
+        log.info("ProductDaoImpl::findAllWithCriteria - Found {} products", result.getTotalElements());
         return result;
     }
 
     @Override
     public void delete(UUID id) {
-        log.info("Deleting product by ID: {}", id);
+        log.info("ProductDaoImpl::delete - Deleting product with id: {}", id);
         productRepository.deleteById(id);
-        log.debug("Product with ID {} deleted", id);
+        log.info("ProductDaoImpl::delete - Deleted product with id: {}", id);
     }
 
     @Override
-    public Page<Product> findByPartnerId(UUID partnerId, Pageable pageable) {
-        log.info("Finding products by partner ID: {}", partnerId);
-        Page<Product> result = productRepository.findByPartnerId(partnerId, pageable);
-        log.debug("Found {} products for partner ID {}", result.getTotalElements(), partnerId);
-        return result;
+    public Product updateProduct(UUID id, Product updatedProduct) {
+        log.info("ProductDaoImpl::updateProduct - Updating product with id: {}", id);
+        Product existing = findById(id);
+
+        // Update fields only if not null to avoid overwriting existing values with null
+        if (updatedProduct.getName() != null) existing.setName(updatedProduct.getName());
+        if (updatedProduct.getDescription() != null) existing.setDescription(updatedProduct.getDescription());
+        if (updatedProduct.getPrice() != null) existing.setPrice(updatedProduct.getPrice());
+        if (updatedProduct.getCode() != null) existing.setCode(updatedProduct.getCode());
+        if (updatedProduct.getClicks() != 0) existing.setClicks(updatedProduct.getClicks());
+        if (updatedProduct.getFavorite() != 0) existing.setFavorite(updatedProduct.getFavorite());
+        if (updatedProduct.getCart() != 0) existing.setCart(updatedProduct.getCart());
+        if (updatedProduct.getSize() != 0) existing.setSize(updatedProduct.getSize());
+        if (updatedProduct.getCarat() != null) existing.setCarat(updatedProduct.getCarat());
+        if (updatedProduct.getStatus() != null) existing.setStatus(updatedProduct.getStatus());
+        if (updatedProduct.getCategory() != null) existing.setCategory(updatedProduct.getCategory());
+        if (updatedProduct.getAgencyId() != null) existing.setAgencyId(updatedProduct.getAgencyId());
+        if (updatedProduct.getType() != null) existing.setType(updatedProduct.getType());
+        if (updatedProduct.getWeight() != null) existing.setWeight(updatedProduct.getWeight());
+        if (updatedProduct.getPartnerId() != null) existing.setPartnerId(updatedProduct.getPartnerId());
+
+        // Collections (productOccasion, productMaterials, productColors, productDesigners, media)
+        // should be handled separately in service layer if complex logic is needed
+
+        Product saved = productRepository.save(existing);
+        log.info("ProductDaoImpl::updateProduct - Updated product with id: {}", saved.getId());
+        return saved;
     }
 
     @Override
-    public Product updateProduct(String id, ProductRequestDTO updatedDto) {
-        return null;
+    public List<ProductDesigner> findDesignersByIds(List<String> ids) {
+        if (ids == null || ids.isEmpty()) return List.of();
+
+        List<UUID> uuidList = ids.stream()
+                .map(UUID::fromString)
+                .collect(Collectors.toList());
+
+        List<Designer> designers = designerRepository.findAllById(uuidList);
+        return designers.stream()
+                .map(designer -> {
+                    ProductDesigner pd = new ProductDesigner();
+                    pd.setDesigner(designer);
+                    return pd;
+                })
+                .collect(Collectors.toList());
     }
 
-    //@Override
-//    public Product updateProduct(String id, ProductRequestDTO updatedDto) {
-//        UUID uuid;
-//        try {
-//            uuid = UUID.fromString(id);
-//        } catch (IllegalArgumentException e) {
-//            log.error("Invalid UUID format: {}", id);
-//            throw new IllegalArgumentException("Invalid product ID format");
-//        }
-//
-//        Product existingProduct = productRepository.findById(uuid)
-//                .orElseThrow(() -> {
-//                    log.warn("Product not found with ID: {}", id);
-//                    return new EntityNotFoundException("Product not found with ID: " + id);
-//                });
-//
-//        // Update fields only if not null (or not blank for strings)
-//        if (updatedDto.getName() != null && !updatedDto.getName().isBlank()) {
-//            log.debug("Updating name: '{}' -> '{}'", existingProduct.getName(), updatedDto.getName());
-//            existingProduct.setName(updatedDto.getName());
-//        } else {
-//            log.debug("Skipping update of name");
-//        }
-//
-//        if (updatedDto.getDescription() != null && !updatedDto.getDescription().isBlank()) {
-//            log.debug("Updating description: '{}' -> '{}'", existingProduct.getDescription(), updatedDto.getDescription());
-//            existingProduct.setDescription(updatedDto.getDescription());
-//        } else {
-//            log.debug("Skipping update of description");
-//        }
-//
-//        if (updatedDto.getMaterial() != null && !updatedDto.getMaterial().isBlank()) {
-//            log.debug("Updating material: '{}' -> '{}'", existingProduct.getMaterial(), updatedDto.getMaterial());
-//            existingProduct.setMaterial(updatedDto.getMaterial());
-//        } else {
-//            log.debug("Skipping update of material");
-//        }
-//
-//        if (updatedDto.getPrice() != null) {
-//            log.debug("Updating price: '{}' -> '{}'", existingProduct.getPrice(), updatedDto.getPrice());
-//            existingProduct.setPrice(updatedDto.getPrice());
-//        } else {
-//            log.debug("Skipping update of price");
-//        }
-//
-//        if (updatedDto.getCategory() != null) {
-//            log.debug("Updating category: '{}' -> '{}'", existingProduct.getCategory(), updatedDto.getCategory());
-//            existingProduct.setCategory(updatedDto.getCategory());
-//        } else {
-//            log.debug("Skipping update of category");
-//        }
-//
-//        if (updatedDto.getStatus() != null) {
-//            log.debug("Updating status: '{}' -> '{}'", existingProduct.getStatus(), updatedDto.getStatus());
-//            existingProduct.setStatus(updatedDto.getStatus());
-//        } else {
-//            log.debug("Skipping update of status");
-//        }
-//
-//        if (updatedDto.getStockQuantity() != null) {
-//            log.debug("Updating stockQuantity: '{}' -> '{}'", existingProduct.getStockQuantity(), updatedDto.getStockQuantity());
-//            existingProduct.setStockQuantity(updatedDto.getStockQuantity());
-//        } else {
-//            log.debug("Skipping update of stockQuantity");
-//        }
-//
-//        if (updatedDto.getPartnerId() != null &&
-//                (existingProduct.getPartnerId() == null ||
-//                        !existingProduct.getPartnerId().toString().equals(updatedDto.getPartnerId()))) {
-//            log.warn("Changing partnerId is not allowed: {}", updatedDto.getPartnerId());
-//            throw new IllegalStateException("Changing partner ID is not allowed");
-//        } else {
-//            log.debug("PartnerId remains unchanged: '{}'", existingProduct.getPartnerId());
-//        }
-//
-//        // Update characteristics map
-//        if (updatedDto.getCharacteristics() != null) {
-//            Map<String, String> existingCharacteristics = existingProduct.getCharacteristics();
-//            updatedDto.getCharacteristics().forEach((key, value) -> {
-//                log.debug("Updating characteristic '{}' : '{}'", key, value);
-//                existingCharacteristics.put(key, value);
-//            });
-//        } else {
-//            log.debug("Skipping update of characteristics");
-//        }
-//
-//        // Update media
-//        if (updatedDto.getMedia() != null) {
-//            List<Media> updatedMedia = updatedDto.getMedia().stream().map(mediaDto -> {
-//                Media media = new Media();
-//                media.setUrl(mediaDto.getUrl());
-//                media.setType(mediaDto.getType());
-//                media.setName(mediaDto.getName());
-//                media.setProduct(existingProduct);
-//                return media;
-//            }).collect(Collectors.toList());
-//
-//            log.debug("Replacing media list with {} items", updatedMedia.size());
-//            existingProduct.setMedia(updatedMedia);
-//        } else {
-//            log.debug("Skipping update of media");
-//        }
-//
-//        Product savedProduct = productRepository.save(existingProduct);
-//        log.info("Product updated successfully: {}", savedProduct);
-//        return savedProduct;
-//    }
+
+    @Override
+    public List<ProductColor> findColorsByIds(List<String> ids) {
+        if (ids == null || ids.isEmpty()) return List.of();
+
+        List<UUID> uuidList = ids.stream()
+                .map(UUID::fromString)
+                .collect(Collectors.toList());
+
+        List<Color> colors = colorRepository.findAllById(uuidList);
+        return colors.stream()
+                .map(color -> {
+                    ProductColor pc = new ProductColor();
+                    pc.setColor(color);
+                    // product will be set by caller
+                    return pc;
+                })
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<ProductMaterial> findMaterialsByIds(List<String> ids) {
+        if (ids == null || ids.isEmpty()) return List.of();
+
+        List<UUID> uuidList = ids.stream()
+                .map(UUID::fromString)
+                .collect(Collectors.toList());
+
+        List<Material> materials = materialRepository.findAllById(uuidList);
+        return materials.stream()
+                .map(material -> {
+                    ProductMaterial pm = new ProductMaterial();
+                    pm.setMaterial(material);
+                    // product will be set by caller
+                    return pm;
+                })
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<ProductOccasion> findOccasionsByIds(List<String> ids) {
+        if (ids == null || ids.isEmpty()) return List.of();
+
+        List<UUID> uuidList = ids.stream()
+                .map(UUID::fromString)
+                .collect(Collectors.toList());
+
+        List<Occasion> occasions = occasionRepository.findAllById(uuidList);
+        return occasions.stream()
+                .map(occasion -> {
+                    ProductOccasion po = new ProductOccasion();
+                    po.setOccasion(occasion);
+                    // product will be set by caller
+                    return po;
+                })
+                .collect(Collectors.toList());
+    }
 
 
 }
-
-

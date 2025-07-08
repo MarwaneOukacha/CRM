@@ -27,7 +27,7 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     public CategoryResponseDTO create(CategoryAddRequestDTO dto) {
-        log.info("Creating new category: {}", dto);
+        log.info("CategoryServiceImpl::create - Creating new category: {}", dto);
         Category category = categoryMapper.fromAddDto(dto);
         Category save = categoryDao.save(category);
         return categoryMapper.toResponseDto(category);
@@ -35,7 +35,7 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     public CategoryUpdateResponseDTO update(String id, CategoryUpdateRequestDTO dto) {
-        log.info("Updating category with id: {}", id);
+        log.info("CategoryServiceImpl::update - Updating category with id: {}", id);
         Category category = categoryDao.findById(UUID.fromString(id));
 
         if (dto.getName() != null && !dto.getName().isEmpty()) {
@@ -47,28 +47,28 @@ public class CategoryServiceImpl implements CategoryService {
         }
 
         Category updated = categoryDao.save(category);
+        log.info("CategoryServiceImpl::update - Updated category with id: {}", updated.getId());
 
         return categoryMapper.toCategoryUpdateResponseDTO(updated);
     }
 
-
-
     @Override
     public void delete(String id) {
-        log.info("Deleting category with id: {}", id);
+        log.info("CategoryServiceImpl::delete - Deleting category with id: {}", id);
         categoryDao.delete(UUID.fromString(id));
+        log.info("CategoryServiceImpl::delete - Deleted category with id: {}", id);
     }
 
     @Override
     public CategoryResponseDTO getById(String id) {
-        log.info("Fetching category with id: {}", id);
+        log.info("CategoryServiceImpl::getById - Fetching category with id: {}", id);
         Category category = categoryDao.findById(UUID.fromString(id));
         return categoryMapper.toResponseDto(category);
     }
 
     @Override
     public Page<CategoryResponseDTO> search(SearchCategoryCriteria criteria, Pageable pageable) {
-        log.info("Searching categories with criteria: {}", criteria);
+        log.info("CategoryServiceImpl::search - Searching categories with criteria: {}", criteria);
         return categoryDao.findAllWithCriteria(criteria, pageable)
                 .map(categoryMapper::toResponseDto);
     }
