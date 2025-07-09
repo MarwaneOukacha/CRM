@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { PencilLine, Trash, Plus } from "lucide-react";
 import Modal from "react-modal";
 import categoryService from "../services/categoryService";
+import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
 
 Modal.setAppElement("#root");
 
@@ -191,26 +192,35 @@ const Category = () => {
         </tbody>
       </table>
 
-      {/* Pagination */}
-      <div className="mt-4 flex justify-between items-center text-sm text-gray-700 dark:text-gray-300">
-        <button
-          onClick={() => goToPage(pageInfo.page - 1)}
-          disabled={pageInfo.page === 0}
-          className="px-3 py-1 rounded border border-gray-300 disabled:opacity-50"
-        >
-          Previous
-        </button>
-        <span>
-          Page {pageInfo.page + 1} of {Math.ceil(pageInfo.totalElements / pageInfo.size) || 1}
-        </span>
-        <button
-          onClick={() => goToPage(pageInfo.page + 1)}
-          disabled={(pageInfo.page + 1) * pageInfo.size >= pageInfo.totalElements}
-          className="px-3 py-1 rounded border border-gray-300 disabled:opacity-50"
-        >
-          Next
-        </button>
-      </div>
+     {/* Pagination Controls */}
+<div className="flex justify-center items-center mt-6 space-x-4">
+  <button
+    onClick={() => fetch(pageInfo.page - 1, pageInfo.size, searchName)}
+    disabled={pageInfo.page === 0}
+    className={`p-2 rounded-full ${
+      pageInfo.page === 0
+        ? "text-gray-400 cursor-not-allowed"
+        : "text-gray-700 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-700"
+    }`}
+  >
+    <FaChevronLeft size={20} />
+  </button>
+  <span className="text-gray-800 dark:text-gray-200 text-sm">
+    Page {pageInfo.page + 1} of {Math.ceil(pageInfo.totalElements / pageInfo.size)}
+  </span>
+  <button
+    onClick={() => fetchCategories(pageInfo.page + 1, pageInfo.size, searchName)}
+    disabled={(pageInfo.page + 1) * pageInfo.size >= pageInfo.totalElements}
+    className={`p-2 rounded-full ${
+      (pageInfo.page + 1) * pageInfo.size >= pageInfo.totalElements
+        ? "text-gray-400 cursor-not-allowed"
+        : "text-gray-700 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-700"
+    }`}
+  >
+    <FaChevronRight size={20} />
+  </button>
+</div>
+
 
       {/* Add Modal */}
       <Modal

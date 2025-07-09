@@ -18,6 +18,7 @@ import Occasions from "./components/Occasions";
 import Carats from "./components/Carats";
 import Products from "./components/Products";
 import ProductDetail from "./components/ProductDetail";
+import AddProduct from "./components/AddProduct";
 
 function App() {
     const router = createBrowserRouter([
@@ -78,6 +79,10 @@ function App() {
                     path: "products/:id",
                     element: <ProductDetail/>,
                 },
+                {
+                    path: "products/add",
+                    element: <AddProduct/>,
+                }
                 
             ],
         },

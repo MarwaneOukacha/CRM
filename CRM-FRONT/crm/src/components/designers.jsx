@@ -4,6 +4,7 @@ import Modal from "react-modal";
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
 import designerService from "../services/designerService";
+import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
 
 Modal.setAppElement("#root");
 
@@ -14,12 +15,13 @@ const Designers = () => {
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [selectedDesigner, setSelectedDesigner] = useState(null);
   const [searchName, setSearchName] = useState("");
-
-  const fetchDesigners = async (keyword = "") => {
+const [pageInfo, setPageInfo] = useState({ page: 0, size: 10, totalElements: 0 });
+  const fetchDesigners = async (page = 0, size = 10, keyword = "") => {
     try {
       const criteria = {};
       if (keyword.trim()) criteria.keyword = keyword.trim();
-      const response = await designerService.search(criteria, 0, 100);
+      const pageable = { page, size }
+      const response = await designerService.search(criteria, pageable);
       setDesigners(response.content);
     } catch (error) {
       console.error("Failed to fetch designers:", error);
@@ -197,7 +199,34 @@ const Designers = () => {
           ))}
         </tbody>
       </table>
-
+           {/* Pagination Controls */}
+      <div className="flex justify-center items-center mt-6 space-x-4">
+        <button
+          onClick={() => fetchDesigners(pageInfo.page - 1, pageInfo.size, searchName)}
+          disabled={pageInfo.page === 0}
+          className={`p-2 rounded-full ${
+            pageInfo.page === 0
+              ? "text-gray-400 cursor-not-allowed"
+              : "text-gray-700 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-700"
+          }`}
+        >
+          <FaChevronLeft size={20} />
+        </button>
+        <span className="text-gray-800 dark:text-gray-200 text-sm">
+          Page {pageInfo.page + 1} of {Math.ceil(pageInfo.totalElements / pageInfo.size)}
+        </span>
+        <button
+          onClick={() => fetch(pageInfo.page + 1, pageInfo.size, searchName)}
+          disabled={(pageInfo.page + 1) * pageInfo.size >= pageInfo.totalElements}
+          className={`p-2 rounded-full ${
+            (pageInfo.page + 1) * pageInfo.size >= pageInfo.totalElements
+              ? "text-gray-400 cursor-not-allowed"
+              : "text-gray-700 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-700"
+          }`}
+        >
+          <FaChevronRight size={20} />
+        </button>
+      </div>
       {/* Add Modal */}
       <Modal
         isOpen={addOpen}

@@ -5,6 +5,7 @@ import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
 import axiosInstance from "../utils/axiosInstance";
 import occasionService from "../services/occasionService";
+import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
 
 Modal.setAppElement("#root");
 
@@ -56,7 +57,7 @@ const Occasions = () => {
   
 
   useEffect(() => {
-    fetchOccasions();
+    fetch(0, pageInfo.size, "");
   }, []);
 
   const exportToExcel = () => {
@@ -195,6 +196,34 @@ const Occasions = () => {
           ))}
         </tbody>
       </table>
+      {/* Pagination Controls */}
+<div className="flex justify-center items-center mt-6 space-x-4">
+  <button
+    onClick={() => fetch(pageInfo.page - 1, pageInfo.size, searchName)}
+    disabled={pageInfo.page === 0}
+    className={`p-2 rounded-full ${
+      pageInfo.page === 0
+        ? "text-gray-400 cursor-not-allowed"
+        : "text-gray-700 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-700"
+    }`}
+  >
+    <FaChevronLeft size={20} />
+  </button>
+  <span className="text-gray-800 dark:text-gray-200 text-sm">
+    Page {pageInfo.page + 1} of {Math.ceil(pageInfo.totalElements / pageInfo.size)}
+  </span>
+  <button
+    onClick={() => fetch(pageInfo.page + 1, pageInfo.size, searchName)}
+    disabled={(pageInfo.page + 1) * pageInfo.size >= pageInfo.totalElements}
+    className={`p-2 rounded-full ${
+      (pageInfo.page + 1) * pageInfo.size >= pageInfo.totalElements
+        ? "text-gray-400 cursor-not-allowed"
+        : "text-gray-700 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-700"
+    }`}
+  >
+    <FaChevronRight size={20} />
+  </button>
+</div>
 
       {/* Add/Edit/Delete Modals */}
       <Modal

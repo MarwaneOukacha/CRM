@@ -4,6 +4,8 @@ import Modal from "react-modal";
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
 import axiosInstance from "../utils/axiosInstance";
+import { createMaterial, deleteMaterial, searchMaterials, updateMaterial } from "../services/materialService";
+import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
 
 Modal.setAppElement("#root");
 
@@ -13,6 +15,8 @@ const Materials = () => {
   const [addOpen, setAddOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [selectedMaterial, setSelectedMaterial] = useState(null);
+  const [searchName, setSearchName] = useState("");
+  const [pageInfo, setPageInfo] = useState({ page: 0, size: 10, totalElements: 0 });
 
   const fetchMaterials = async () => {
     try {
@@ -26,7 +30,7 @@ const Materials = () => {
   };
 
   useEffect(() => {
-    fetchMaterials();
+    fetch();
   }, []);
 
   const exportToExcel = () => {
@@ -57,7 +61,7 @@ const Materials = () => {
   const saveAdd = async (e) => {
     e.preventDefault();
     try {
-      await axiosInstance.post("/materials", selectedMaterial);
+      await createMaterial(selectedMaterial);
       fetchMaterials();
       setAddOpen(false);
     } catch (error) {
@@ -78,7 +82,7 @@ const Materials = () => {
   const saveEdit = async (e) => {
     e.preventDefault();
     try {
-      await axiosInstance.put(`/materials/${selectedMaterial.id}`, selectedMaterial);
+      await updateMaterial(selectedMaterial.id, selectedMaterial);
       fetchMaterials();
       setEditOpen(false);
     } catch (error) {
@@ -93,13 +97,38 @@ const Materials = () => {
 
   const confirmDelete = async () => {
     try {
-      await axiosInstance.delete(`/materials/${selectedMaterial.id}`);
+      await deleteMaterial(selectedMaterial.id);
       fetchMaterials();
       setDeleteOpen(false);
     } catch (error) {
       console.error("Failed to delete material:", error);
     }
   };
+
+  const fetch = async (page = 0, size = 10, keyword = "") => {
+      try {
+        const criteria = {};
+        if (keyword.trim()) criteria.keyword = keyword.trim();
+  
+        const pageable = { page, size };
+        const response = await searchMaterials(criteria, pageable);
+        setMaterials(response.content);
+        setPageInfo({
+          page: response.data.number,
+          size: response.data.size,
+          totalElements: response.data.totalElements,
+        });
+      } catch (error) {
+        console.error("Failed to fetch materials:", error);
+      }
+    };
+
+    const handleSearchSubmit = (e) => {
+    e.preventDefault();
+    fetch(0, 10,searchName);
+  };
+
+  
 
   return (
     <div className="p-6 max-w-7xl mx-auto">
@@ -125,7 +154,21 @@ const Materials = () => {
           </button>
         </div>
       </div>
-
+      <form onSubmit={handleSearchSubmit} className="mb-4 flex gap-2">
+        <input
+          type="text"
+          placeholder="Search by name..."
+          value={searchName}
+          onChange={(e) => setSearchName(e.target.value)}
+          className="w-64 px-3 py-2 border rounded-md dark:bg-gray-800 dark:border-gray-700 dark:text-white"
+        />
+        <button
+          type="submit"
+          className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-md"
+        >
+          Search
+        </button>
+      </form>
       <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
         <thead className="bg-gray-50 dark:bg-gray-800">
           <tr>
@@ -179,6 +222,34 @@ const Materials = () => {
           ))}
         </tbody>
       </table>
+      {/* Pagination Controls */}
+<div className="flex justify-center items-center mt-6 space-x-4">
+  <button
+    onClick={() => fetch(pageInfo.page - 1, pageInfo.size, searchName)}
+    disabled={pageInfo.page === 0}
+    className={`p-2 rounded-full ${
+      pageInfo.page === 0
+        ? "text-gray-400 cursor-not-allowed"
+        : "text-gray-700 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-700"
+    }`}
+  >
+    <FaChevronLeft size={20} />
+  </button>
+  <span className="text-gray-800 dark:text-gray-200 text-sm">
+    Page {pageInfo.page + 1} of {Math.ceil(pageInfo.totalElements / pageInfo.size)}
+  </span>
+  <button
+    onClick={() => fetch(pageInfo.page + 1, pageInfo.size, searchName)}
+    disabled={(pageInfo.page + 1) * pageInfo.size >= pageInfo.totalElements}
+    className={`p-2 rounded-full ${
+      (pageInfo.page + 1) * pageInfo.size >= pageInfo.totalElements
+        ? "text-gray-400 cursor-not-allowed"
+        : "text-gray-700 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-700"
+    }`}
+  >
+    <FaChevronRight size={20} />
+  </button>
+</div>
 
       {/* Add Modal */}
       <Modal

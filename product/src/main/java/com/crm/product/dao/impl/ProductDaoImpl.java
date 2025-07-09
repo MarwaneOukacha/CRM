@@ -176,8 +176,8 @@ public class ProductDaoImpl implements ProductDao {
         return materials.stream()
                 .map(material -> {
                     ProductMaterial pm = new ProductMaterial();
-                    pm.setMaterial(material); // ✅ Set material
-                    return pm;                // product will be set by caller
+                    pm.setMaterial(material);
+                    return pm;                
                 })
                 .collect(Collectors.toList());
     }

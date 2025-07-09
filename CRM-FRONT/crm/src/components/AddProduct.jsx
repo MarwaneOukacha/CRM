@@ -1,9 +1,9 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { useParams, useNavigate } from "react-router-dom"; 
+import { useNavigate } from "react-router-dom"; 
 import { ArrowLeft, Save, Upload, Image as ImageIcon, PlusCircle, Trash2 } from 'lucide-react';
 
 // --- SERVICE IMPORTS ---
-// The component now relies on these services being correctly configured in your project.
+// The component relies on these services being correctly configured in your project.
 import productService from '../services/productService';
 import categoryService from '../services/categoryService';
 import caratService from '../services/caratService';
@@ -11,7 +11,6 @@ import { searchMaterials } from '../services/materialService';
 import designerService from '../services/designerService';
 import occasionService from '../services/occasionService';
 import colorService from '../services/colorService';
-
 
 // --- Helper Components ---
 const Notification = ({ message, type, onDismiss }) => {
@@ -24,7 +23,6 @@ const Notification = ({ message, type, onDismiss }) => {
   }, [onDismiss]);
   return <div className={`${baseClasses} ${typeClasses[type]}`}>{message}</div>;
 };
-
 
 // --- Reusable Form Components ---
 const FormInput = ({ id, label, ...props }) => (
@@ -54,7 +52,7 @@ const DynamicMultiSelect = ({ title, items, availableOptions, onAdd, onRemove, o
                         className="flex-grow p-2 rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-1 focus:ring-blue-500"
                     >
                         <option value="" disabled>Select {title.slice(0, -1)}...</option>
-                        {availableOptions.map(opt => <option key={opt.id} value={opt.id}>{opt.name}</option>)}
+                        {availableOptions?.map(opt => <option key={opt.id} value={opt.id}>{opt.name}</option>)}
                     </select>
                     <button type="button" onClick={() => onRemove(index)} className="text-red-500 hover:text-red-700 dark:hover:text-red-400 p-2 rounded-full hover:bg-red-100 dark:hover:bg-red-900/50 transition-colors" aria-label={`Remove ${title.slice(0, -1)}`}>
                         <Trash2 size={16} />
@@ -68,34 +66,44 @@ const DynamicMultiSelect = ({ title, items, availableOptions, onAdd, onRemove, o
     </div>
 );
 
+// --- Initial State for a New Product ---
+const initialProductState = {
+    name: '',
+    description: '',
+    price: '',
+    code: '',
+    size: '',
+    weight: '',
+    status: 'FOR_SALE',
+    categoryId: '',
+    caratId: '',
+    occasionIds: [],
+    materialIds: [],
+    colorIds: [],
+    designerIds: [],
+    media: []
+};
 
 // --- Main Component ---
-const ProductDetail = () => {
-    const { id } = useParams();
+const AddProduct = () => {
     const navigate = useNavigate();
 
-    const [product, setProduct] = useState(null);
+    const [product, setProduct] = useState(initialProductState);
     const [options, setOptions] = useState({ categories: [], carats: [], materials: [], colors: [], designers: [], occasions: [] });
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
     const [error, setError] = useState(null);
     const [notification, setNotification] = useState({ message: '', type: '' });
-    const [activeImage, setActiveImage] = useState(0);
+    
+    // Note: No activeImage state needed for a new product initially
 
-    // Fetch all necessary data on component mount
+    // Fetch all lookup data for dropdowns on component mount
     useEffect(() => {
-        const fetchAllData = async () => {
-            if (!id) {
-                setError("No product ID provided.");
-                setLoading(false);
-                return;
-            }
+        const fetchLookupData = async () => {
             setLoading(true);
             setError(null);
             try {
-                // Concurrently fetch the product and all lookup/option data
-                const [productRes, catRes, caratRes, matRes, colorRes, desRes, occRes] = await Promise.all([
-                    productService.getById(id),
+                const [catRes, caratRes, matRes, colorRes, desRes, occRes] = await Promise.all([
                     categoryService.search(),
                     caratService.search(),
                     searchMaterials(),
@@ -103,16 +111,7 @@ const ProductDetail = () => {
                     designerService.search(),
                     occasionService.search(),
                 ]);
-                console.log(productRes)
-                console.log(catRes)
-                console.log(caratRes)
-                console.log(matRes)
-                console.log(colorRes)
-                console.log(desRes)
-                console.log(occRes)
-                
 
-                setProduct(productRes.data);
                 setOptions({
                     categories: catRes.data.content,
                     carats: caratRes.data.content,
@@ -121,16 +120,15 @@ const ProductDetail = () => {
                     designers: desRes.content,
                     occasions: occRes.data.content,
                 });
-                setActiveImage(0);
             } catch (err) {
-                setError("Failed to load product details and options.");
+                setError("Failed to load options for creating a product.");
                 console.error("Fetch Error:", err);
             } finally {
                 setLoading(false);
             }
         };
-        fetchAllData();
-    }, [id]);
+        fetchLookupData();
+    }, []);
 
     const showNotification = (message, type) => {
         setNotification({ message, type });
@@ -141,7 +139,7 @@ const ProductDetail = () => {
         const { name, value } = e.target;
         setProduct((prev) => ({
             ...prev,
-            [name]: name === "price" || name === "weight" || name === "size" ? parseFloat(value) || 0 : value,
+            [name]: name === "price" || name === "weight" || name === "size" ? parseFloat(value) || '' : value,
         }));
     }, []);
 
@@ -171,26 +169,24 @@ const ProductDetail = () => {
         });
     }, []);
 
-    // Save product changes
-    const saveProduct = async () => {
+    // Create new product
+    const addProduct = async () => {
         setSaving(true);
         try {
-            // Create the Data Transfer Object (DTO) for the update request.
-            // This ensures only the IDs are sent for the related entities,
-            // which is a common API design pattern.
-            const updateDTO = {
+            const createDTO = {
               ...product,
               occasionIds: product.occasionIds.map(o => o.id),
               materialIds: product.materialIds.map(m => m.id),
               colorIds: product.colorIds.map(c => c.id),
               designerIds: product.designerIds.map(d => d.id),
             };
-            await productService.update(id, updateDTO);
-            showNotification('Product saved successfully!', 'success');
-            setTimeout(() => navigate(-1), 1500);
+            console.log(createDTO);
+            await productService.create(createDTO);
+            showNotification('Product created successfully!', 'success');
+            setTimeout(() => navigate('/products'), 1500); // Navigate to product list after success
         } catch (err) {
-            showNotification('Failed to save product.', 'error');
-            console.error("Save Error:", err);
+            showNotification('Failed to create product.', 'error');
+            console.error("Create Error:", err);
         } finally {
             setSaving(false);
         }
@@ -199,9 +195,6 @@ const ProductDetail = () => {
     // Render states
     if (loading) return <div className="flex items-center justify-center h-screen bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-200"><div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-blue-500"></div></div>;
     if (error) return <div className="p-8 text-center text-red-600 dark:text-red-400 bg-red-50 dark:bg-gray-800 rounded-lg shadow-md max-w-md mx-auto mt-10">{error}</div>;
-    if (!product) return <div className="p-8 text-center text-gray-600 dark:text-gray-400">Product not found.</div>;
-
-    const productImages = product.media ? product.media.filter(m => m.type === 'IMAGE') : [];
 
     return (
         <div className="bg-gray-100 dark:bg-gray-900 min-h-screen font-sans text-gray-800 dark:text-gray-200">
@@ -212,48 +205,24 @@ const ProductDetail = () => {
                         <button onClick={() => navigate(-1)} className="flex items-center text-sm font-semibold text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 transition-colors">
                             <ArrowLeft size={16} className="mr-2" /> Back to Products
                         </button>
-                        <h1 className="text-3xl font-bold mt-1 text-gray-900 dark:text-gray-50">Edit Product</h1>
+                        <h1 className="text-3xl font-bold mt-1 text-gray-900 dark:text-gray-50">Add New Product</h1>
                     </div>
-                    <button onClick={saveProduct} disabled={saving || loading} className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-lg font-semibold shadow-md hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed">
-                        <Save size={18} /> {saving ? "Saving..." : "Save Changes"}
+                    <button onClick={addProduct} disabled={saving || loading} className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-lg font-semibold shadow-md hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed">
+                        <Save size={18} /> {saving ? "Saving..." : "Save Product"}
                     </button>
                 </header>
 
-                <form onSubmit={(e) => { e.preventDefault(); saveProduct(); }} className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <form onSubmit={(e) => { e.preventDefault(); addProduct(); }} className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                     {/* Left Column: Images */}
                     <div className="lg:col-span-1 space-y-6">
                          <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-md">
                             <h3 className="text-lg font-semibold mb-4 text-gray-800 dark:text-gray-100">Product Images</h3>
-                            {productImages.length > 0 ? (
-                                <div>
-                                    <div className="aspect-square w-full bg-gray-100 dark:bg-gray-700 rounded-lg mb-4 overflow-hidden">
-                                       <img 
-                                            src={productImages[activeImage]?.url} 
-                                            alt={productImages[activeImage]?.name} 
-                                            className="w-full h-full object-cover"
-                                            onError={(e) => { e.target.onerror = null; e.target.src='https://placehold.co/600x600/fecaca/b91c1c?text=Image+Error'; }}
-                                        />
-                                    </div>
-                                    {productImages.length > 1 && (
-                                        <div className="grid grid-cols-4 gap-2">
-                                            {productImages.map((img, index) => (
-                                                <button key={img.id} type="button" onClick={() => setActiveImage(index)} className={`aspect-square rounded-md overflow-hidden ring-2 transition ${activeImage === index ? 'ring-blue-500' : 'ring-transparent hover:ring-blue-400'}`}>
-                                                    <img 
-                                                        src={img.url} 
-                                                        alt={`Thumbnail ${index + 1}`} 
-                                                        className="w-full h-full object-cover"
-                                                        onError={(e) => { e.target.onerror = null; e.target.src='https://placehold.co/100x100/fecaca/b91c1c?text=Error'; }}
-                                                    />
-                                                </button>
-                                            ))}
-                                        </div>
-                                    )}
-                                </div>
-                            ) : (
-                                <div className="aspect-square w-full flex items-center justify-center bg-gray-100 dark:bg-gray-700 rounded-lg text-gray-400 dark:text-gray-500"><ImageIcon size={48} /></div>
-                            )}
+                            {/* Placeholder for image uploads */}
+                            <div className="aspect-square w-full flex items-center justify-center bg-gray-100 dark:bg-gray-700 rounded-lg text-gray-400 dark:text-gray-500">
+                                <ImageIcon size={48} />
+                            </div>
                             <button type="button" className="w-full mt-4 flex items-center justify-center gap-2 text-sm text-blue-600 dark:text-blue-400 font-semibold bg-blue-50 dark:bg-blue-900/50 hover:bg-blue-100 dark:hover:bg-blue-900/75 p-2 rounded-md transition">
-                                <Upload size={16} /> Upload New Image
+                                <Upload size={16} /> Upload Images
                             </button>
                          </div>
                     </div>
@@ -263,14 +232,14 @@ const ProductDetail = () => {
                         <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-md">
                             <h3 className="text-lg font-semibold mb-4 text-gray-800 dark:text-gray-100">Core Information</h3>
                             <div className="space-y-4">
-                                <FormInput id="name" name="name" label="Product Name" value={product.name} onChange={handleChange} type="text" required />
+                                <FormInput id="name" name="name" label="Product Name" value={product.name} onChange={handleChange} type="text" required placeholder="e.g., Elegant Diamond Ring" />
                                 <div>
                                     <label htmlFor="description" className="block text-sm font-medium text-gray-600 dark:text-gray-300 mb-1">Description</label>
-                                    <textarea id="description" name="description" value={product.description || ''} onChange={handleChange} rows={5} className="w-full p-2.5 rounded-md border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition" />
+                                    <textarea id="description" name="description" value={product.description} onChange={handleChange} rows={5} className="w-full p-2.5 rounded-md border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition" placeholder="Describe the product..."/>
                                 </div>
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    <FormInput id="code" name="code" label="Product Code (SKU)" value={product.code} onChange={handleChange} type="text" />
-                                    <FormInput id="price" name="price" label="Price ($)" value={product.price} onChange={handleChange} type="number" step="0.01" min="0" />
+                                    <FormInput id="code" name="code" label="Product Code (SKU)" value={product.code} onChange={handleChange} type="text" placeholder="e.g., RNG-DMD-001" />
+                                    <FormInput id="price" name="price" label="Price ($)" value={product.price} onChange={handleChange} type="number" step="0.01" min="0" placeholder="e.g., 1499.99" />
                                 </div>
                             </div>
                         </div>
@@ -283,16 +252,16 @@ const ProductDetail = () => {
                                     <option value="OUT_OF_STOCK">Out of Stock</option>
                                     <option value="DISCONTINUED">Discontinued</option>
                                 </FormSelect>
-                                <FormSelect id="categoryId" name="categoryId" label="Category" value={product.categoryId || ''} onChange={handleChange}>
+                                <FormSelect id="categoryId" name="categoryId" label="Category" value={product.categoryId} onChange={handleChange}>
                                     <option value="">Select category...</option>
-                                    {options.categories.map(opt => <option key={opt.id} value={opt.id}>{opt.name}</option>)}
+                                    {options.categories?.map(opt => <option key={opt.id} value={opt.id}>{opt.name}</option>)}
                                 </FormSelect>
-                                <FormSelect id="caratId" name="caratId" label="Carat" value={product.caratId || ''} onChange={handleChange}>
+                                <FormSelect id="caratId" name="caratId" label="Carat" value={product.caratId} onChange={handleChange}>
                                     <option value="">Select carat...</option>
-                                    {options.carats.map(opt => <option key={opt.id} value={opt.id}>{opt.name}</option>)}
+                                    {options.carats?.map(opt => <option key={opt.id} value={opt.id}>{opt.name}</option>)}
                                 </FormSelect>
-                                <FormInput id="size" name="size" label="Size" value={product.size || ''} onChange={handleChange} type="number" step="0.1" min="0" />
-                                <FormInput id="weight" name="weight" label="Weight (g)" value={product.weight || ''} onChange={handleChange} type="number" step="0.1" min="0" />
+                                <FormInput id="size" name="size" label="Size" value={product.size} onChange={handleChange} type="number" step="0.1" min="0" placeholder="e.g., 6.5" />
+                                <FormInput id="weight" name="weight" label="Weight (g)" value={product.weight} onChange={handleChange} type="number" step="0.1" min="0" placeholder="e.g., 4.1" />
                             </div>
                         </div>
                         
@@ -343,4 +312,4 @@ const ProductDetail = () => {
     );
 };
 
-export default ProductDetail;
+export default AddProduct;
