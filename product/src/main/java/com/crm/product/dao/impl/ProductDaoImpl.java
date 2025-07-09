@@ -177,7 +177,7 @@ public class ProductDaoImpl implements ProductDao {
                 .map(material -> {
                     ProductMaterial pm = new ProductMaterial();
                     pm.setMaterial(material);
-                    return pm;                
+                    return pm;
                 })
                 .collect(Collectors.toList());
     }

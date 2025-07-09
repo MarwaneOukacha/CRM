@@ -16,4 +16,18 @@ axiosInstance.interceptors.response.use(
   }
 );
 
+export const uploadToServer = async (file) => {
+    const formData = new FormData();
+    formData.append("file", file);
+
+    const res = await axiosInstance.post('/upload', formData, {
+        headers: {
+        'Content-Type': 'multipart/form-data',
+        },
+    });
+
+    return res.data.url; // Your backend must return this
+    };
+export const backendBaseUrl = "http://localhost:8080/download";
+
 export default axiosInstance;

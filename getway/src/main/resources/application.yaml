@@ -30,7 +30,7 @@ spring:
             - id: product-service
               uri: lb://product-service
               predicates:
-                - Path=/products/** ,/categories/**, /carat/** ,/daily-sales/** ,/colors/** ,/designers/** , /materials/** ,/occasions/** ,
+                - Path=/products/** ,/categories/**, /carat/** ,/daily-sales/** ,/colors/** ,/designers/** , /materials/** ,/occasions/** , /upload, /download/**,
 
             - id: partner-service
               uri: lb://partner-service

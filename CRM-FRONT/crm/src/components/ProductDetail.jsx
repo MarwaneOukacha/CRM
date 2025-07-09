@@ -1,6 +1,7 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useParams, useNavigate } from "react-router-dom"; 
 import { ArrowLeft, Save, Upload, Image as ImageIcon, PlusCircle, Trash2 } from 'lucide-react';
+import imageProd from "../assets/121.jpg"
 
 // --- SERVICE IMPORTS ---
 // The component now relies on these services being correctly configured in your project.
@@ -11,6 +12,7 @@ import { searchMaterials } from '../services/materialService';
 import designerService from '../services/designerService';
 import occasionService from '../services/occasionService';
 import colorService from '../services/colorService';
+import { backendBaseUrl, uploadToServer } from '../utils/axiosInstance';
 
 
 // --- Helper Components ---
@@ -81,9 +83,39 @@ const ProductDetail = () => {
     const [error, setError] = useState(null);
     const [notification, setNotification] = useState({ message: '', type: '' });
     const [activeImage, setActiveImage] = useState(0);
+    const fileInputRef = useRef(null);
+
+    const [imagefile,setImagefile]=useState(null);
+    const [previewImage, setPreviewImage] = useState(null);
+
+     const handleFileChange = (event) => {
+    const file = event.target.files[0];
+    if (file) {
+        setImagefile(file);
+        const reader = new FileReader();
+        reader.onloadend = () => {
+        setPreviewImage(reader.result);
+        };
+        reader.readAsDataURL(file);
+
+        // You can later add logic to actually upload to backend or add to product.media
+        setProduct(prev => ({
+      ...prev,
+      media: [
+        ...prev.media,
+        {
+          name: file.name,
+          type: "image"
+        },
+      ],
+    }));
+
+    }
+    };
 
     // Fetch all necessary data on component mount
     useEffect(() => {
+      
         const fetchAllData = async () => {
             if (!id) {
                 setError("No product ID provided.");
@@ -103,13 +135,6 @@ const ProductDetail = () => {
                     designerService.search(),
                     occasionService.search(),
                 ]);
-                console.log(productRes)
-                console.log(catRes)
-                console.log(caratRes)
-                console.log(matRes)
-                console.log(colorRes)
-                console.log(desRes)
-                console.log(occRes)
                 
 
                 setProduct(productRes.data);
@@ -130,6 +155,7 @@ const ProductDetail = () => {
             }
         };
         fetchAllData();
+        
     }, [id]);
 
     const showNotification = (message, type) => {
@@ -175,16 +201,25 @@ const ProductDetail = () => {
     const saveProduct = async () => {
         setSaving(true);
         try {
-            // Create the Data Transfer Object (DTO) for the update request.
-            // This ensures only the IDs are sent for the related entities,
-            // which is a common API design pattern.
-            const updateDTO = {
-              ...product,
-              occasionIds: product.occasionIds.map(o => o.id),
-              materialIds: product.materialIds.map(m => m.id),
-              colorIds: product.colorIds.map(c => c.id),
-              designerIds: product.designerIds.map(d => d.id),
-            };
+            let media = [];
+
+        if (imagefile) {
+        const uploadedUrl = await uploadToServer(imagefile); // await here!
+        media.push({
+            name: imagefile.name,
+            type: imagefile.type,
+            url: uploadedUrl, // this is what goes to productService.create
+        });
+        }
+
+        const updateDTO = {
+        ...product,
+        media,
+        occasionIds: product.occasionIds.map(o => o.id),
+        materialIds: product.materialIds.map(m => m.id),
+        colorIds: product.colorIds.map(c => c.id),
+        designerIds: product.designerIds.map(d => d.id),
+        };
             await productService.update(id, updateDTO);
             showNotification('Product saved successfully!', 'success');
             setTimeout(() => navigate(-1), 1500);
@@ -201,8 +236,13 @@ const ProductDetail = () => {
     if (error) return <div className="p-8 text-center text-red-600 dark:text-red-400 bg-red-50 dark:bg-gray-800 rounded-lg shadow-md max-w-md mx-auto mt-10">{error}</div>;
     if (!product) return <div className="p-8 text-center text-gray-600 dark:text-gray-400">Product not found.</div>;
 
-    const productImages = product.media ? product.media.filter(m => m.type === 'IMAGE') : [];
-
+    const productImages = product.media ? product.media.filter(m => m.type === 'image/jpeg') : [];
+    console.log(backendBaseUrl+"/"+productImages[activeImage].name)
+    const triggerFileInput = () => {
+    if (fileInputRef.current) {
+        fileInputRef.current.click();
+    }
+};
     return (
         <div className="bg-gray-100 dark:bg-gray-900 min-h-screen font-sans text-gray-800 dark:text-gray-200">
             <Notification message={notification.message} type={notification.type} onDismiss={() => setNotification({ message: '', type: '' })} />
@@ -227,34 +267,36 @@ const ProductDetail = () => {
                             {productImages.length > 0 ? (
                                 <div>
                                     <div className="aspect-square w-full bg-gray-100 dark:bg-gray-700 rounded-lg mb-4 overflow-hidden">
-                                       <img 
-                                            src={productImages[activeImage]?.url} 
-                                            alt={productImages[activeImage]?.name} 
-                                            className="w-full h-full object-cover"
-                                            onError={(e) => { e.target.onerror = null; e.target.src='https://placehold.co/600x600/fecaca/b91c1c?text=Image+Error'; }}
-                                        />
-                                    </div>
-                                    {productImages.length > 1 && (
-                                        <div className="grid grid-cols-4 gap-2">
-                                            {productImages.map((img, index) => (
-                                                <button key={img.id} type="button" onClick={() => setActiveImage(index)} className={`aspect-square rounded-md overflow-hidden ring-2 transition ${activeImage === index ? 'ring-blue-500' : 'ring-transparent hover:ring-blue-400'}`}>
-                                                    <img 
-                                                        src={img.url} 
-                                                        alt={`Thumbnail ${index + 1}`} 
-                                                        className="w-full h-full object-cover"
-                                                        onError={(e) => { e.target.onerror = null; e.target.src='https://placehold.co/100x100/fecaca/b91c1c?text=Error'; }}
-                                                    />
-                                                </button>
-                                            ))}
-                                        </div>
-                                    )}
+                                    <img 
+                                      src={`${backendBaseUrl}/${productImages[activeImage].name}`} 
+                                      alt={productImages[activeImage]?.name || "Product Image"} 
+                                      className="w-full h-full object-cover"
+                                      onError={(e) => { 
+                                          e.target.onerror = null; 
+                                          e.target.src='https://placehold.co/600x600/fecaca/b91c1c?text=Image+Error'; 
+                                      }}
+                                    />
+                                  </div>
+                                    
                                 </div>
                             ) : (
                                 <div className="aspect-square w-full flex items-center justify-center bg-gray-100 dark:bg-gray-700 rounded-lg text-gray-400 dark:text-gray-500"><ImageIcon size={48} /></div>
                             )}
-                            <button type="button" className="w-full mt-4 flex items-center justify-center gap-2 text-sm text-blue-600 dark:text-blue-400 font-semibold bg-blue-50 dark:bg-blue-900/50 hover:bg-blue-100 dark:hover:bg-blue-900/75 p-2 rounded-md transition">
-                                <Upload size={16} /> Upload New Image
-                            </button>
+                            <input
+                                                            type="file"
+                                                            accept="image/*"
+                                                            ref={fileInputRef}
+                                                            onChange={handleFileChange}
+                                                            className="hidden"
+                                                        />
+                                                        <button
+                                                            type="button"
+                                                            onClick={triggerFileInput}
+                                                            className="w-full mt-4 flex items-center justify-center gap-2 text-sm text-blue-600 dark:text-blue-400 font-semibold bg-blue-50 dark:bg-blue-900/50 hover:bg-blue-100 dark:hover:bg-blue-900/75 p-2 rounded-md transition"
+                                                        >
+                                                            <Upload size={16} /> Upload Image
+                                                        </button>
+                            
                          </div>
                     </div>
 

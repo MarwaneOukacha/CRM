@@ -12,6 +12,7 @@ import com.crm.product.mapper.ProductMapper;
 import com.crm.product.service.ProductService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -28,6 +29,9 @@ public class ProductServiceImpl implements ProductService {
     private final ProductMapper productMapper;
     private final CategoryDao categoryDao;
     private final CaratDao caratDao;
+    @Value("${app.file-url}")
+    private String uploadDir;
+
 
     @Override
     public ProductResponseDTO create(ProductRequestDTO dto) {
@@ -67,7 +71,10 @@ public class ProductServiceImpl implements ProductService {
         // === Handle media ===
         if (dto.getMedia() != null && !dto.getMedia().isEmpty()) {
             List<Media> media = productMapper.fromMediaRequestDTOList(dto.getMedia(), product);
-            media.forEach(m -> m.setProduct(product));
+            media.forEach(m -> {
+                m.setProduct(product);
+                m.setUrl(uploadDir+m.getName());
+            });
             product.setMedia(media);
         }
 

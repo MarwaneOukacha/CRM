@@ -31,3 +31,6 @@ eureka:
     fetch-registry: true
     service-url:
       defaultZone: http://localhost:8761/eureka
+
+app:
+  fileUrl: C:\Users\Paylo\Desktop\crm-pic\

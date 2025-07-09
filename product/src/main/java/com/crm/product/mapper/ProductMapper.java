@@ -130,7 +130,6 @@ public interface ProductMapper {
                     Media media = new Media();
                     media.setName(dto.getName());
                     media.setType(dto.getType());
-                    media.setUrl(dto.getUrl());
                     media.setProduct(product);
                     return media;
                 })

@@ -1,6 +1,7 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate } from "react-router-dom"; 
 import { ArrowLeft, Save, Upload, Image as ImageIcon, PlusCircle, Trash2 } from 'lucide-react';
+import image from "../assets/121.jpg"
 
 // --- SERVICE IMPORTS ---
 // The component relies on these services being correctly configured in your project.
@@ -11,6 +12,8 @@ import { searchMaterials } from '../services/materialService';
 import designerService from '../services/designerService';
 import occasionService from '../services/occasionService';
 import colorService from '../services/colorService';
+import axios from 'axios';
+import axiosInstance, { uploadToServer } from '../utils/axiosInstance';
 
 // --- Helper Components ---
 const Notification = ({ message, type, onDismiss }) => {
@@ -94,7 +97,9 @@ const AddProduct = () => {
     const [saving, setSaving] = useState(false);
     const [error, setError] = useState(null);
     const [notification, setNotification] = useState({ message: '', type: '' });
-    
+    const fileInputRef = useRef(null);
+    const [imagefile,setImagefile]=useState(null);
+    const [previewImage, setPreviewImage] = useState(null);
     // Note: No activeImage state needed for a new product initially
 
     // Fetch all lookup data for dropdowns on component mount
@@ -171,31 +176,77 @@ const AddProduct = () => {
 
     // Create new product
     const addProduct = async () => {
-        setSaving(true);
-        try {
-            const createDTO = {
-              ...product,
-              occasionIds: product.occasionIds.map(o => o.id),
-              materialIds: product.materialIds.map(m => m.id),
-              colorIds: product.colorIds.map(c => c.id),
-              designerIds: product.designerIds.map(d => d.id),
-            };
-            console.log(createDTO);
-            await productService.create(createDTO);
-            showNotification('Product created successfully!', 'success');
-            setTimeout(() => navigate('/products'), 1500); // Navigate to product list after success
-        } catch (err) {
-            showNotification('Failed to create product.', 'error');
-            console.error("Create Error:", err);
-        } finally {
-            setSaving(false);
+    setSaving(true);
+    try {
+        let media = [];
+
+        if (imagefile) {
+        const uploadedUrl = await uploadToServer(imagefile); // await here!
+        media.push({
+            name: imagefile.name,
+            type: imagefile.type,
+            url: uploadedUrl, // this is what goes to productService.create
+        });
         }
+
+        const createDTO = {
+        ...product,
+        media,
+        occasionIds: product.occasionIds.map(o => o.id),
+        materialIds: product.materialIds.map(m => m.id),
+        colorIds: product.colorIds.map(c => c.id),
+        designerIds: product.designerIds.map(d => d.id),
+        };
+
+        await productService.create(createDTO);
+        showNotification('Product created successfully!', 'success');
+        setTimeout(() => navigate('/products'), 1500);
+    } catch (err) {
+        showNotification('Failed to create product.', 'error');
+        console.error("Create Error:", err);
+    } finally {
+        setSaving(false);
+    }
     };
+
+
     
     // Render states
     if (loading) return <div className="flex items-center justify-center h-screen bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-200"><div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-blue-500"></div></div>;
     if (error) return <div className="p-8 text-center text-red-600 dark:text-red-400 bg-red-50 dark:bg-gray-800 rounded-lg shadow-md max-w-md mx-auto mt-10">{error}</div>;
+    
+    
 
+    const handleFileChange = (event) => {
+    const file = event.target.files[0];
+    if (file) {
+        setImagefile(file);
+        const reader = new FileReader();
+        reader.onloadend = () => {
+        setPreviewImage(reader.result);
+        };
+        reader.readAsDataURL(file);
+
+        // You can later add logic to actually upload to backend or add to product.media
+        setProduct(prev => ({
+      ...prev,
+      media: [
+        ...prev.media,
+        {
+          name: file.name,
+          type: "image"
+        },
+      ],
+    }));
+
+    }
+    };
+
+    const triggerFileInput = () => {
+    if (fileInputRef.current) {
+        fileInputRef.current.click();
+    }
+};
     return (
         <div className="bg-gray-100 dark:bg-gray-900 min-h-screen font-sans text-gray-800 dark:text-gray-200">
             <Notification message={notification.message} type={notification.type} onDismiss={() => setNotification({ message: '', type: '' })} />
@@ -218,11 +269,27 @@ const AddProduct = () => {
                          <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-md">
                             <h3 className="text-lg font-semibold mb-4 text-gray-800 dark:text-gray-100">Product Images</h3>
                             {/* Placeholder for image uploads */}
-                            <div className="aspect-square w-full flex items-center justify-center bg-gray-100 dark:bg-gray-700 rounded-lg text-gray-400 dark:text-gray-500">
-                                <ImageIcon size={48} />
+                            <div className="aspect-square w-full flex items-center justify-center bg-gray-100 dark:bg-gray-700 rounded-lg overflow-hidden">
+                            {previewImage ? (
+                                <img src={previewImage} alt="Preview" className="object-cover w-full h-full" />
+                            ) : (
+                                <ImageIcon size={48} className="text-gray-400 dark:text-gray-500" />
+                            )}
                             </div>
-                            <button type="button" className="w-full mt-4 flex items-center justify-center gap-2 text-sm text-blue-600 dark:text-blue-400 font-semibold bg-blue-50 dark:bg-blue-900/50 hover:bg-blue-100 dark:hover:bg-blue-900/75 p-2 rounded-md transition">
-                                <Upload size={16} /> Upload Images
+
+                            <input
+                                type="file"
+                                accept="image/*"
+                                ref={fileInputRef}
+                                onChange={handleFileChange}
+                                className="hidden"
+                            />
+                            <button
+                                type="button"
+                                onClick={triggerFileInput}
+                                className="w-full mt-4 flex items-center justify-center gap-2 text-sm text-blue-600 dark:text-blue-400 font-semibold bg-blue-50 dark:bg-blue-900/50 hover:bg-blue-100 dark:hover:bg-blue-900/75 p-2 rounded-md transition"
+                            >
+                                <Upload size={16} /> Upload Image
                             </button>
                          </div>
                     </div>
