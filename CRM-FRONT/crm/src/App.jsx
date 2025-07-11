@@ -19,6 +19,7 @@ import Carats from "./components/Carats";
 import Products from "./components/Products";
 import ProductDetail from "./components/ProductDetail";
 import AddProduct from "./components/AddProduct";
+import Partners from "./components/Partners";
 
 function App() {
     const router = createBrowserRouter([
@@ -82,6 +83,10 @@ function App() {
                 {
                     path: "products/add",
                     element: <AddProduct/>,
+                },
+                {
+                    path: "users",
+                    element: <Partners/>,
                 }
                 
             ],

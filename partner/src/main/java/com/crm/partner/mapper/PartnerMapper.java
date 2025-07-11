@@ -20,9 +20,7 @@ public interface PartnerMapper {
     Partner toEntity(PartnerRegisterRequestDTO dto);
 
     // From Partner entity to PartnerRegisterResponseDTO
-    @Mapping(source = "partnerId", target = "partnerId")
     @Mapping(source = "status", target = "status")
-    @Mapping(source = "createdAt", target = "createdAt")
     PartnerRegisterResponseDTO toRegisterResponseDTO(Partner partner);
 
     // From Partner entity to PartnerProfileResponseDTO

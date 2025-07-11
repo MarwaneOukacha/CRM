@@ -3,6 +3,7 @@ package com.crm.product.entities.dto.response;
 import com.crm.product.entities.Media;
 import com.crm.product.entities.dto.request.MediaRequestDTO;
 import com.crm.product.enums.ProductStatus;
+import com.crm.product.enums.Status;
 import lombok.*;
 
 import java.util.List;

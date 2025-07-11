@@ -1,6 +1,7 @@
 package com.crm.product.entities.dto.request;
 
 import com.crm.product.enums.ProductStatus;
+import com.crm.product.enums.Status;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

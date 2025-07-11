@@ -1,12 +1,9 @@
 package com.crm.product.entities.dto.request;
 
-import com.crm.product.entities.Category;
-import com.crm.product.entities.dto.response.MediaResponseDTO;
 import com.crm.product.enums.ProductStatus;
 import lombok.*;
 
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 
 @Data

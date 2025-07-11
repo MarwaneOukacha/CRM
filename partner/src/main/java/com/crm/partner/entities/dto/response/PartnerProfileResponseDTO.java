@@ -5,7 +5,7 @@ import java.util.UUID;
 
 @Data
 public class PartnerProfileResponseDTO {
-    private UUID partnerId;
+    private UUID id;
     private String companyName;
     private String contactName;
     private String contactEmail;

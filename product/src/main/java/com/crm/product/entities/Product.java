@@ -2,6 +2,7 @@ package com.crm.product.entities;
 
 import com.crm.product.entities.model.AbstractEntity;
 import com.crm.product.enums.ProductStatus;
+import com.crm.product.enums.Status;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -33,7 +34,7 @@ public class Product extends AbstractEntity {
     private Carat carat;
 
     @Enumerated(EnumType.STRING)
-    private ProductStatus status; // FOR_SALE, FOR_RENT, IN_STOCK, FROM_PARTNER
+    private ProductStatus status;
 
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ProductOccasion> productOccasion = new ArrayList<>();

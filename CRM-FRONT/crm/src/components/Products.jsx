@@ -167,7 +167,7 @@ const Products = () => {
                 <td className="px-6 py-4 text-sm text-gray-700 dark:text-gray-300">${product.price?.toFixed(2) ?? "-"}</td>
                 <td className="px-6 py-4 text-sm">
                     <span className={`inline-flex px-2 text-xs leading-5 font-semibold rounded-full ${
-                        product.status === "FOR_SALE"
+                        product.status === "SALED"
                         ? "bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-200"
                         : "bg-yellow-100 text-yellow-800 dark:bg-yellow-800 dark:text-yellow-200"
                     }`}>

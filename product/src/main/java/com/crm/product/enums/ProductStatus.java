@@ -4,5 +4,6 @@ public enum ProductStatus {
     FOR_SALE,
     FOR_RENT,
     IN_STOCK,
-    FROM_PARTNER
+    FROM_PARTNER,
+    ACTIVE,INACTIVE,PUBLISHED,SALED,
 }

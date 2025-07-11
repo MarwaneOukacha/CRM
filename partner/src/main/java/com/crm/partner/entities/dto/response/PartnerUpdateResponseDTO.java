@@ -8,7 +8,12 @@ import java.time.LocalDateTime;
 @Data
 @ToString
 public class PartnerUpdateResponseDTO {
-    private UUID partnerId;
+    private UUID id;
     private String status;
+    private String companyName;
+    private String contactName;
+    private String contactEmail;
+    private float commissionRate;
+    private String contractTerms;
 
 }

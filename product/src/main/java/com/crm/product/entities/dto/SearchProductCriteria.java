@@ -2,6 +2,7 @@ package com.crm.product.entities.dto;
 
 import com.crm.product.entities.Category;
 import com.crm.product.enums.ProductStatus;
+import com.crm.product.enums.Status;
 import lombok.Data;
 import lombok.ToString;
 

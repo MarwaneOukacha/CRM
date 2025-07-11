@@ -321,9 +321,10 @@ const ProductDetail = () => {
                             <h3 className="text-lg font-semibold mb-4 text-gray-800 dark:text-gray-100">Categorization & Specs</h3>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <FormSelect id="status" name="status" label="Status" value={product.status} onChange={handleChange}>
-                                    <option value="FOR_SALE">For Sale</option>
-                                    <option value="OUT_OF_STOCK">Out of Stock</option>
-                                    <option value="DISCONTINUED">Discontinued</option>
+                                    <option value="SALED">SALED</option>
+                                    <option value="ACTIVE">ACTIVE</option>
+                                    <option value="INACTIVE">INACTIVE</option>
+                                    <option value="PUBLISHED">PUBLISHED</option>
                                 </FormSelect>
                                 <FormSelect id="categoryId" name="categoryId" label="Category" value={product.categoryId || ''} onChange={handleChange}>
                                     <option value="">Select category...</option>
