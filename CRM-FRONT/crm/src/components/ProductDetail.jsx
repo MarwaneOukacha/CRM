@@ -313,7 +313,10 @@ const ProductDetail = () => {
                                     <textarea id="description" name="description" value={product.description || ''} onChange={handleChange} rows={5} className="w-full p-2.5 rounded-md border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition" />
                                 </div>
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    <FormInput id="code" name="code" label="Product Code (SKU)" value={product.code} onChange={handleChange} type="text" />
+                                    <div>
+                                        <label htmlFor="description" className="block text-sm font-medium text-gray-600 dark:text-gray-300 mb-1">Product code:</label>
+                                        <p htmlFor="description" className="block text-sm font-medium text-gray-600 dark:text-gray-300 mb-1">{product.code}</p>
+                                    </div>
                                     <FormInput id="price" name="price" label="Price ($)" value={product.price} onChange={handleChange} type="number" step="0.01" min="0" />
                                     {product.barcodeImage && (
                                         <div className="mt-4">
@@ -338,6 +341,10 @@ const ProductDetail = () => {
                                     <option value="ACTIVE">ACTIVE</option>
                                     <option value="INACTIVE">INACTIVE</option>
                                     <option value="PUBLISHED">PUBLISHED</option>
+                                </FormSelect>
+                                <FormSelect id="status" name="raison" label="raison" value={product.raison} onChange={handleChange}>
+                                    <option value="FOR_SALE">FOR SALE</option>
+                                    <option value="FOR_RENT">FOR RENT</option>
                                 </FormSelect>
                                 <FormSelect id="categoryId" name="categoryId" label="Category" value={product.categoryId || ''} onChange={handleChange}>
                                     <option value="">Select category...</option>

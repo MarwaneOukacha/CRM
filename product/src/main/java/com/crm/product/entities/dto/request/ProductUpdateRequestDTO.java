@@ -20,6 +20,7 @@ public class ProductUpdateRequestDTO {
     private Double price;
     private String code;
     private Integer clicks;
+    private ProductStatus raison;
     private Integer favorite;
     private Integer cart;
     private Double size;

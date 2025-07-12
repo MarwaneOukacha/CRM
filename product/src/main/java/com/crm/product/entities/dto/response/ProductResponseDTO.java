@@ -20,6 +20,7 @@ public class ProductResponseDTO {
     private String description;
     private Double price;
     private String code;
+    private ProductStatus raison;
     private int clicks;
     private int favorite;
     private int cart;

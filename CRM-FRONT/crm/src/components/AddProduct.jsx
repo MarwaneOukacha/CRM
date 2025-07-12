@@ -75,9 +75,10 @@ const initialProductState = {
     description: '',
     price: '',
     code: '',
+    raison:'FOR_SALE',
     size: '',
     weight: '',
-    status: 'FOR_SALE',
+    status: 'PUBLISHED',
     categoryId: '',
     caratId: '',
     occasionIds: [],
@@ -305,7 +306,6 @@ const AddProduct = () => {
                                     <textarea id="description" name="description" value={product.description} onChange={handleChange} rows={5} className="w-full p-2.5 rounded-md border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition" placeholder="Describe the product..."/>
                                 </div>
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    <FormInput id="code" name="code" label="Product Code (SKU)" value={product.code} onChange={handleChange} type="text" placeholder="e.g., RNG-DMD-001" />
                                     <FormInput id="price" name="price" label="Price ($)" value={product.price} onChange={handleChange} type="number" step="0.01" min="0" placeholder="e.g., 1499.99" />
                                 </div>
                             </div>
@@ -315,9 +315,13 @@ const AddProduct = () => {
                             <h3 className="text-lg font-semibold mb-4 text-gray-800 dark:text-gray-100">Categorization & Specs</h3>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <FormSelect id="status" name="status" label="Status" value={product.status} onChange={handleChange}>
-                                    <option value="FOR_SALE">For Sale</option>
-                                    <option value="OUT_OF_STOCK">Out of Stock</option>
-                                    <option value="DISCONTINUED">Discontinued</option>
+                                    <option value="PUBLISHED">PUBLISHED</option>
+                                    <option value="ACTIVE">ACTIVE</option>
+                                    <option value="IN_STOCK">IN STOCK</option>
+                                </FormSelect>
+                                <FormSelect id="raison" name="raison" label="raison" value={product.raison} onChange={handleChange}>
+                                    <option value="FOR_SALE">FOR SALE</option>
+                                    <option value="FOR_RENT">FOR RENT</option>
                                 </FormSelect>
                                 <FormSelect id="categoryId" name="categoryId" label="Category" value={product.categoryId} onChange={handleChange}>
                                     <option value="">Select category...</option>

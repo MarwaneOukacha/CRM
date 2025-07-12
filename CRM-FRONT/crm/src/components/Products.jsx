@@ -48,12 +48,13 @@ const Products = () => {
 
   const exportToExcel = () => {
     const data = products.map(
-      ({ id, name, code, price, status, size, clicks, favorite, cart, type }) => ({
+      ({ id, name, code, price, status, size, clicks, favorite, cart, type,raison }) => ({
         ID: id,
         Name: name,
         Code: code,
         Price: price,
         Status: status,
+        raison:raison,
         Size: size,
         Clicks: clicks,
         Favorites: favorite,
@@ -149,11 +150,11 @@ const Products = () => {
         <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
             <thead className="bg-gray-50 dark:bg-gray-800">
             <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">#</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Name</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Code</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Price</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Status</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">For</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Size</th>
                 <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Actions</th>
             </tr>
@@ -161,7 +162,6 @@ const Products = () => {
             <tbody className="bg-white dark:bg-gray-900 divide-y divide-gray-200 dark:divide-gray-700">
             {products.map((product, index) => (
                 <tr key={product.id} className="hover:bg-gray-100 dark:hover:bg-gray-800">
-                <td className="px-6 py-4 text-sm font-medium text-gray-900 dark:text-gray-100">{pageInfo.page * pageInfo.size + index + 1}</td>
                 <td className="px-6 py-4 text-sm font-medium text-gray-900 dark:text-gray-100">{product.name}</td>
                 <td className="px-6 py-4 text-sm text-gray-700 dark:text-gray-300">{product.code}</td>
                 <td className="px-6 py-4 text-sm text-gray-700 dark:text-gray-300">${product.price?.toFixed(2) ?? "-"}</td>
@@ -174,6 +174,17 @@ const Products = () => {
                     {product.status}
                     </span>
                 </td>
+                <td className="px-6 py-4 text-sm text-gray-700 dark:text-gray-300">
+                    <span className={`inline-flex px-2 text-xs leading-5 font-semibold rounded-full ${
+                        product.raison === "FOR_SALE"
+                        ? "bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-200"
+                        : "bg-yellow-100 text-yellow-800 dark:bg-yellow-800 dark:text-yellow-200"
+                    }`}>
+                    {product.raison}
+                    </span>
+
+                  
+                  </td>
                 <td className="px-6 py-4 text-sm text-gray-700 dark:text-gray-300">{product.size || "-"}</td>
                 <td className="px-6 py-4 text-right text-sm font-medium flex gap-4 justify-end">
                     <button onClick={() => navigateToEditProduct(product)} className="text-blue-600 hover:text-blue-900 dark:hover:text-blue-400" aria-label="Edit Product">

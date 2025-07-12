@@ -27,6 +27,7 @@ public class Product extends AbstractEntity {
     private int clicks;
     private int favorite;
     private int cart;
+    private ProductStatus raison;
     private double size;
 
     @ManyToOne
