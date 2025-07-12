@@ -36,4 +36,5 @@ public class ProductResponseDTO {
     private Double weight;
     private UUID partnerId;
     private List<MediaResponseDTO> media;
+    private String barcodeImage;
 }

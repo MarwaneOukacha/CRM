@@ -57,7 +57,7 @@ public class Product extends AbstractEntity {
     private String type;
     private Double weight;
     private UUID partnerId;
-
+    private String barcodeImage;
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
     private List<Media> media = new ArrayList<>();
 

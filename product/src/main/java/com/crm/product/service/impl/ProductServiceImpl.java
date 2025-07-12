@@ -10,6 +10,7 @@ import com.crm.product.entities.dto.request.ProductUpdateRequestDTO;
 import com.crm.product.entities.dto.response.ProductResponseDTO;
 import com.crm.product.mapper.ProductMapper;
 import com.crm.product.service.ProductService;
+import com.crm.product.utils.ProductCodeGenerator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -18,7 +19,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -77,9 +77,17 @@ public class ProductServiceImpl implements ProductService {
             });
             product.setMedia(media);
         }
-
-        // === Save product ===
+        String barcodeBase64;
+        try {
+            ProductCodeAndBarcode productCodeBarCode = ProductCodeGenerator.generateProductCodeAndBarcode();
+            product.setCode(productCodeBarCode.getProductCode());
+            product.setBarcodeImage(productCodeBarCode.getBarcodeBase64());
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to generate barcode", e);
+        }
         Product savedProduct = productDao.save(product);
+
+
         ProductResponseDTO responseDTO = productMapper.toResponseDto(savedProduct);
 
         log.info("ProductServiceImpl::create - Created product with ID: {}", responseDTO.getId());

@@ -236,7 +236,7 @@ const ProductDetail = () => {
     if (error) return <div className="p-8 text-center text-red-600 dark:text-red-400 bg-red-50 dark:bg-gray-800 rounded-lg shadow-md max-w-md mx-auto mt-10">{error}</div>;
     if (!product) return <div className="p-8 text-center text-gray-600 dark:text-gray-400">Product not found.</div>;
 
-    const productImages = product.media ? product.media.filter(m => m.type === 'image/jpeg') : [];
+    const productImages = product.media ? product.media.filter(m => m.type === 'image/jpeg' || m.type === 'image/png') : [];
     console.log(backendBaseUrl+"/"+productImages[activeImage].name)
     const triggerFileInput = () => {
     if (fileInputRef.current) {
@@ -300,6 +300,8 @@ const ProductDetail = () => {
                          </div>
                     </div>
 
+                    
+
                     {/* Right Column: Details */}
                     <div className="lg:col-span-2 space-y-6">
                         <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-md">
@@ -313,10 +315,21 @@ const ProductDetail = () => {
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <FormInput id="code" name="code" label="Product Code (SKU)" value={product.code} onChange={handleChange} type="text" />
                                     <FormInput id="price" name="price" label="Price ($)" value={product.price} onChange={handleChange} type="number" step="0.01" min="0" />
+                                    {product.barcodeImage && (
+                                        <div className="mt-4">
+                                            <label className="block text-sm font-medium text-gray-600 dark:text-gray-300 mb-1">Barcode</label>
+                                            <img
+                                            src={`data:image/png;base64,${product.barcodeImage}`}
+                                            alt="Product Barcode"
+                                            className="w-[300px] h-auto border border-gray-300 dark:border-gray-600 rounded-md"
+                                            />
+                                        </div>
+                                        )}
                                 </div>
                             </div>
                         </div>
 
+                        
                         <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-md">
                             <h3 className="text-lg font-semibold mb-4 text-gray-800 dark:text-gray-100">Categorization & Specs</h3>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
