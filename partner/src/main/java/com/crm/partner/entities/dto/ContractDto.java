@@ -19,4 +19,5 @@ public class ContractDto {
     private ReturnFeePayer returnFeePayer;
     private LocalDate validFrom;
     private LocalDate validTo;
+    private String notes;
 }

@@ -1,7 +1,9 @@
 package com.crm.partner.services.impl;
 
 import com.crm.partner.dao.PartnerDao;
+import com.crm.partner.entities.Company;
 import com.crm.partner.entities.Partner;
+import com.crm.partner.entities.PartnerContract;
 import com.crm.partner.entities.dto.SearchPartnerCriteria;
 import com.crm.partner.entities.dto.request.PartnerRegisterRequestDTO;
 import com.crm.partner.entities.dto.request.PartnerUpdateRequestDTO;
@@ -10,6 +12,8 @@ import com.crm.partner.entities.dto.response.PartnerRegisterResponseDTO;
 import com.crm.partner.entities.dto.response.PartnerUpdateResponseDTO;
 import com.crm.partner.enums.PartnerStatus;
 import com.crm.partner.mapper.PartnerMapper;
+import com.crm.partner.repository.CompanyRepository;
+import com.crm.partner.repository.ContractRepository;
 import com.crm.partner.services.PartnerService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -25,17 +29,36 @@ import java.util.Optional;
 public class PartnerServiceImpl implements PartnerService {
 
     private final PartnerDao partnerDao;
-    private final PartnerMapper partnerMapper; // Assume MapStruct or manual mapper
+    private final PartnerMapper partnerMapper;
+    private final ContractRepository contractRepository;
+    private final CompanyRepository companyRepository;
 
 
     @Override
+    @Transactional
     public PartnerRegisterResponseDTO registerPartner(PartnerRegisterRequestDTO request) {
-        // Map DTO to entity
+        // 1. Map DTO to Partner entity
         Partner partner = partnerMapper.toEntity(request);
-        partner.setStatus(PartnerStatus.PENDING); // default status
-        Partner saved = partnerDao.save(partner);
+        partner.setStatus(PartnerStatus.PENDING);
 
-        return partnerMapper.toRegisterResponseDTO(saved);
+        // 2. Save the partner first to generate ID
+        Partner savedPartner = partnerDao.save(partner);
+
+        // 3. Link partner to contracts (which are inside the company)
+        Company company = partner.getCompany();
+        for (PartnerContract contract : company.getContracts()) {
+            contract.setPartner(savedPartner);
+        }
+
+        // 4. Save company (and cascade will save contracts)
+        companyRepository.save(company);
+
+        // 5. Link saved company back to partner and update
+        savedPartner.setCompany(company);
+        savedPartner = partnerDao.save(savedPartner); // update with linked company
+
+        // 6. Map to response
+        return partnerMapper.toRegisterResponseDTO(savedPartner);
     }
 
     @Override
@@ -58,6 +81,13 @@ public class PartnerServiceImpl implements PartnerService {
         if (request.getAddress() != null && !request.getAddress().isEmpty()) partner.setAddress(request.getAddress());
         if (request.getEmail() != null && !request.getEmail().isEmpty()) partner.setEmail(request.getEmail());
         if (request.getPhone() != null && !request.getPhone().isEmpty()) partner.setPhone(request.getPhone());
+        if (request.getCompany() != null && !request.getPhone().isEmpty()) {
+            if(request.getCompany().getName()!= null && !request.getCompany().getName().isEmpty()) partner.getCompany().setName(request.getCompany().getName());
+            if(request.getCompany().getAddress()!= null && !request.getCompany().getAddress().isEmpty()) partner.getCompany().setAddress(request.getCompany().getAddress());
+            if(request.getCompany().getTaxId()!= null && !request.getCompany().getTaxId().isEmpty()) partner.getCompany().setTaxId(request.getCompany().getTaxId());
+            if(request.getCompany().getContactEmail()!= null && !request.getCompany().getContactEmail().isEmpty()) partner.getCompany().setContactEmail(request.getCompany().getContactEmail());
+            if(request.getCompany().getContactPhone()!= null && !request.getCompany().getContactPhone().isEmpty()) partner.getCompany().setContactPhone(request.getCompany().getContactPhone());
+        }
 
 
         Partner updated = partnerDao.save(partner);

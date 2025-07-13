@@ -25,6 +25,6 @@ public class Company extends AbstractEntity {
 
     private String contactPhone;
 
-    @OneToMany(mappedBy = "company", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "company", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<PartnerContract> contracts = new ArrayList<>();
 }

@@ -9,8 +9,8 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
 public interface PartnerRepository extends JpaRepository<Partner, UUID>, JpaSpecificationExecutor<Partner> {
 
-    Optional<Partner> findByContactEmail(String contactEmail);
+    Optional<Partner> findByEmail(String contactEmail);
 
-    boolean existsByContactEmail(String contactEmail);
+    boolean existsByEmail(String contactEmail);
 }
 

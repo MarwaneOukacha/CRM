@@ -18,7 +18,7 @@ public class PartnerRegisterRequestDTO {
     private String address;
 
     // Company Information
-    private CompanyDto companyDto;
+    private CompanyDto company;
 
     private String notes;
 }

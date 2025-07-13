@@ -1,6 +1,7 @@
 package com.crm.partner.entities.dto.response;
 
 import com.crm.partner.entities.dto.CompanyDto;
+import com.crm.partner.enums.PartnerStatus;
 import lombok.Data;
 import lombok.ToString;
 
@@ -14,10 +15,11 @@ public class PartnerRegisterResponseDTO {
     private String email;
     private String phone;
     private String address;
+    private PartnerStatus status;
 
     // Company Information
-    private CompanyDto companyDto;
+    private CompanyDto company;
 
-    private String notes;
+
 
 }

@@ -37,12 +37,12 @@ public class PartnerDaoImpl implements PartnerDao {
 
     @Override
     public Optional<Partner> findByContactEmail(String email) {
-        return partnerRepository.findByContactEmail(email);
+        return partnerRepository.findByEmail(email);
     }
 
     @Override
     public boolean existsByContactEmail(String email) {
-        return partnerRepository.existsByContactEmail(email);
+        return partnerRepository.existsByEmail(email);
     }
 
     @Override

@@ -27,7 +27,7 @@ public class Partner extends AbstractEntity {
     @Enumerated(EnumType.STRING)
     private PartnerStatus status;
 
-    @ManyToOne
+    @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "company_id")
     private Company company;
 

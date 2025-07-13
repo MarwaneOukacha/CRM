@@ -22,7 +22,7 @@ public class PartnerContract extends AbstractEntity {
     @ManyToOne
     @JoinColumn(name = "company_id")
     private Company company;
-    private UUID productId;
+    private String productId;
 
     private LocalDate validFrom;
     private LocalDate validTo;
