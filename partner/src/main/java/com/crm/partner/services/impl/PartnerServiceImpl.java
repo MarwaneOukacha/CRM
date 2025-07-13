@@ -54,11 +54,10 @@ public class PartnerServiceImpl implements PartnerService {
                 .orElseThrow(() -> new RuntimeException("Partner not found"));
 
         // Update fields if present (example with null checks)
-        if (request.getCompanyName() != null) partner.setCompanyName(request.getCompanyName());
-        if (request.getContactName() != null) partner.setContactName(request.getContactName());
-        if (request.getContactEmail() != null) partner.setContactEmail(request.getContactEmail());
-        if (request.getCommissionRate() != 0) partner.setCommissionRate(request.getCommissionRate());
-        if (request.getContractTerms() != null) partner.setContractTerms(request.getContractTerms());
+        if (request.getName() != null && !request.getName().isEmpty()) partner.setName(request.getName());
+        if (request.getAddress() != null && !request.getAddress().isEmpty()) partner.setAddress(request.getAddress());
+        if (request.getEmail() != null && !request.getEmail().isEmpty()) partner.setEmail(request.getEmail());
+        if (request.getPhone() != null && !request.getPhone().isEmpty()) partner.setPhone(request.getPhone());
 
 
         Partner updated = partnerDao.save(partner);

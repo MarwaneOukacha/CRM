@@ -6,9 +6,9 @@ import lombok.ToString;
 @Data
 @ToString
 public class PartnerUpdateRequestDTO {
-    private String companyName;
-    private String contactName;
-    private String contactEmail;
-    private float commissionRate;
-    private String contractTerms;
+    private String name;
+    private String email;
+    private String phone;
+    private String address;
+
 }
