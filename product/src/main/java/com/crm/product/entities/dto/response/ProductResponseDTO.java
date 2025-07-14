@@ -35,6 +35,8 @@ public class ProductResponseDTO {
     private String agencyId;
     private String type;
     private Double weight;
+    private double quantity;
+    private double rentPrice;
     private UUID partnerId;
     private List<MediaResponseDTO> media;
     private String barcodeImage;

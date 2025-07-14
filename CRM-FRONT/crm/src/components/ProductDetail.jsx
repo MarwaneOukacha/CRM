@@ -318,6 +318,7 @@ const ProductDetail = () => {
                                         <p htmlFor="description" className="block text-sm font-medium text-gray-600 dark:text-gray-300 mb-1">{product.code}</p>
                                     </div>
                                     <FormInput id="price" name="price" label="Price ($)" value={product.price} onChange={handleChange} type="number" step="0.01" min="0" />
+                                    
                                     {product.barcodeImage && (
                                         <div className="mt-4">
                                             <label className="block text-sm font-medium text-gray-600 dark:text-gray-300 mb-1">Barcode</label>
@@ -328,6 +329,8 @@ const ProductDetail = () => {
                                             />
                                         </div>
                                         )}
+                                        <FormInput id="rentPrice" name="rentPrice" label="Price of rent/day" value={product.rentPrice} onChange={handleChange} type="number" step="0.01" min="0" />
+                                    <FormInput id="quantity" name="quantity" label="Quantity" value={product.quantity} onChange={handleChange} type="number" step="0.01" min="0" />
                                 </div>
                             </div>
                         </div>
@@ -345,6 +348,7 @@ const ProductDetail = () => {
                                 <FormSelect id="status" name="raison" label="raison" value={product.raison} onChange={handleChange}>
                                     <option value="FOR_SALE">FOR SALE</option>
                                     <option value="FOR_RENT">FOR RENT</option>
+                                    <option value="FOR_RENT_SALE">FOR RENT AND SALE</option>
                                 </FormSelect>
                                 <FormSelect id="categoryId" name="categoryId" label="Category" value={product.categoryId || ''} onChange={handleChange}>
                                     <option value="">Select category...</option>

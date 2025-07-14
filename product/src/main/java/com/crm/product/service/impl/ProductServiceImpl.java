@@ -143,6 +143,8 @@ public class ProductServiceImpl implements ProductService {
         if (dto.getCart() != null) existingProduct.setCart(dto.getCart());
         if (dto.getSize() != null) existingProduct.setSize(dto.getSize());
         if (dto.getRaison() != null) existingProduct.setRaison(dto.getRaison());
+        if (dto.getQuantity() != 0) existingProduct.setQuantity(dto.getQuantity());
+        if (dto.getRentPrice() != 0) existingProduct.setRentPrice(dto.getRentPrice());
 
         if (dto.getCaratId() != null) {
             Carat carat = caratDao.findById(dto.getCaratId());

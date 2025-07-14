@@ -11,6 +11,7 @@ import java.util.List;
 @Data
 @ToString
 public class ProductSearchResponseDTO {
+    private String Id;
     private String name;
     private String description;
     private Double price;
@@ -18,6 +19,7 @@ public class ProductSearchResponseDTO {
     private int clicks;
     private int favorite;
     private int cart;
+    private double rentPrice;
     private double size;
     private String caratId;
     private ProductStatus status;
@@ -25,6 +27,6 @@ public class ProductSearchResponseDTO {
     private String agencyId;
     private String type;
     private Double weight;
-    private String Id;
+    private double quantity;
     private List<MediaRequestDTO> media;
 }

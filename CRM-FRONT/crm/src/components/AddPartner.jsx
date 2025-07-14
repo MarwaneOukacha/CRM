@@ -105,6 +105,15 @@ const AddPartner = () => {
           <FormInput id="phone" name="phone" label="Phone" value={partner.phone} onChange={handleChange} />
           <FormInput id="address" name="address" label="Address" value={partner.address} onChange={handleChange} />
           <FormInput id="notes" name="notes" label="Notes" value={partner.notes} onChange={handleChange} />
+          <FormInput id="passportSeries" name="passportSeries" label="Passport Series" value={partner.passportSeries || ''} onChange={handleChange} />
+          <FormInput id="passportNumber" name="passportNumber" label="Passport Number" value={partner.passportNumber || ''} onChange={handleChange} />
+          <FormInput id="finCode" name="finCode" label="FIN Code" value={partner.finCode || ''} onChange={handleChange} />
+          <FormInput id="receivingBankName" name="receivingBankName" label="Receiving Bank Name" value={partner.receivingBankName || ''} onChange={handleChange} />
+          <FormInput id="receivingBankCurrency" name="receivingBankCurrency" label="Receiving Bank Currency" value={partner.receivingBankCurrency || ''} onChange={handleChange} />
+          <FormInput id="bankTIN" name="bankTIN" label="Bank TIN" value={partner.bankTIN || ''} onChange={handleChange} />
+          <FormInput id="bankSwiftCode" name="bankSwiftCode" label="Bank SWIFT Code" value={partner.bankSwiftCode || ''} onChange={handleChange} />
+          <FormInput id="bankAccountNumber" name="bankAccountNumber" label="Bank Account Number" value={partner.bankAccountNumber || ''} onChange={handleChange} />
+
         </div>
 
         {/* Company Info */}
@@ -115,6 +124,12 @@ const AddPartner = () => {
           <FormInput id="companyAddress" name="address" label="Company Address" value={partner.company.address} onChange={handleCompanyChange} />
           <FormInput id="contactEmail" name="contactEmail" label="Contact Email" value={partner.company.contactEmail} onChange={handleCompanyChange} />
           <FormInput id="contactPhone" name="contactPhone" label="Contact Phone" value={partner.company.contactPhone} onChange={handleCompanyChange} />
+          <FormInput id="companyBankName" name="companyBankName" label="Company Bank Name" value={partner.company.companyBankName || ''} onChange={handleCompanyChange} />
+          <FormInput id="companyBankCurrency" name="companyBankCurrency" label="Company Bank Currency" value={partner.company.companyBankCurrency || ''} onChange={handleCompanyChange} />
+          <FormInput id="bankTIN" name="bankTIN" label="Company Bank TIN" value={partner.company.bankTIN || ''} onChange={handleCompanyChange} />
+          <FormInput id="bankSwiftCode" name="bankSwiftCode" label="Company Bank SWIFT Code" value={partner.company.bankSwiftCode || ''} onChange={handleCompanyChange} />
+          <FormInput id="bankAccountNumber" name="bankAccountNumber" label="Company Bank Account Number" value={partner.company.bankAccountNumber || ''} onChange={handleCompanyChange} />
+
         </div>
 
         {/* Contracts */}
@@ -163,6 +178,61 @@ const AddPartner = () => {
           label="Valid To"
           type="date"
         />
+        <FormInput
+          id={`damageCompanyCompensation-${index}`}
+          value={contract.damageCompanyCompensation || ''}
+          onChange={(e) => handleContractChange(index, 'damageCompanyCompensation', e.target.value)}
+          label="Damage Company Compensation"
+          type="number"
+        />
+        <FormInput
+          id={`lossCompanyCompensation-${index}`}
+          value={contract.lossCompanyCompensation || ''}
+          onChange={(e) => handleContractChange(index, 'lossCompanyCompensation', e.target.value)}
+          label="Loss Company Compensation"
+          type="number"
+        />
+        <FormInput
+          id={`partnerTakebackFeePercent-${index}`}
+          value={contract.partnerTakebackFeePercent || ''}
+          onChange={(e) => handleContractChange(index, 'partnerTakebackFeePercent', e.target.value)}
+          label="Partner Takeback Fee Percent"
+          type="number"
+        />
+        <FormInput
+          id={`rentCompanyPercent-${index}`}
+          value={contract.rentCompanyPercent || ''}
+          onChange={(e) => handleContractChange(index, 'rentCompanyPercent', e.target.value)}
+          label="Rent Company Percent"
+          type="number"
+        />
+        <FormInput
+          id={`rentPartnerPercent-${index}`}
+          value={contract.rentPartnerPercent || ''}
+          onChange={(e) => handleContractChange(index, 'rentPartnerPercent', e.target.value)}
+          label="Rent Partner Percent"
+          type="number"
+        />
+        <FormInput
+          id={`returnFeePercent-${index}`}
+          value={contract.returnFeePercent || ''}
+          onChange={(e) => handleContractChange(index, 'returnFeePercent', e.target.value)}
+          label="Return Fee Percent"
+          type="number"
+        />
+        <FormInput
+          id={`returnFeePayer-${index}`}
+          value={contract.returnFeePayer || ''}
+          onChange={(e) => handleContractChange(index, 'returnFeePayer', e.target.value)}
+          label="Return Fee Payer"
+        />
+        <FormInput
+          id={`contractNotes-${index}`}
+          value={contract.notes || ''}
+          onChange={(e) => handleContractChange(index, 'notes', e.target.value)}
+          label="Contract Notes"
+        />
+
       </div>
     ))}
   </div>

@@ -19,6 +19,8 @@ public class ProductUpdateRequestDTO {
     private String description;
     private Double price;
     private String code;
+    private double quantity;
+    private double rentPrice;
     private Integer clicks;
     private ProductStatus raison;
     private Integer favorite;

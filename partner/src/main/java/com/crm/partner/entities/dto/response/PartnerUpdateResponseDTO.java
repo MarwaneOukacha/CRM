@@ -23,4 +23,15 @@ public class PartnerUpdateResponseDTO {
     // Company Information
     private CompanyDto company;
     private List<ContractDto> contracts = new ArrayList<>();
+    // Identity Information
+    private String passportSeries;
+    private String passportNumber;
+    private String finCode;
+
+    // Bank Details
+    private String receivingBankName;
+    private String receivingBankCurrency;
+    private String bankTIN;
+    private String bankSwiftCode;
+    private String bankAccountNumber;
 }

@@ -91,7 +91,13 @@ public class PartnerServiceImpl implements PartnerService {
             if(request.getCompany().getContactEmail()!= null && !request.getCompany().getContactEmail().isEmpty()) partner.getCompany().setContactEmail(request.getCompany().getContactEmail());
             if(request.getCompany().getContactPhone()!= null && !request.getCompany().getContactPhone().isEmpty()) partner.getCompany().setContactPhone(request.getCompany().getContactPhone());
         }
-
+        if (request.getPassportSeries() != null && !request.getPassportSeries().isEmpty()) partner.setPassportSeries(request.getPassportSeries());
+        if (request.getPassportNumber() != null && !request.getPassportNumber().isEmpty()) partner.setPassportNumber(request.getPassportNumber());
+        if (request.getBankTIN() != null && !request.getBankTIN().isEmpty()) partner.setBankTIN(request.getBankTIN());
+        if (request.getBankSwiftCode() != null && !request.getBankSwiftCode().isEmpty()) partner.setBankSwiftCode(request.getBankSwiftCode());
+        if (request.getBankAccountNumber() != null && !request.getBankAccountNumber().isEmpty()) partner.setBankAccountNumber(request.getBankAccountNumber());
+        if (request.getReceivingBankName() != null && !request.getReceivingBankName().isEmpty()) partner.setReceivingBankName(request.getReceivingBankName());
+        if (request.getReceivingBankCurrency() != null && !request.getReceivingBankCurrency().isEmpty()) partner.setReceivingBankCurrency(request.getReceivingBankCurrency());
 
         Partner updated = partnerDao.save(partner);
 

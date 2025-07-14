@@ -23,6 +23,8 @@ public class ProductRequestDTO {
     private double size;
     private String caratId;
     private ProductStatus status;
+    private double quantity;
+    private double rentPrice;
     private String categoryId;
     private List<String> occasionIds;
     private List<String> materialIds;

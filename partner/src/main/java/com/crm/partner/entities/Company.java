@@ -24,5 +24,10 @@ public class Company extends AbstractEntity {
     private String contactEmail;
 
     private String contactPhone;
+    private String companyBankName;
+    private String companyBankCurrency;
+    private String bankTIN;
+    private String bankSwiftCode;
+    private String bankAccountNumber;
 
 }

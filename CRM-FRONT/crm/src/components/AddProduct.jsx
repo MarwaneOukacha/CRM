@@ -77,6 +77,8 @@ const initialProductState = {
     code: '',
     raison:'FOR_SALE',
     size: '',
+    rentPrice:'',
+    quantity:1,
     weight: '',
     status: 'PUBLISHED',
     categoryId: '',
@@ -307,8 +309,13 @@ const AddProduct = () => {
                                 </div>
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <FormInput id="price" name="price" label="Price ($)" value={product.price} onChange={handleChange} type="number" step="0.01" min="0" placeholder="e.g., 1499.99" />
+                                    <FormInput id="rentPrice" name="rentPrice" label="Price of rent ($)/day" value={product.rentPrice} onChange={handleChange} type="number" step="0.01" min="0" placeholder="e.g., 1499.99" />
+                                </div>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <FormInput id="quantity" name="quantity" label="Quantity" value={product.quantity} onChange={handleChange} type="number" step="0.01" min="0" placeholder="e.g., 3" />
                                 </div>
                             </div>
+
                         </div>
 
                         <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-md">
@@ -318,10 +325,12 @@ const AddProduct = () => {
                                     <option value="PUBLISHED">PUBLISHED</option>
                                     <option value="ACTIVE">ACTIVE</option>
                                     <option value="IN_STOCK">IN STOCK</option>
+                                    <option value="INACTIVE">INACTIVE</option>
                                 </FormSelect>
                                 <FormSelect id="raison" name="raison" label="raison" value={product.raison} onChange={handleChange}>
                                     <option value="FOR_SALE">FOR SALE</option>
                                     <option value="FOR_RENT">FOR RENT</option>
+                                    <option value="FOR_RENT_SALE">FOR RENT AND SALE </option>
                                 </FormSelect>
                                 <FormSelect id="categoryId" name="categoryId" label="Category" value={product.categoryId} onChange={handleChange}>
                                     <option value="">Select category...</option>
