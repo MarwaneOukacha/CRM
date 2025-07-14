@@ -18,5 +18,4 @@ public class CompanyDto {
     private String contactEmail;
 
     private String contactPhone;
-    private List<ContractDto> contracts = new ArrayList<>();
 }

@@ -24,4 +24,5 @@ public interface ProductDao {
     List<ProductOccasion> findOccasionsByIds(List<String> occasionIds);
 
 
+    Product findByCode(String code);
 }

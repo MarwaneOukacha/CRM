@@ -209,4 +209,15 @@ public class ProductServiceImpl implements ProductService {
         return responseDTO;
     }
 
+    @Override
+    public ProductResponseDTO getByCode(String code) {
+        log.info("ProductServiceImpl::getByCode - Fetching product with code: {}", code);
+
+        Product product = productDao.findByCode(code);
+        ProductResponseDTO responseDTO = productMapper.toResponseDto(product);
+
+        log.info("ProductServiceImpl::getByCode - Found product: {}", responseDTO);
+        return responseDTO;
+    }
+
 }

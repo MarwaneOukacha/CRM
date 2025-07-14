@@ -13,4 +13,7 @@ public interface ProductService {
     Page<ProductResponseDTO> search(SearchProductCriteria criteria, Pageable pageable);
     void delete(String id);
     ProductResponseDTO update(String id, ProductUpdateRequestDTO dto);
+
+    ProductResponseDTO getByCode(String id);
+
 }

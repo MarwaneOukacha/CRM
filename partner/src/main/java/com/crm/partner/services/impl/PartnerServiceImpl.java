@@ -10,6 +10,7 @@ import com.crm.partner.entities.dto.request.PartnerUpdateRequestDTO;
 import com.crm.partner.entities.dto.response.PartnerProfileResponseDTO;
 import com.crm.partner.entities.dto.response.PartnerRegisterResponseDTO;
 import com.crm.partner.entities.dto.response.PartnerUpdateResponseDTO;
+import com.crm.partner.enums.ContractStatus;
 import com.crm.partner.enums.PartnerStatus;
 import com.crm.partner.mapper.PartnerMapper;
 import com.crm.partner.repository.CompanyRepository;
@@ -46,16 +47,18 @@ public class PartnerServiceImpl implements PartnerService {
 
         // 3. Link partner to contracts (which are inside the company)
         Company company = partner.getCompany();
-        for (PartnerContract contract : company.getContracts()) {
+        for (PartnerContract contract : partner.getContracts()) {
             contract.setPartner(savedPartner);
+            contract.setStatus(ContractStatus.ACTIVE);
+            contractRepository.save(contract);
         }
 
-        // 4. Save company (and cascade will save contracts)
+        // 4. Save company
         companyRepository.save(company);
 
         // 5. Link saved company back to partner and update
         savedPartner.setCompany(company);
-        savedPartner = partnerDao.save(savedPartner); // update with linked company
+        savedPartner = partnerDao.save(savedPartner);
 
         // 6. Map to response
         return partnerMapper.toRegisterResponseDTO(savedPartner);

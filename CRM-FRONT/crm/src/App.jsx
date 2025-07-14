@@ -20,6 +20,8 @@ import Products from "./components/Products";
 import ProductDetail from "./components/ProductDetail";
 import AddProduct from "./components/AddProduct";
 import Partners from "./components/Partners";
+import AddPartner from "./components/AddPartner";
+import PartnerDetails from "./components/PartnerDetails";
 
 function App() {
     const router = createBrowserRouter([
@@ -85,9 +87,18 @@ function App() {
                     element: <AddProduct/>,
                 },
                 {
-                    path: "users",
+                    path: "partners",
                     element: <Partners/>,
+                },
+                {
+                    path: "partners/add",
+                    element: <AddPartner/>,
+                },
+                {
+                    path: "partners/:id",
+                    element: <PartnerDetails/>,
                 }
+                
                 
             ],
         },

@@ -19,9 +19,7 @@ public class PartnerContract extends AbstractEntity {
     @JoinColumn(name = "partner_id")
     private Partner partner;
 
-    @ManyToOne
-    @JoinColumn(name = "company_id")
-    private Company company;
+
     private String productId;
 
     private LocalDate validFrom;

@@ -82,7 +82,7 @@ export const navbarLinks = [
             {
                 label: "Partners",
                 icon: Users   ,
-                path: "/users",
+                path: "/partners",
             }
         ],
     },

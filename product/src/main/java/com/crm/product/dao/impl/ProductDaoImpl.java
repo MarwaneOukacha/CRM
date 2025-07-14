@@ -203,5 +203,10 @@ public class ProductDaoImpl implements ProductDao {
                 .collect(Collectors.toList());
     }
 
+    @Override
+    public Product findByCode(String code) {
+        return productRepository.findByCode(code).orElseThrow(() -> new EntityNotFoundException("Product not found with code: " + code));
+    }
+
 
 }

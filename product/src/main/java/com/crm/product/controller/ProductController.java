@@ -33,6 +33,13 @@ public class ProductController {
         return productService.getById(id);
     }
 
+    @GetMapping("/code/{code}")
+    public ProductResponseDTO getByProductCode(@PathVariable String code) {
+        log.info("Received request to get product by code: {}", code);
+        return productService.getByCode(code);
+    }
+
+
     @GetMapping
     public Page<ProductResponseDTO> search(SearchProductCriteria criteria, Pageable pageable) {
         log.info("Received request to search products with criteria: {}", criteria);
