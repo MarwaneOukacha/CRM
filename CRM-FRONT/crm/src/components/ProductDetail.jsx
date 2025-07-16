@@ -237,7 +237,6 @@ const ProductDetail = () => {
     if (!product) return <div className="p-8 text-center text-gray-600 dark:text-gray-400">Product not found.</div>;
 
     const productImages = product.media ? product.media.filter(m => m.type === 'image/jpeg' || m.type === 'image/png') : [];
-    console.log(backendBaseUrl+"/"+productImages[activeImage].name)
     const triggerFileInput = () => {
     if (fileInputRef.current) {
         fileInputRef.current.click();

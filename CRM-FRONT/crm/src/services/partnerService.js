@@ -30,6 +30,16 @@ const partnerService = {
     };
     const response = await axiosInstance.get(BASE_URL, { params });
     return response.data;
+  },
+  uploadDocument:async (file) => {
+    const formData = new FormData();
+    formData.append("file", file);
+
+    const response = await axiosInstance.post(`${BASE_URL}/upload`, formData, {
+      headers: { "Content-Type": "multipart/form-data" },
+    });
+
+    return response.data;
   }
 };
 

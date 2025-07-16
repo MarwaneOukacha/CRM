@@ -39,6 +39,7 @@ const Products = () => {
       });
     } catch (error) {
       console.error("Failed to fetch products:", error);
+       toast.error("Failed to fetch products")
     }
   };
 
@@ -100,6 +101,7 @@ const Products = () => {
       fetchProducts(pageInfo.page, pageInfo.size, searchName); 
     } catch (error) {
       console.error("Failed to delete product:", error);
+      toast.error("Failed to delete product")
     }
   };
 

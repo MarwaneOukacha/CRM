@@ -1,9 +1,15 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { ArrowLeft, Download, Save } from 'lucide-react';
 import partnerService from '../services/partnerService';
 import productService from '../services/productService';
 import { pdf, Document, Page, Text, View, StyleSheet } from '@react-pdf/renderer';
+import categoryService from '../services/categoryService';
+import InitialDeliveryActPage from './InitialDeliveryActPage';
+import FinalDeliveryActPage from './FinalDeliveryActPage';
+import { UploadCloud, Loader2 } from 'lucide-react'; // Make sure to install lucide-react
+import { toast } from 'sonner';
+
 
 // Your styles from the example
 const styles = StyleSheet.create({
@@ -138,98 +144,290 @@ const styles = StyleSheet.create({
   valueCol: { width: '30%' },
 });
 
-// PDF document component
-function ContractPDF({ partner, product, contract }) {
-  const invoiceDate = new Date().toLocaleDateString();
 
-  return (
-    <Document>
-      <Page size="A4" style={styles.page}>
-        {/* Header */}
-        <View style={styles.header}>
-          <Text style={styles.companyTitle}>{partner.company?.name || 'Company'}</Text>
-          <View style={styles.headerRight}>
-            <Text style={styles.headerRightText}>{partner.company?.name || 'Company'}</Text>
-            <Text style={styles.headerRightText}>Tax ID: {partner.company?.taxId || '-'}</Text>
-          </View>
-        </View>
 
-        {/* Provider and Partner */}
-        <View style={styles.providerCustomerSection}>
-          <View style={styles.providerSection}>
-            <Text style={styles.sectionHeader}>PROVIDER</Text>
-            <Text style={styles.providerCompany}>{partner.company?.name || 'Company'}</Text>
-            <Text style={styles.providerText}>Tax ID: {partner.company?.taxId || '-'}</Text>
-            <Text style={styles.providerText}>{partner.company?.address || '-'}</Text>
-          </View>
-          <View style={styles.customerSection}>
-            <Text style={styles.sectionHeader}>PARTNER</Text>
-            <Text style={styles.providerText}>{partner.name || '-'}</Text>
-            <Text style={styles.providerText}>{partner.email || '-'}</Text>
-            <Text style={styles.providerText}>{partner.phone || '-'}</Text>
-            <Text style={styles.providerText}>{partner.address || '-'}</Text>
-          </View>
-        </View>
 
-        {/* Invoice Details */}
-        <View style={styles.invoiceSection}>
-          <Text style={styles.invoiceTitle}>Contract Details</Text>
-          <View style={styles.invoiceDetailsTable}>
-            <View style={[styles.invoiceDetailCell, { width: '50%' }]}>
-              <Text style={styles.invoiceDetailHeader}>Date</Text>
-              <Text style={styles.invoiceDetailValue}>{invoiceDate}</Text>
-            </View>
-            <View style={[styles.invoiceDetailCell, { width: '50%' }]}>
-              <Text style={styles.invoiceDetailHeader}>Product</Text>
-              <Text style={styles.invoiceDetailValue}>{product?.name || '-'}</Text>
-            </View>
-          </View>
-        </View>
 
-        {/* Contract Details Table */}
-        <View style={styles.servicesSection}>
-          <Text style={styles.servicesTitle}>Product & Contract Terms</Text>
-          <View style={styles.table}>
-            <View style={styles.tableHeader}>
-              <Text style={[styles.tableHeaderCell, styles.descriptionCol]}>Description</Text>
-              <Text style={[styles.tableHeaderCell, styles.valueCol, { borderRight: 'none' }]}>Value</Text>
-            </View>
+const PartnershipAgreementPDF = ({ partner }) => (
+  <Document>
+    <Page size="A4" style={styles.page}>
+      <Text style={{ fontSize: 14, fontWeight: 'bold', marginBottom: 10, textAlign: 'center' }}>
+        PARTNERSHIP AGREEMENT № __
+      </Text>
+      <Text>Baku city ..2025</Text>
 
-            <View style={styles.tableRow}>
-              <Text style={[styles.tableCell, styles.descriptionCol]}>Product Code</Text>
-              <Text style={[styles.tableCell, styles.valueCol, { borderRight: 'none' }]}>{product?.code || '-'}</Text>
-            </View>
-            <View style={styles.tableRow}>
-              <Text style={[styles.tableCell, styles.descriptionCol]}>Price</Text>
-              <Text style={[styles.tableCell, styles.valueCol, { borderRight: 'none' }]}>{product?.price} $</Text>
-            </View>
-            <View style={styles.tableRow}>
-              <Text style={[styles.tableCell, styles.descriptionCol]}>Sale Company Percent</Text>
-              <Text style={[styles.tableCell, styles.valueCol, { borderRight: 'none' }]}>{contract.saleCompanyPercent}%</Text>
-            </View>
-            <View style={styles.tableRow}>
-              <Text style={[styles.tableCell, styles.descriptionCol]}>Sale Partner Percent</Text>
-              <Text style={[styles.tableCell, styles.valueCol, { borderRight: 'none' }]}>{contract.salePartnerPercent}%</Text>
-            </View>
-            <View style={styles.tableRow}>
-              <Text style={[styles.tableCell, styles.descriptionCol]}>Valid From</Text>
-              <Text style={[styles.tableCell, styles.valueCol, { borderRight: 'none' }]}>{contract.validFrom}</Text>
-            </View>
-            <View style={styles.tableRow}>
-              <Text style={[styles.tableCell, styles.descriptionCol]}>Valid To</Text>
-              <Text style={[styles.tableCell, styles.valueCol, { borderRight: 'none' }]}>{contract.validTo}</Text>
-            </View>
-          </View>
-        </View>
+      <Text style={{ marginTop: 10 }}>
+        On one side, hereinafter referred to as the "Company," represented by its Executive Director, acting based on its Charter,
+        {partner.company.name}, Tax ID ({partner.company.taxId}), and on the other side, hereinafter referred to as the "Owner," an individual acting on their own behalf,
+        {` ${partner?.name || '____'} (Passport number ${partner?.passportNumber || '____'}, FIN: ${partner?.finCode || '____'}),`} collectively referred to as the "Parties,"
+        enter into this Partnership Agreement under the following terms:
+      </Text>
 
-        {/* Signature */}
-        <View style={{ marginTop: 40 }}>
-          <Text>Signature: ____________________________</Text>
-        </View>
-      </Page>
-    </Document>
-  );
-}
+      <Text style={{ marginTop: 10, fontWeight: 'bold' }}>1. SUBJECT OF THE AGREEMENT</Text>
+      <Text>
+		1.1. The Owner transfers precious items, including gold jewelry and/or other valuable decorative items (individually or collectively referred to as "Items") owned by them to the Company for safekeeping during the term of this Agreement and authorizes the Company to lease or sell these Items to third parties as an intermediary. The Company agrees to pay the Owner the rental fees agreed upon in the Agreement.
+	  
+	  </Text>
+	  <Text style={{ marginTop: 10, fontWeight: 'bold' }}>2.MAIN TERMS</Text>
+	  <Text>
+		The terms used in this Agreement mean the following:
+	  </Text>
+	  <Text>
+		2.1. Owner – Individual who legally owns or has disposal rights over the Items provided to the Company for lease or sale.
+	  </Text>
+	  <Text>
+		2.2. Item(s) – Gold jewelry or decorative items provided by the Owner to the Company for lease or sale to third parties (Users).
+	  </Text>
+	  <Text>
+		2.3. Lease Period – The period during which Items are leased by the Company to third parties, including the storage period when Items are not leased.
+	  </Text>
+	  <Text>
+		2.4. Rental Fee – Amount payable by the Company to the Owner.
+	  </Text>
+		<Text>
+			2.5. User – Third parties who lease the Items from the Company.
+	  </Text>
+	  <Text>
+			2.6. Buyer – Third party purchasing Items through the Company based on a sales contract.
+	  </Text>
+	  <Text>
+			2.7. Lease Duration – Period from the date Items are delivered to the User until returned to the Company.
+	  </Text>
+	  <Text>
+			2.8. Lease Fee – Amount paid by the User to the Company under the lease agreement.
+	  </Text>
+	  <Text>
+			2.9. Portal – Website or application managed by the Company where information about the Items is posted.
+	  </Text>
+	  <Text>
+			2.10. Safekeeping – Storage of Items belonging to the Owner by the Company upon the Owner’s request.
+	  </Text>
+	  
+	  <Text style={{ marginTop: 10, fontWeight: 'bold' }}>3.ITEM DELIVERY PROCEDURE</Text>
+	  
+	  <Text>
+			3.1. Owner must deliver Items in usable condition without visible defects. All details regarding the condition of Items must be documented.
+	  </Text>
+	  <Text>
+			3.2. Owner must confirm the accuracy of inspection results conducted by Company representatives during Item delivery. Company representatives must answer Owner’s questions regarding these results.
+	  </Text>
+	  <Text>
+			3.3. The value of Items must be recorded in the delivery act during the initial transfer.
+	  </Text>
+	  <Text>
+			3.4. By providing Items, Owner grants the Company the right to lease or sell Items while retaining ownership rights.
+	  </Text>
+	  <Text>
+			3.5. Owner consents to the Company leasing or selling Items to third parties.
+	  </Text>
+	  <Text>
+			3.5. Owner consents to the Company leasing or selling Items to third parties.
+	  </Text>
+	  <Text>
+			3.6. Delivery of Items to the Company is documented with an act that includes details such as condition, market value, appearance, and defects.
+	  </Text>
+	  <Text>
+			3.7. Owner agrees that the Company may store Item photographs electronically, which form part of the Agreement.
+	  </Text>
+	  <Text>
+			3.8. With Owner’s written consent, the Company may perform polishing or other maintenance on Items. Costs incurred will be borne by the Company if agreed in the act.
+	  </Text>
+	  
+	  <Text style={{ marginTop: 10, fontWeight: 'bold' }}>4.LEASING AND SALES PROCESS</Text>
+	  
+	  <Text>
+		4.1. The Company may exhibit, lease, or sell Items to third parties according to its procedures. All related transactions are managed by the Company.
+	  </Text>
+	  <Text>
+		4.2. The Company is responsible for tax obligations from rental income and deducts applicable taxes from the Owner’s revenue.
+	  </Text>
+	  <Text>
+			4.3. Owner is not responsible for the Company’s tax, insurance, or financial obligations.
+	  </Text>
+	  <Text>
+			4.4. Company undertakes to insure Items according to Azerbaijani law at its own expense.
+	  </Text>
+	  <Text>
+			4.5. Company ensures timely insurance contract renewal and premium payments.
+	  </Text>
+	  
+	  <Text style={{ marginTop: 10, fontWeight: 'bold' }}>5.RIGHTS AND OBLIGATIONS</Text>
+	  
+	  <Text>
+			5.1. Owner’s rights and obligations:
+	  </Text>
+	  <Text>
+			•	Provide Items free from third-party claims;
+	  </Text>
+	  <Text>
+			•	Provide proof of ownership during Item transfer;
+	  </Text>
+	  <Text>
+			•	Ensure Items are not acquired illegally or under duress;
+	  </Text>
+	  <Text>
+			•	Inform Company about known defects;
+	  </Text>
+	  <Text>
+			•	Take responsibility for any third-party disputes regarding ownership;
+	  </Text>
+	  <Text>
+			•	Be responsible for undisclosed defects;
+	  </Text>
+	  <Text>
+			•	Comply with Article 7.1 for early retrieval of Items.
+	  </Text>
+	  
+	  <Text>
+			5.2. Company’s rights and obligations:
+	  </Text>
+	  <Text>
+			•	Ensure complete safeguarding of Items;
+	  </Text>
+	  <Text>
+			•	Pay the agreed fee to Owner on time.
+	  </Text>
+	  <Text style={{ marginTop: 10, fontWeight: 'bold' }}>6.PAYMENT TERMS</Text>
+	  <Text>
+			6.1. Through the Portal, the Company:
+	  </Text>
+	  <Text>
+			6.1.1 Pays Owner within one calendar month after receiving lease fees from Users;
+	  </Text>
+	  <Text>
+			6.1.2 Transfers sales proceeds to Owner’s bank account or by other legal means.
+	  </Text>
+	  <Text>
+			6.2. Owner receives 50% of rental income after tax deductions.
+	  </Text>
+	  <Text>
+			6.3. Owner receives 90-95% of sales proceeds after deductions agreed upon by parties.
+	  </Text>
+	  <Text>
+			6.4. Owner makes no payment for Item storage when not leased or sold.
+	  </Text>
+	  
+	  <Text style={{ marginTop: 10, fontWeight: 'bold' }}>7.	RETURN OF ITEMS</Text>
+
+	  
+	  <Text>
+			7.1. Company returns undamaged Items to Owner upon six-month written notice or with compensation equal to five times the lease fee for shorter periods.
+	  </Text>
+	  <Text>
+			7.2. Return of Items is documented by a final delivery act signed by both parties.
+	  </Text>
+	  <Text>
+			7.3. Items are returned in documented condition, excluding normal wear and tear.
+	  </Text>
+	  <Text>
+			7.4. Minor repairs during lease are done by the Company.
+	  </Text>
+	  <Text>
+			7.2. Return of Items is documented by a final delivery act signed by both parties.
+	  </Text>
+	  <Text>
+			7.2. Return of Items is documented by a final delivery act signed by both parties.
+	  </Text>
+	  
+	  <Text style={{ marginTop: 10, fontWeight: 'bold' }}>8.	AGREEMENT DURATION AND TERMINATION</Text>
+	  
+	  <Text>
+			8.1. Agreement is valid for two years from signing, extendable for subsequent two-year terms unless terminated by 30-day notice.
+	  </Text>
+	  <Text>
+			8.2. Immediate termination for fraud or breach is permitted.
+	  </Text>
+	  <Text>
+			8.3. Upon termination, Items must be returned, and related leases end, though sales obligations continue.
+	  </Text>
+	  
+	  
+	  <Text style={{ marginTop: 10, fontWeight: 'bold' }}>9. LIABILITY</Text>
+	  
+	  <Text>
+			9.1. Parties bear liability for damages caused by incomplete performance.
+	  </Text>
+	  <Text>
+			9.2. Owner is not liable if Company fails obligations.
+	  </Text>
+	  <Text>
+			9.3. Owner may suspend obligations if Company deliberately obstructs Agreement performance.
+	  </Text>
+	  <Text>
+			9.4. Company is responsible for loss or damage of Items during safekeeping.
+	  </Text>
+	  <Text>
+			9.5. Concealed lease terms result in Company liability for Owner’s losses.
+	  </Text>
+	  <Text>
+			9.6. Company is not liable for Item loss or significant damage by Users. 
+	  </Text>
+	  <Text>
+			9.7. Company liability is limited to Item valuation.
+	  </Text>
+	  
+	  <Text style={{ marginTop: 10, fontWeight: 'bold' }}>10.	FORCE MAJEURE</Text>
+	  
+	  <Text>
+			10.1. Parties are exempt from liability for obligations hindered by Force Majeure.
+	  </Text>
+	  <Text style={{ marginTop: 10, fontWeight: 'bold' }}>11.	CONFIDENTIALITY</Text>
+	  
+	  <Text>
+			11.1. Parties agree to maintain confidentiality for five years post-termination.
+	  </Text>
+	  <Text style={{ marginTop: 10, fontWeight: 'bold' }}>12.	DISPUTE RESOLUTION</Text>
+	  <Text>
+			12.1. Azerbaijani law governs disputes, settled by negotiation or court.
+	  </Text>
+	  <Text style={{ marginTop: 10, fontWeight: 'bold' }}>13.	FINAL PROVISIONS</Text>
+	  
+	  <Text>
+			13.1. Agreement supersedes prior arrangements.
+	  </Text>
+	  <Text>
+			13.2. Portal terms are integral but subordinate to Agreement.
+	  </Text>
+	  <Text>
+			13.3. Rights/obligations cannot be transferred without consent
+	  </Text>
+	  <Text>
+			13.4. Partial invalidity does not void the entire Agreement.
+	  </Text>
+	  <Text>
+			13.5. Company may unilaterally amend terms with 14-day notice.
+	  </Text>
+	  <Text>
+			13.6. Amendments require written consent.
+	  </Text>
+	  <Text>
+			13.7. Agreement executed in Azerbaijani in two equally valid originals, one for each party
+	  </Text>
+	  <Text>
+			The Parties confirm by their signatures that they have concluded this Agreement:
+	  </Text>
+	  
+      {/* You can continue adding full clauses like this */}
+      
+      <Text style={{ marginTop: 20, fontWeight: 'bold' }}>14. DETAILS OF THE PARTIES</Text>
+      <Text style={{ marginTop: 5 }}>
+        COMPANY: {partner.company.name}
+        {'\n'}Address : {partner.company.address}
+        {'\n'}Tax ID: {partner.company.taxId}
+        {'\n'}Executive Director: ---------- oglu
+        {'\n'}Phone: ------------
+      </Text>
+      <Text style={{ marginTop: 10 }}>
+        OWNER: {partner?.name || '____'}
+        {'\n'}Passport №: {partner?.passportNumber || '____'}
+        {'\n'}FIN: {partner?.finCode || '____'}
+      </Text>
+
+      <Text style={{ marginTop: 20 }}>Signature: ____________________________</Text>
+    </Page>
+  </Document>
+);
+
 
 const FormInput = ({ label, name, value, onChange, type = 'text' }) => (
   <div className="mb-2">
@@ -250,26 +448,111 @@ const PartnerDetails = () => {
   const [partner, setPartner] = useState(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const [uploadMessage, setUploadMessage] = useState('');
+  const fileInputRef = useRef(null);
 
   const handleDownloadContract = async (contract) => {
     try {
       const productResponse = await productService.getByCode(contract.productId);
-      const product = productResponse.data;
+      //const product = productResponse.data;
 
-      const blob = await pdf(<ContractPDF partner={partner} product={product} contract={contract} />).toBlob();
-
+      //const blob = await pdf(<ContractPDF partner={partner} product={product} contract={contract} />).toBlob();
+      const blob = await pdf(<PartnershipAgreementPDF partner={partner} />).toBlob();
       const url = URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;
-      link.download = `Contract-${contract.productId}.pdf`;
+      link.download = `Contract-Partnership-Agreement.pdf`;
       document.body.appendChild(link);
       link.click();
       link.remove();
       URL.revokeObjectURL(url);
     } catch (error) {
-      console.error('Error generating contract PDF:', error);
+       toast.error('Error generating contract PDF:', error);
     }
   };
+
+  const handleDownloadInitialDeliveryAct = async (contracts) => {
+  try {
+    const deliveryDataList = [];
+
+    for (const contract of contracts) {
+      const productResponse = await productService.getByCode(contract.productId);
+      const product = productResponse.data;
+      const categoryResponse = await categoryService.getById(product.categoryId);
+      const category = categoryResponse.data;
+
+      deliveryDataList.push({ contract, product, category });
+    }
+
+    const blob = await pdf(
+      <Document>
+        {deliveryDataList.map((item, index) => (
+          <Page key={index} size="A4" style={styles.page}>
+            <InitialDeliveryActPage
+              partner={partner}
+              deliveryData={item.product}
+              category={item.category}
+            />
+          </Page>
+        ))}
+      </Document>
+    ).toBlob();
+
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `Initial-Delivery-Act.pdf`;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    URL.revokeObjectURL(url);
+  } catch (error) {
+     toast.error('Error generating Initial Delivery Act PDF:', error);
+  }
+};
+
+
+
+
+  const handleDownloadAgreement = async () => {
+    try {
+      
+      const blob = await pdf(<PartnershipAgreementPDF partner={partner} />).toBlob();
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `Contract-Partnership-Agreement.pdf`;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      URL.revokeObjectURL(url);
+    } catch (error) {
+       toast.error('Error generating contract PDF:', error);
+    }
+  };
+  const handleDownloadFinalDeliveryAct = async () => {
+  try {
+    const blob = await pdf(
+      <Document>
+        <Page size="A4" style={styles.page}>
+          <FinalDeliveryActPage partner={partner} />
+        </Page>
+      </Document>
+    ).toBlob();
+
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `Final-Delivery-Act-${partner.name || 'unknown'}.pdf`;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    URL.revokeObjectURL(url);
+  } catch (error) {
+     toast.error('Error generating Final Delivery Act PDF:', error);
+  }
+};
 
   useEffect(() => {
     const fetchPartner = async () => {
@@ -277,7 +560,7 @@ const PartnerDetails = () => {
         const data = await partnerService.getPartnerById(id);
         setPartner(data);
       } catch (err) {
-        console.error('Failed to fetch partner details:', err);
+         toast.error('Failed to fetch partner details:', err);
       } finally {
         setLoading(false);
       }
@@ -313,7 +596,7 @@ const PartnerDetails = () => {
       await partnerService.updatePartner(id, partner);
       navigate('/partners');
     } catch (err) {
-      console.error('Failed to save changes:', err);
+       toast.error('Failed to save changes:', err);
     } finally {
       setSaving(false);
     }
@@ -322,10 +605,38 @@ const PartnerDetails = () => {
   if (loading) return <div className="text-center p-6">Loading partner details...</div>;
   if (!partner) return <div className="text-center p-6 text-red-500">Partner not found.</div>;
 
+
+  // Trigger the hidden file input click
+  const triggerFileSelect = () => {
+    if (fileInputRef.current) fileInputRef.current.click();
+  };
+
+  // Handle file selection & upload
+  const handleUploadDocument = async (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+
+  setUploading(true);
+
+  try {
+    await partnerService.uploadDocument(file);
+    toast.success('Document uploaded successfully!');
+  } catch (error) {
+     toast.error('Upload failed:', error);
+    toast.error('Failed to upload document.');
+  } finally {
+    setUploading(false);
+    e.target.value = null;
+  }
+};
+
+
+
   return (
     <div className="bg-gray-100 dark:bg-gray-900 min-h-screen p-6">
       <div className="max-w-4xl mx-auto space-y-6">
         <div className="flex items-center justify-between">
+          
           <button
             onClick={() => navigate(-1)}
             className="flex items-center text-sm font-semibold text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 transition"
@@ -339,7 +650,10 @@ const PartnerDetails = () => {
           >
             <Save size={18} /> {saving ? 'Saving...' : 'Save Changes'}
           </button>
+          
+          
         </div>
+        
 
         <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow space-y-2">
           <h3 className="text-lg font-semibold">Partner Information</h3>
@@ -360,28 +674,83 @@ const PartnerDetails = () => {
 
         <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow space-y-4">
           <h3 className="text-lg font-semibold">Contracts</h3>
-          {partner.contracts?.length > 0 ? (
-            partner.contracts.map((contract, index) => (
-              <div
-                key={index}
+          <div
                 className="border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-700 p-4 space-y-4 shadow-sm"
               >
                 <div className="flex items-center justify-between">
                   <div className="font-semibold text-base text-gray-800 dark:text-white">
-                    Contract for Product: {contract.productId}
+                    PARTNERSHIP AGREEMENT
                   </div>
                   <button
-                    onClick={() => handleDownloadContract(contract)}
+                    onClick={() => handleDownloadAgreement()}
                     className="flex items-center gap-1 text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 text-sm font-medium"
                   >
                     <Download size={16} /> Download PDF
                   </button>
                 </div>
+            </div>
+            
+            <div
+                className="border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-700 p-4 space-y-4 shadow-sm"
+              >
+                
+                <div className="flex items-center justify-between">
+                  <div className="font-semibold text-base text-gray-800 dark:text-white">
+                    INITIAL DELIVERY ACT
+                  </div>
+                  <button
+                  onClick={() => handleDownloadInitialDeliveryAct(partner.contracts)}  
+                  className="flex items-center gap-1 text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 text-sm font-medium"
+                >
+                  <Download size={16} /> Download PDF
+                </button>
+
+                </div>
+                
               </div>
-            ))
-          ) : (
-            <div className="text-gray-600 dark:text-gray-300">No contracts available.</div>
-          )}
+            <div className='border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-700 p-4 space-y-4 shadow-sm'>
+              <div className="flex items-center justify-between">
+                  <div className="font-semibold text-base text-gray-800 dark:text-white">
+                    FINAL DELIVERY ACT
+                  </div>
+                  <button
+                  onClick={() => handleDownloadFinalDeliveryAct()}
+                  className="flex items-center gap-1 text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 text-sm font-medium"
+                >
+                  <Download size={16} /> Download PDF
+                </button>
+
+                </div>
+            </div>
+            <input
+        type="file"
+        ref={fileInputRef}
+        onChange={handleUploadDocument}
+        className="hidden"
+        accept=".pdf,.doc,.docx,.jpg,.png"
+      />
+      <button
+        onClick={triggerFileSelect}
+        disabled={uploading}
+        className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-semibold shadow flex items-center justify-center space-x-2 disabled:opacity-50"
+      >
+        {uploading ? (
+          <Loader2 className="animate-spin h-5 w-5" />
+        ) : (
+          <UploadCloud className="h-5 w-5" />
+        )}
+        <span>{uploading ? 'Uploading...' : 'Select & Upload Document'}</span>
+      </button>
+      {uploadMessage && (
+        <p className={`mt-2 text-sm ${uploadMessage.includes('failed') ? 'text-red-500' : 'text-green-500'}`}>
+          {uploadMessage}
+        </p>
+      )}
+          
+
+            
+            
+            
         </div>
       </div>
     </div>
