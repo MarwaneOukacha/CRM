@@ -29,6 +29,8 @@ public class Product extends AbstractEntity {
     private int cart;
     private ProductStatus raison;
     private double quantity;
+    private double quantityRented;
+    private double quantitySaled;
     private double rentPrice;
     private double size;
 

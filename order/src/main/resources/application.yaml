@@ -1,0 +1,36 @@
+server:
+  port: 8096
+
+spring:
+  application:
+    name: product-service
+  cloud:
+    compatibility-verifier:
+      enabled: false
+
+  config:
+    import: optional:configserver:http://localhost:8888
+
+  datasource:
+    url: jdbc:postgresql://localhost:5432/crm
+    username: postgres
+    password: Xyna2604
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: 10
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+
+eureka:
+  client:
+    register-with-eureka: true
+    fetch-registry: true
+    service-url:
+      defaultZone: http://localhost:8761/eureka
+
+app:
+  fileUrl: C:\Users\UltraPc\Desktop\pic\

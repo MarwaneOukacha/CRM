@@ -21,6 +21,8 @@ public class ProductResponseDTO {
     private Double price;
     private String code;
     private ProductStatus raison;
+    private double quantityRented;
+    private double quantitySaled;
     private int clicks;
     private int favorite;
     private int cart;
