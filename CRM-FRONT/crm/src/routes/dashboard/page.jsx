@@ -125,50 +125,50 @@ const DashboardPage = () => {
                 <div className="card-body p-0">
                     <div className="relative h-[500px] w-full flex-shrink-0 overflow-auto rounded-none [scrollbar-width:_thin]">
                         <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-      <thead className="bg-gray-50 dark:bg-gray-800">
-        <tr>
-          <th
-            scope="col"
-            className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
-          >
-            Product Name
-          </th>
-          <th
-            scope="col"
-            className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
-          >
-            Order code
-          </th>
-          <th
-            scope="col"
-            className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
-          >
-            Order type
-          </th>
-          
-          <th
-            scope="col"
-            className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
-          >
-            Category
-          </th>
-          <th
-            scope="col"
-            className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
-          >
-            Shipping address 
-          </th>
-          <th
-            scope="col"
-            className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
-          >
-            Status
-          </th>
-          <th scope="col" className="relative px-6 py-3">
-            <span className="sr-only">Actions</span>
-          </th>
-        </tr>
-      </thead>
+                          <thead className="bg-gray-50 dark:bg-gray-800">
+                            <tr>
+                              <th
+                                scope="col"
+                                className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
+                              >
+                                Product Name
+                              </th>
+                              <th
+                                scope="col"
+                                className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
+                              >
+                                Order code
+                              </th>
+                              <th
+                                scope="col"
+                                className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
+                              >
+                                Order type
+                              </th>
+                              
+                              <th
+                                scope="col"
+                                className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
+                              >
+                                Category
+                              </th>
+                              <th
+                                scope="col"
+                                className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
+                              >
+                                Shipping address 
+                              </th>
+                              <th
+                                scope="col"
+                                className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
+                              >
+                                Status
+                              </th>
+                              <th scope="col" className="relative px-6 py-3">
+                                <span className="sr-only">Actions</span>
+                              </th>
+                            </tr>
+                          </thead>
 
       <tbody className="bg-white dark:bg-gray-900 divide-y divide-gray-200 dark:divide-gray-700">
   {topOrders.map((order, index) => (

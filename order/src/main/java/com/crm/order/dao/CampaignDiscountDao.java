@@ -3,8 +3,8 @@ package com.crm.order.dao;
 import com.crm.order.entities.CampaignDiscount;
 import com.crm.order.entities.model.CampaignDiscountSearchCriteriaDTO;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
-import java.awt.print.Pageable;
 import java.util.Optional;
 import java.util.UUID;
 

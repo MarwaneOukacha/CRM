@@ -86,7 +86,16 @@ export const navbarLinks = [
             }
         ],
     },
-    
+    {
+        title: "Orders",
+        links: [
+            {
+                label: "Orders",
+                icon: Package,
+                path: "/orders",
+            },
+        ],
+    },
     {
         title: "Settings",
         links: [

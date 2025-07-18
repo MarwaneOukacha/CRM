@@ -43,3 +43,4 @@ public class ProductResponseDTO {
     private List<MediaResponseDTO> media;
     private String barcodeImage;
 }
+

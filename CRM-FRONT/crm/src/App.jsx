@@ -22,6 +22,8 @@ import AddProduct from "./components/AddProduct";
 import Partners from "./components/Partners";
 import AddPartner from "./components/AddPartner";
 import PartnerDetails from "./components/PartnerDetails";
+import Orders from "./components/orders";
+import CreateOrderForm from "./components/CreateOrderForm";
 
 function App() {
     const router = createBrowserRouter([
@@ -97,6 +99,14 @@ function App() {
                 {
                     path: "partners/:id",
                     element: <PartnerDetails/>,
+                },
+                {
+                    path: "orders",
+                    element: <Orders/>,
+                },
+                {
+                    path: "create/order",
+                    element: <CreateOrderForm/>,
                 }
                 
                 
