@@ -59,31 +59,31 @@ const OrderDetails = () => {
             General Information
           </h3>
           <div>
-            <strong>Order code:</strong>{" "}
+            <strong className="text-gray-800 dark:text-gray-200">Order code:</strong>{" "}
             <span className="font-mono text-gray-600 dark:text-gray-400">{order.orderCode}</span>
           </div>
           <div>
-            <strong>Customer:</strong>{" "}
+            <strong className="text-gray-800 dark:text-gray-200">Customer:</strong>{" "}
             <span className="font-mono text-gray-600 dark:text-gray-400">
               {order.customerEmail} ({order.customerCode})
             </span>
           </div>
           <div>
-            <strong>Order Type:</strong>{" "}
+            <strong className="text-gray-800 dark:text-gray-200">Order Type:</strong>{" "}
             <span className="font-mono text-gray-600 dark:text-gray-400">{order.type}</span>
           </div>
           <div>
-            <strong>Status:</strong>{" "}
+            <strong className="text-gray-800 dark:text-gray-200">Status:</strong>{" "}
             <span className="font-mono text-gray-600 dark:text-gray-400">{order.status}</span>
           </div>
           <div>
-            <strong>Contract Sent:</strong>{" "}
+            <strong className="text-gray-800 dark:text-gray-200">Contract Sent:</strong>{" "}
             <span className="font-mono text-gray-600 dark:text-gray-400">
               {order.contractSent ? "Yes" : "No"}
             </span>
           </div>
           <div>
-          <strong>View Contract:</strong>{" "}
+          <strong className="text-gray-800 dark:text-gray-200">View Contract:</strong>{" "}
           <span className="font-mono text-gray-600 dark:text-gray-400">
             <a
                 href={order.contractUrl}
@@ -97,7 +97,7 @@ const OrderDetails = () => {
 
           {order.filUrl && (
             <div>
-              <strong>Contract Link:</strong>{" "}
+              <strong className="text-gray-800 dark:text-gray-200">Contract Link:</strong>{" "}
               <a
                 href={order.filUrl}
                 target="_blank"
@@ -116,31 +116,31 @@ const OrderDetails = () => {
             Financial Summary
           </h3>
           <div>
-            <strong>Payment Type:</strong>{" "}
+            <strong className="text-gray-800 dark:text-gray-200">Payment Type:</strong>{" "}
             <span className="font-mono text-gray-600 dark:text-gray-400">{order.paymentType}</span>
           </div>
           <div>
-            <strong>Total Price:</strong>{" "}
+            <strong className="text-gray-800 dark:text-gray-200">Total Price:</strong>{" "}
             <span className="font-mono text-gray-600 dark:text-gray-400">
               {formatCurrency(order.totalPrice)}
             </span>
           </div>
           <div>
-            <strong>Deposit Paid:</strong>{" "}
+            <strong className="text-gray-800 dark:text-gray-200">Deposit Paid:</strong>{" "}
             <span className="font-mono text-gray-600 dark:text-gray-400">
               {formatCurrency(order.depositPaid)}
             </span>
           </div>
           <div>
-            <strong>Penalty Fee:</strong>{" "}
+            <strong className="text-gray-800 dark:text-gray-200">Penalty Fee:</strong>{" "}
             <span className="text-orange-500">{order.penaltyFee}% = {order.totalPrice*(order.penaltyFee)/100}$</span>
           </div>
           <div>
-            <strong>Damage Fee:</strong>{" "}
+            <strong className="text-gray-800 dark:text-gray-200">Damage Fee:</strong>{" "}
             <span className="text-red-500">{order.damageFee}% ={order.totalPrice*(order.damageFee)/100}$</span>
           </div>
           <div>
-            <strong>Total Debt:</strong>{" "}
+            <strong className="text-gray-800 dark:text-gray-200">Total Debt:</strong>{" "}
             <span className="font-bold text-red-600">{formatCurrency(order.totalDebt)}</span>
           </div>
         </div>
