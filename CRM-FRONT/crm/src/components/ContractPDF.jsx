@@ -26,7 +26,7 @@ const styles = StyleSheet.create({
   valueCol: { width: "50%" },
 });
 
-function ContractPDF({ partner, order }) {
+function ContractPDF({ order,orderCode }) {
   const invoiceDate = new Date().toLocaleDateString();
 
   return (
@@ -34,10 +34,10 @@ function ContractPDF({ partner, order }) {
       <Page size="A4" style={styles.page}>
         {/* Header */}
         <View style={styles.header}>
-          <Text style={styles.companyTitle}>{partner.company?.name || "Company"}</Text>
+          <Text style={styles.companyTitle}>Fancy Company LLC</Text>
           <View style={styles.headerRight}>
-            <Text>{partner.company?.name || "Company"}</Text>
-            <Text>Tax ID: {partner.company?.taxId || "-"}</Text>
+            <Text>Fancy Company LLC</Text>
+            <Text>Tax ID: 3*******4</Text>
           </View>
         </View>
 
@@ -45,15 +45,14 @@ function ContractPDF({ partner, order }) {
         <View style={styles.providerCustomerSection}>
           <View style={styles.providerSection}>
             <Text style={styles.sectionHeader}>PROVIDER</Text>
-            <Text>{partner.company?.name || "Company"}</Text>
-            <Text>Tax ID: {partner.company?.taxId || "-"}</Text>
-            <Text>{partner.company?.address || "-"}</Text>
+            <Text>Fancy Company LLC</Text>
+            <Text>Tax ID: 3*******4</Text>
+            <Text>ADDRESS 345 </Text>
           </View>
           <View style={styles.customerSection}>
             <Text style={styles.sectionHeader}>CUSTOMER</Text>
             <Text>{order.customerCode}</Text>
             <Text>{order.customerEmail}</Text>
-            <Text>Status: {order.status}</Text>
           </View>
         </View>
 
@@ -67,47 +66,55 @@ function ContractPDF({ partner, order }) {
             </View>
             <View style={[styles.invoiceDetailCell, { width: "50%" }]}>
               <Text style={styles.invoiceDetailHeader}>Order Code</Text>
-              <Text style={styles.invoiceDetailValue}>{order.code}</Text>
+              <Text style={styles.invoiceDetailValue}>{orderCode}</Text>
+            </View>
+            <View style={[styles.invoiceDetailCell, { width: "50%" }]}>
+              <Text style={styles.invoiceDetailHeader}>Order type</Text>
+              <Text style={styles.invoiceDetailValue}>{order.type}</Text>
             </View>
           </View>
         </View>
 
         {/* Order Items */}
         <View style={styles.servicesSection}>
-          <Text style={styles.servicesTitle}>Order Items</Text>
-          <View style={styles.table}>
-            <View style={styles.tableHeader}>
-              <Text style={[styles.tableHeaderCell, styles.descriptionCol]}>Product</Text>
-              <Text style={[styles.tableHeaderCell, styles.valueCol, { borderRight: "none" }]}>Quantity</Text>
-            </View>
+        <Text style={styles.servicesTitle}>Order Items</Text>
+        <View>
+          <View style={{ flexDirection: "row", justifyContent: "space-between", paddingVertical: 4, borderBottom: "1px solid #000", fontWeight: "bold" }}>
+            <Text>Product</Text>
+            <Text>Quantity</Text>
+          </View>
 
-            {order.orderItems?.map((item, index) => (
-              <View style={styles.tableRow} key={index}>
-                <Text style={[styles.tableCell, styles.descriptionCol]}>{item.productCode}</Text>
-                <Text style={[styles.tableCell, styles.valueCol, { borderRight: "none" }]}>{item.quantity}</Text>
+          {order.orderItems?.map((item, index) => (
+            <View key={index} style={{ flexDirection: "row", justifyContent: "space-between", paddingVertical: 4, borderBottom: "1px solid #eee" }}>
+              <Text>{item.code}</Text>
+              <Text>{item.quantity}</Text>
+            </View>
+          ))}
+        </View>
+      </View>
+
+
+       
+
+        {/* Payment Details */}
+        <View style={styles.servicesSection}>
+          <Text style={styles.servicesTitle}>Payment Summary</Text>
+          <View>
+            {[
+              { label: "Total Price", value: `$${order.totalPrice}` },
+              { label: "Deposit Paid", value: `$${order.depositPaid}` },
+              { label: "Total Debt", value: `$${order.totalDebt}` },
+              { label: "Penalty Fee", value: `$${(order.penaltyFee * order.totalPrice / 100).toFixed(2)}` },
+              { label: "Damage Fee", value: `$${(order.damageFee * order.totalPrice / 100).toFixed(2)}` },
+            ].map((item, index) => (
+              <View key={index} style={{ flexDirection: "row", justifyContent: "space-between", paddingVertical: 4, borderBottom: "1px solid #eee" }}>
+                <Text>{item.label}</Text>
+                <Text>{item.value}</Text>
               </View>
             ))}
           </View>
         </View>
 
-        {/* Payment Details */}
-        <View style={styles.servicesSection}>
-          <Text style={styles.servicesTitle}>Payment Summary</Text>
-          <View style={styles.table}>
-            <View style={styles.tableRow}>
-              <Text style={[styles.tableCell, styles.descriptionCol]}>Total Price</Text>
-              <Text style={[styles.tableCell, styles.valueCol, { borderRight: "none" }]}>${order.totalPrice?.toFixed(2)}</Text>
-            </View>
-            <View style={styles.tableRow}>
-              <Text style={[styles.tableCell, styles.descriptionCol]}>Deposit Paid</Text>
-              <Text style={[styles.tableCell, styles.valueCol, { borderRight: "none" }]}>${order.depositPaid?.toFixed(2)}</Text>
-            </View>
-            <View style={styles.tableRow}>
-              <Text style={[styles.tableCell, styles.descriptionCol]}>Total Debt</Text>
-              <Text style={[styles.tableCell, styles.valueCol, { borderRight: "none" }]}>${order.totalDebt?.toFixed(2)}</Text>
-            </View>
-          </View>
-        </View>
 
         {/* Signature */}
         <View style={{ marginTop: 40 }}>

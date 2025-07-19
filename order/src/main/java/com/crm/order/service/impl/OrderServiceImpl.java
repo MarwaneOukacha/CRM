@@ -50,7 +50,7 @@ public class OrderServiceImpl implements OrderService {
         log.info("Creating Order for customerCode: {}", orderRequestDTO.getCustomerCode());
 
         Order order = orderMapper.toEntity(orderRequestDTO);
-        order.setOrderCode(Utils.generateOrderCode());
+        order.setOrderCode(orderRequestDTO.getOrderCode());
         order.setStatus(OrderStatus.CONFIRMED);
 
         File file = orderRequestDTO.getFile();

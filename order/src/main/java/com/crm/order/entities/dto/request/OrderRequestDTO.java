@@ -15,6 +15,7 @@ public class OrderRequestDTO {
     private String customerCode;
     private String customerEmail;
     private OrderType type;
+    private String orderCode;
     private PaymentType paymentType;
     private Double totalPrice;
     private Double depositPaid;

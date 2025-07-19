@@ -59,8 +59,8 @@ const OrderDetails = () => {
             General Information
           </h3>
           <div>
-            <strong>Order ID:</strong>{" "}
-            <span className="font-mono text-gray-600 dark:text-gray-400">{order.id}</span>
+            <strong>Order code:</strong>{" "}
+            <span className="font-mono text-gray-600 dark:text-gray-400">{order.orderCode}</span>
           </div>
           <div>
             <strong>Customer:</strong>{" "}
@@ -82,6 +82,19 @@ const OrderDetails = () => {
               {order.contractSent ? "Yes" : "No"}
             </span>
           </div>
+          <div>
+          <strong>View Contract:</strong>{" "}
+          <span className="font-mono text-gray-600 dark:text-gray-400">
+            <a
+                href={order.contractUrl}
+                download
+                className="text-blue-600 hover:underline"
+              >
+                Download
+              </a>
+          </span>
+        </div>
+
           {order.filUrl && (
             <div>
               <strong>Contract Link:</strong>{" "}

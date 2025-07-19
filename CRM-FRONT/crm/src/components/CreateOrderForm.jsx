@@ -4,11 +4,20 @@ import { toast } from 'sonner';
 import productService from '../services/productService';
 import orderService from '../services/orderService';
 import { useNavigate } from 'react-router-dom';
+import ContractPDF from './ContractPDF';
+import { pdf } from '@react-pdf/renderer';
+
+function generateOrderCode() {
+  const datePart = new Date().toISOString().slice(0, 10).replace(/-/g, '');
+  const randomPart = Math.floor(Math.random() * 10000).toString().padStart(4, '0');
+  return `ORD-${datePart}-${randomPart}`;
+}
 
 const CreateOrderForm = () => {
   const [orderData, setOrderData] = useState({
     customerCode: '',
     customerEmail: '',
+    orderCode:'',
     type: 'SALE',
     paymentType: '',
     depositPaid: 0.0,
@@ -25,6 +34,8 @@ const CreateOrderForm = () => {
   const [searchLoading, setSearchLoading] = useState(false);
   const [searchError, setSearchError] = useState('');
   const [submitLoading, setSubmitLoading] = useState(false);
+  const [code,setCode]=useState(false);
+  
   const navigate=useNavigate();
 
   useEffect(() => {
@@ -88,14 +99,31 @@ const CreateOrderForm = () => {
     }));
   };
 
-  const handleGenerateContract = () => {
-    console.log("Generating contract for order:", orderData);
-    toast(`Generating contract for order with total: $${orderData.totalPrice}`, { duration: 3000 });
-  };
+  const handleGenerateContract = async () => {
+  try {
+    toast('Generating contract...');
+    const orderCode=generateOrderCode();
+    setCode(orderCode);
+    const blob = await pdf(<ContractPDF order={orderData} orderCode={orderCode} />).toBlob();
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `Contract.pdf`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+
+    toast.success('Contract generated successfully!');
+  } catch (error) {
+    console.error('Error generating contract:', error);
+    toast.error('Failed to generate contract.');
+  }
+};
 
   const handleSubmit = async (e) => {
   e.preventDefault();
   setSubmitLoading(true);
+  orderData.orderCode=code;
   try {
     const payload = {
       ...orderData,
@@ -131,6 +159,8 @@ const CreateOrderForm = () => {
     setSubmitLoading(false);
   }
 };
+ 
+
 
 
 
