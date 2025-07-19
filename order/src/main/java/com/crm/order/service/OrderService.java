@@ -10,7 +10,7 @@ import org.springframework.data.domain.Pageable;
 import java.util.UUID;
 
 public interface OrderService {
-    OrderResponseDTO createOrder(OrderRequestDTO orderRequestDTO);
+    OrderResponseDTO createOrder(OrderRequestDTO orderRequestDTO) throws Exception;
     OrderResponseDTO getOrderById(UUID id);
     Page<OrderResponseDTO> getAllOrdersWithCretiria(SearchCriteria SearchCretiria, Pageable pageable);
 

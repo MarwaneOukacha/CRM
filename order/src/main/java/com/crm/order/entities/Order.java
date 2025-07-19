@@ -23,7 +23,7 @@ public class Order extends AbstractEntity {
 
     @Enumerated(EnumType.STRING)
     private OrderStatus status;
-
+    private String orderCode;
     @Enumerated(EnumType.STRING)
     private PaymentType paymentType;
 
@@ -35,11 +35,12 @@ public class Order extends AbstractEntity {
 
     private Boolean contractSent;
 
-    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL,orphanRemoval = true)
     private List<OrderItem> orderItems;
 
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL)
     private List<OrderStatusHistory> statusHistories;
-    private String filUrl;
+    @OneToOne
+    private File file;
 
 }

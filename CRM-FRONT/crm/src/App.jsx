@@ -24,6 +24,7 @@ import AddPartner from "./components/AddPartner";
 import PartnerDetails from "./components/PartnerDetails";
 import Orders from "./components/orders";
 import CreateOrderForm from "./components/CreateOrderForm";
+import OrderDetails from "./components/OrderDetails";
 
 function App() {
     const router = createBrowserRouter([
@@ -108,7 +109,11 @@ function App() {
                     path: "create/order",
                     element: <CreateOrderForm/>,
                 }
-                
+                ,
+                {
+                    path: "/order/:id",
+                    element: <OrderDetails/>,
+                }
                 
             ],
         },

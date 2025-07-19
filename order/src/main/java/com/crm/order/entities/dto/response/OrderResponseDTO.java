@@ -1,5 +1,6 @@
 package com.crm.order.entities.dto.response;
 
+import com.crm.order.entities.File;
 import com.crm.order.entities.model.OrderStatusHistoryDTO;
 import com.crm.order.enums.OrderStatus;
 import com.crm.order.enums.OrderType;
@@ -15,6 +16,7 @@ public class OrderResponseDTO {
     private String customerEmail;
     private OrderType type;
     private OrderStatus status;
+    private String orderCode;
     private PaymentType paymentType;
     private Double totalPrice;
     private Double depositPaid;
@@ -22,7 +24,7 @@ public class OrderResponseDTO {
     private Double damageFee;
     private Double totalDebt;
     private Boolean contractSent;
-    private String filUrl;
+    private File file;
     private List<OrderItemResponseDTO> orderItems;
     private List<OrderStatusHistoryDTO> statusHistory;
 }

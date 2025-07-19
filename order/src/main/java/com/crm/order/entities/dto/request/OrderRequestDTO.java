@@ -1,6 +1,7 @@
 package com.crm.order.entities.dto.request;
 
 
+import com.crm.order.entities.File;
 import com.crm.order.enums.OrderType;
 import com.crm.order.enums.PaymentType;
 import lombok.Data;
@@ -21,6 +22,6 @@ public class OrderRequestDTO {
     private Double damageFee;
     private Double totalDebt;
     private Boolean contractSent;
-    private String filUrl;
+    private File file;
     private List<OrderItemRequestDTO> orderItems;
 }

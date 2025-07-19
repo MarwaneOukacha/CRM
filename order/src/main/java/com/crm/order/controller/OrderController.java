@@ -25,7 +25,7 @@ public class OrderController {
     private final OrderService orderService;
 
     @PostMapping
-    public ResponseEntity<OrderResponseDTO> createOrder(@RequestBody @Valid OrderRequestDTO orderRequestDTO) {
+    public ResponseEntity<OrderResponseDTO> createOrder(@RequestBody @Valid OrderRequestDTO orderRequestDTO) throws Exception {
         log.info("API - Create Order called for customerCode: {}", orderRequestDTO.getCustomerCode());
         OrderResponseDTO createdOrder = orderService.createOrder(orderRequestDTO);
         return ResponseEntity.status(HttpStatus.CREATED).body(createdOrder);
