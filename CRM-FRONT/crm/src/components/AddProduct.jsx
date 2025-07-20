@@ -112,12 +112,26 @@ const AddProduct = () => {
             setError(null);
             try {
                 const [catRes, caratRes, matRes, colorRes, desRes, occRes] = await Promise.all([
-                    categoryService.search(),
-                    caratService.search(),
-                    searchMaterials(),
-                    colorService.search(),
-                    designerService.search(),
-                    occasionService.search(),
+                    categoryService.search({
+                    status: "ACTIVE"
+                    }),
+                    caratService.search({
+                    status: "ACTIVE"
+                    }),
+                    searchMaterials({
+                    keyword: "ACTIVE"
+                    }),
+                    colorService.search({
+                    page: 0,
+                    size: 10,
+                    keyword: "active"
+                    }),
+                    designerService.search({
+                    keyword: "ACTIVE"
+                    }),
+                    occasionService.search({
+                    keyword: "ACTIVE"
+                    }),
                 ]);
 
                 setOptions({

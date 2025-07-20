@@ -47,7 +47,7 @@ public class CaratDaoImpl implements CaratDao {
 
             if (criteria.getName() != null && !criteria.getName().isEmpty()) {
                 Predicate namePredicate = cb.like(cb.lower(root.get("name")), criteria.getName());
-                Predicate statusPredicate = cb.like(cb.lower(root.get("status")), criteria.getName());
+                Predicate statusPredicate = cb.equal(cb.lower(root.get("status")), criteria.getName());
 
                 predicates.add(cb.or(namePredicate, statusPredicate));
             }

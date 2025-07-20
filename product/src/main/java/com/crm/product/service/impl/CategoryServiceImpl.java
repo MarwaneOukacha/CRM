@@ -45,6 +45,9 @@ public class CategoryServiceImpl implements CategoryService {
         if (dto.getParent() != null && !dto.getParent().isEmpty()) {
             category.setParent(dto.getParent());
         }
+        if (dto.getStatus() != null) {
+            category.setStatus(dto.getStatus());
+        }
 
         Category updated = categoryDao.save(category);
         log.info("CategoryServiceImpl::update - Updated category with id: {}", updated.getId());
