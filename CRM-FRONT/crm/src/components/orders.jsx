@@ -4,7 +4,8 @@ import OrderDetails from "./OrderDetails";
 import { useNavigate } from "react-router-dom";
 import orderService from "../services/orderService";
 import { toast } from "sonner";
-
+import * as XLSX from 'xlsx';
+import { saveAs } from 'file-saver';
 const Orders = () => {
   const [orders, setOrders] = useState([]);
   const [selectedOrder, setSelectedOrder] = useState(null);
@@ -35,6 +36,26 @@ const Orders = () => {
   if (selectedOrder) {
     return <OrderDetails order={selectedOrder} onClose={closeDetails} />;
   }
+  const exportOrdersToExcel = (orders) => {
+  const data = orders.map(order => ({
+    'Customer Email': order.customerEmail,
+    'Order Code': order.orderCode,
+    'Type': order.type,
+    'Total Price': order.totalPrice?.toFixed(2),
+    'Status': order.status,
+    'File contract':order.file.name
+  }));
+
+  const worksheet = XLSX.utils.json_to_sheet(data);
+  const workbook = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(workbook, worksheet, 'Orders');
+
+  const excelBuffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
+  const blob = new Blob([excelBuffer], { type: 'application/octet-stream' });
+  saveAs(blob, `Orders_${new Date().toISOString().slice(0, 10)}.xlsx`);
+
+  
+};
 
   return (
     <div className="card">
@@ -68,7 +89,9 @@ const Orders = () => {
           >
             <Plus className="mr-2 h-4 w-4" /> Create order
           </button>
-          <button className="inline-flex items-center px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-sm font-medium rounded-md">
+          <button 
+          onClick={() => exportOrdersToExcel(orders)}
+          className="inline-flex items-center px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-sm font-medium rounded-md">
             Export Excel
           </button>
         </div>
