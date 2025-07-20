@@ -38,6 +38,14 @@ const OrderDetails = () => {
   if (!order) {
     return <div className="text-center py-10 text-red-500">Order not found</div>;
   }
+  const handleDownload = async () => {
+  try {
+    await orderService.downloadContract(order.file.id, order.file.name);
+  } catch (error) {
+    toast.error('Failed to download file');
+  }
+};
+
 
   return (
     <div className="card">
@@ -86,8 +94,9 @@ const OrderDetails = () => {
           <strong className="text-gray-800 dark:text-gray-200">View Contract:</strong>{" "}
           <span className="font-mono text-gray-600 dark:text-gray-400">
             <a
-                href={order.contractUrl}
+                href={order.file.name}
                 download
+                onClick={()=>handleDownload()}
                 className="text-blue-600 hover:underline"
               >
                 Download
@@ -139,10 +148,7 @@ const OrderDetails = () => {
             <strong className="text-gray-800 dark:text-gray-200">Damage Fee:</strong>{" "}
             <span className="text-red-500">{order.damageFee}% ={order.totalPrice*(order.damageFee)/100}$</span>
           </div>
-          <div>
-            <strong className="text-gray-800 dark:text-gray-200">Total Debt:</strong>{" "}
-            <span className="font-bold text-red-600">{formatCurrency(order.totalDebt)}</span>
-          </div>
+          
         </div>
       </div>
 

@@ -103,7 +103,6 @@ function ContractPDF({ order,orderCode }) {
             {[
               { label: "Total Price", value: `$${order.totalPrice}` },
               { label: "Deposit Paid", value: `$${order.depositPaid}` },
-              { label: "Total Debt", value: `$${order.totalDebt}` },
               { label: "Penalty Fee", value: `$${(order.penaltyFee * order.totalPrice / 100).toFixed(2)}` },
               { label: "Damage Fee", value: `$${(order.damageFee * order.totalPrice / 100).toFixed(2)}` },
             ].map((item, index) => (

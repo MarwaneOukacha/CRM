@@ -33,4 +33,4 @@ eureka:
       defaultZone: http://localhost:8761/eureka
 
 app:
-  file-url: C:\Users\UltraPc\Desktop\pic\
+  file-url: C:\Users\Paylo\Desktop\crm-pic\

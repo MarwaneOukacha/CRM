@@ -28,6 +28,7 @@ const CreateOrderForm = () => {
   });
 
   const [contractFile, setContractFile] = useState(null);
+  const [contractFileData, setContractFileData] = useState(null);
   const [productCodeInput, setProductCodeInput] = useState('');
   const [searchedProduct, setSearchedProduct] = useState(null);
   const [quantityToAdd, setQuantityToAdd] = useState(1);
@@ -60,7 +61,8 @@ const CreateOrderForm = () => {
       type: file.type,
       url: null, 
     };
-    setContractFile(fileInfo);
+    setContractFileData(fileInfo);
+    setContractFile(file);
   }
 };
 
@@ -108,7 +110,7 @@ const CreateOrderForm = () => {
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
-    link.download = `Contract.pdf`;
+    link.download = `Contract-${orderCode}.pdf`;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -132,13 +134,14 @@ const CreateOrderForm = () => {
         productCode: item.code,
         quantity: item.quantity,
       })),
-      file: contractFile,
+      file: contractFileData,
     };
-
     await orderService.createOrder(payload);
-
+    
     toast.success("Order created successfully");
-
+    await orderService.uploadToServer(contractFile);
+    toast.success('Document uploaded successfully!');
+    
     setOrderData({
       customerCode: '',
       customerEmail: '',
@@ -150,11 +153,15 @@ const CreateOrderForm = () => {
       totalPrice: 0.0,
       orderItems: [],
     });
+
+    
+
     setContractFile(null);
     navigate("/orders")
   } catch (error) {
     console.error('Create order failed:', error.response ?? error);
     toast.error("Failed to create order");
+    e.target.value = null;
   } finally {
     setSubmitLoading(false);
   }
@@ -262,18 +269,7 @@ const CreateOrderForm = () => {
               className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md dark:bg-gray-800 dark:border-gray-600 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
             />
           </div>
-          <div>
-            <label className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">total dept</label>
-            <input
-              type="number"
-              name="totalDebt"
-              value={orderData.totalDebt || ''}
-              onChange={handleFormChange}
-              min="0"
-              step="0.01"
-              className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md dark:bg-gray-800 dark:border-gray-600 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-            />
-          </div>
+        
 
           <div>
             <label className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">Upload Signed Contract</label>

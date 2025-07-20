@@ -57,9 +57,16 @@ public class OrderServiceImpl implements OrderService {
         if (file == null) {
             throw new RuntimeException("Signed contract file is required");
         }
-        file.setUrl(uploadDir + file.getName());
+
+        String originalName = file.getName(); // e.g. "mar.pdf"
+        String nameWithoutExt = originalName.contains(".")
+                ? originalName.substring(0, originalName.lastIndexOf('.'))
+                : originalName;
+
+        file.setUrl(uploadDir +nameWithoutExt+ java.io.File.separator +file.getName());
         File savedFile = fileRepo.save(file);
         order.setFile(savedFile);
+
 
         Order savedOrder = orderDAO.save(order);
 
