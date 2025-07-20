@@ -330,6 +330,9 @@ const CreateOrderForm = () => {
                   <strong className="text-gray-600 dark:text-gray-300 w-24 inline-block">In Stock:</strong> {searchedProduct.quantity}
                 </div>
                 <div>
+                  <strong className="text-gray-600 dark:text-gray-300 w-24 inline-block">It is for:</strong> {searchedProduct.raison}
+                </div>
+                <div>
                   <strong className="text-gray-600 dark:text-gray-300 w-24 inline-block">Sale Price:</strong> ${searchedProduct.price.toFixed(2)}
                 </div>
                 <div>

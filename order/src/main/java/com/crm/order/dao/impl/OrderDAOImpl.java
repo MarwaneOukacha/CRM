@@ -61,12 +61,13 @@ public class OrderDAOImpl implements OrderDAO {
 
             if (criteria.getKeyword() != null && !criteria.getKeyword().isEmpty()) {
                 String kw = "%" + criteria.getKeyword().toLowerCase() + "%";
-                Predicate userPredicate = cb.like(cb.lower(root.get("userCode")), kw);
-                Predicate userEmail = cb.like(cb.lower(root.get("userEmail")), kw);
+                Predicate userPredicate = cb.like(cb.lower(root.get("customerCode")), kw);
+                Predicate orderPredicate = cb.like(cb.lower(root.get("orderCode")), kw);
+                Predicate userEmail = cb.like(cb.lower(root.get("customerEmail")), kw);
                 Predicate status = cb.like(cb.lower(root.get("status")), kw);
                 Predicate paymentType = cb.like(cb.lower(root.get("paymentType")), kw);
                 Predicate type = cb.like(cb.lower(root.get("type")), kw);
-                predicates.add(cb.or(userPredicate, userEmail,status,paymentType,type));
+                predicates.add(cb.or(userPredicate, userEmail,status,paymentType,type,orderPredicate));
             }
 
 

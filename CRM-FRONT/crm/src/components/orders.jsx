@@ -9,12 +9,14 @@ const Orders = () => {
   const [orders, setOrders] = useState([]);
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
+
   const navigate = useNavigate();
 
-  const fetchOrders = async () => {
+  const fetchOrders = async (keyword = '') => {
     setLoading(true);
     try {
-      const result = await orderService.searchOrders({}, 0, 20);
+      const result = await orderService.searchOrders({keyword: keyword}, 0, 10);
       setOrders(result.content || []);
     } catch (error) {
       toast.error("Failed to fetch orders");
@@ -40,13 +42,15 @@ const Orders = () => {
         <form
           onSubmit={(e) => {
             e.preventDefault();
-            fetchOrders(); // You can add search criteria handling here
+            fetchOrders(searchTerm); // You can add search criteria handling here
           }}
           className="flex gap-2"
         >
           <input
             type="text"
-            placeholder="Search by customer email..."
+            placeholder="Search ..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
             className="w-64 px-3 py-2 border border-gray-300 rounded-md dark:bg-gray-800 dark:border-gray-700 dark:text-gray-100"
           />
           <button

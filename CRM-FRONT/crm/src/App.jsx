@@ -25,6 +25,7 @@ import PartnerDetails from "./components/PartnerDetails";
 import Orders from "./components/orders";
 import CreateOrderForm from "./components/CreateOrderForm";
 import OrderDetails from "./components/OrderDetails";
+import { Toaster } from "sonner";
 
 function App() {
     const router = createBrowserRouter([
@@ -121,6 +122,7 @@ function App() {
 
     return (
         <ThemeProvider storageKey="theme">
+            <Toaster position="top-right" richColors />
             <RouterProvider router={router} />
         </ThemeProvider>
     );
