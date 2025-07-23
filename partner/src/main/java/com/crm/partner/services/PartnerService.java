@@ -13,7 +13,7 @@ import java.util.Optional;
 
 public interface PartnerService {
 
-    PartnerRegisterResponseDTO registerPartner(PartnerRegisterRequestDTO request);
+    PartnerRegisterResponseDTO registerPartner(PartnerRegisterRequestDTO request) throws Exception;
 
     PartnerProfileResponseDTO getPartnerById(String partnerId);
 

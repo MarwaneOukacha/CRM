@@ -1,27 +1,19 @@
-package com.crm.partner.entities;
+package com.crm.product.entities;
 
-import com.crm.partner.entities.model.AbstractEntity;
-import com.crm.partner.enums.ContractStatus;
-import com.crm.partner.enums.ReturnFeePayer;
-import jakarta.persistence.*;
+import com.crm.product.entities.model.AbstractEntity;
+import com.crm.product.enums.ContractStatus;
+import com.crm.product.enums.ReturnFeePayer;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import lombok.Data;
 
-
 import java.time.LocalDate;
-import java.util.UUID;
+
 
 @Entity
 @Data
-@Table(name = "partner_contracts")
-public class PartnerContract extends AbstractEntity {
-
-    @ManyToOne
-    @JoinColumn(name = "partner_id")
-    private Partner partner;
-
-
-    private String productId;
-
+public class Contract extends AbstractEntity {
     private LocalDate validFrom;
     private LocalDate validTo;
 
@@ -38,6 +30,7 @@ public class PartnerContract extends AbstractEntity {
     private Float rentCompanyPercent;
     private Float rentPartnerPercent;
     private Float returnFeePercent;
+    private String url;
 
     @Enumerated(EnumType.STRING)
     private ReturnFeePayer returnFeePayer;

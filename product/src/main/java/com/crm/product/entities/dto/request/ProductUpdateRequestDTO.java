@@ -39,5 +39,5 @@ public class ProductUpdateRequestDTO {
     private String type;
     private Double weight;
     private String partnerId;
-    private List<MediaRequestDTO> media;
+    private MediaRequestDTO media;
 }

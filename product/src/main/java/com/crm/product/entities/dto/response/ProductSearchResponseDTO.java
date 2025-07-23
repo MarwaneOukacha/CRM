@@ -1,6 +1,7 @@
 package com.crm.product.entities.dto.response;
 
 import com.crm.product.entities.Media;
+import com.crm.product.entities.dto.ContractDto;
 import com.crm.product.entities.dto.request.MediaRequestDTO;
 import com.crm.product.enums.ProductStatus;
 import lombok.Data;
@@ -28,5 +29,6 @@ public class ProductSearchResponseDTO {
     private String type;
     private Double weight;
     private double quantity;
-    private List<MediaRequestDTO> media;
+    private ContractDto contractDto;
+    private MediaRequestDTO media;
 }

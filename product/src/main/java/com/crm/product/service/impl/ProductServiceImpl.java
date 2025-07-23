@@ -8,7 +8,9 @@ import com.crm.product.entities.dto.*;
 import com.crm.product.entities.dto.request.ProductRequestDTO;
 import com.crm.product.entities.dto.request.ProductUpdateRequestDTO;
 import com.crm.product.entities.dto.response.ProductResponseDTO;
+import com.crm.product.mapper.ContractMapper;
 import com.crm.product.mapper.ProductMapper;
+import com.crm.product.repository.ContractRepository;
 import com.crm.product.service.ProductService;
 import com.crm.product.utils.ProductCodeGenerator;
 import lombok.RequiredArgsConstructor;
@@ -29,6 +31,8 @@ public class ProductServiceImpl implements ProductService {
     private final ProductMapper productMapper;
     private final CategoryDao categoryDao;
     private final CaratDao caratDao;
+    private final ContractMapper contractMapper;
+    private final ContractRepository contractRepository;
     @Value("${app.file-url}")
     private String uploadDir;
 
@@ -68,15 +72,19 @@ public class ProductServiceImpl implements ProductService {
         product.setProductColors(colors);
         product.setProductDesigners(designers);
 
-        // === Handle media ===
-        if (dto.getMedia() != null && !dto.getMedia().isEmpty()) {
-            List<Media> media = productMapper.fromMediaRequestDTOList(dto.getMedia(), product);
-            media.forEach(m -> {
-                m.setProduct(product);
-                m.setUrl(uploadDir+m.getName());
-            });
+        Media media=new Media();
+        if (dto.getMedia() != null) {
+            media.setName(dto.getMedia().getName());
+            media.setType(dto.getMedia().getType());
+            media.setUrl(uploadDir+dto.getMedia().getName());
             product.setMedia(media);
         }
+
+        Contract contract = contractMapper.toContract(dto.getContractDto());
+        contract.setUrl(uploadDir+product.getCode());
+        Contract savedcontract=contractRepository.save(contract);
+        product.setContract(savedcontract);
+
         String barcodeBase64;
         try {
             ProductCodeAndBarcode productCodeBarCode = ProductCodeGenerator.generateProductCodeAndBarcode();
@@ -194,11 +202,13 @@ public class ProductServiceImpl implements ProductService {
         }
 
         // === Media ===
+
         if (dto.getMedia() != null) {
-            List<Media> mediaList = productMapper.fromMediaRequestDTOList(dto.getMedia(), existingProduct);
-            mediaList.forEach(m -> m.setProduct(existingProduct));
-            existingProduct.getMedia().clear();
-            existingProduct.getMedia().addAll(mediaList);
+            Media media=new Media();
+            media.setName(dto.getMedia().getName());
+            media.setType(dto.getMedia().getType());
+            media.setUrl(uploadDir+dto.getMedia().getName());
+            existingProduct.setMedia(media);
         }
 
         if (dto.getAgencyId() != null) existingProduct.setAgencyId(dto.getAgencyId());

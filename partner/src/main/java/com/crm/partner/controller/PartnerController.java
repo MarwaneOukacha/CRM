@@ -26,7 +26,7 @@ public class PartnerController {
     // POST /partners/register
     @PostMapping("/register")
     public ResponseEntity<PartnerRegisterResponseDTO> registerPartner(
-            @RequestBody PartnerRegisterRequestDTO request) {
+            @RequestBody PartnerRegisterRequestDTO request) throws Exception {
         PartnerRegisterResponseDTO response = partnerService.registerPartner(request);
         return ResponseEntity.ok(response);
     }

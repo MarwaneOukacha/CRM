@@ -33,6 +33,8 @@ public class Product extends AbstractEntity {
     private double quantitySaled;
     private double rentPrice;
     private double size;
+    @OneToOne
+    private Contract contract;
 
     @ManyToOne
     @JoinColumn(name = "carat_id")
@@ -63,8 +65,8 @@ public class Product extends AbstractEntity {
     private Double weight;
     private UUID partnerId;
     private String barcodeImage;
-    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
-    private List<Media> media = new ArrayList<>();
+    @OneToOne(cascade = CascadeType.ALL)
+    private Media media;
 
     // Getters and setters
 }

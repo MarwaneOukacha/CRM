@@ -1,28 +1,23 @@
 package com.crm.partner.services.impl;
 
 import com.crm.partner.dao.PartnerDao;
-import com.crm.partner.entities.Company;
 import com.crm.partner.entities.Partner;
-import com.crm.partner.entities.PartnerContract;
 import com.crm.partner.entities.dto.SearchPartnerCriteria;
 import com.crm.partner.entities.dto.request.PartnerRegisterRequestDTO;
 import com.crm.partner.entities.dto.request.PartnerUpdateRequestDTO;
 import com.crm.partner.entities.dto.response.PartnerProfileResponseDTO;
 import com.crm.partner.entities.dto.response.PartnerRegisterResponseDTO;
 import com.crm.partner.entities.dto.response.PartnerUpdateResponseDTO;
-import com.crm.partner.enums.ContractStatus;
 import com.crm.partner.enums.PartnerStatus;
 import com.crm.partner.mapper.PartnerMapper;
-import com.crm.partner.repository.CompanyRepository;
-import com.crm.partner.repository.ContractRepository;
 import com.crm.partner.services.PartnerService;
+import com.crm.partner.utils.PartnerCodeGenerator;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import java.util.Optional;
 
 @Service
 @Transactional
@@ -31,33 +26,19 @@ public class PartnerServiceImpl implements PartnerService {
 
     private final PartnerDao partnerDao;
     private final PartnerMapper partnerMapper;
-    private final ContractRepository contractRepository;
-    private final CompanyRepository companyRepository;
 
 
     @Override
     @Transactional
-    public PartnerRegisterResponseDTO registerPartner(PartnerRegisterRequestDTO request) {
+    public PartnerRegisterResponseDTO registerPartner(PartnerRegisterRequestDTO request) throws Exception {
         // 1. Map DTO to Partner entity
         Partner partner = partnerMapper.toEntity(request);
-        partner.setStatus(PartnerStatus.PENDING);
-
+        partner.setStatus(PartnerStatus.VERIFIED);
+        String code = PartnerCodeGenerator.generatePartnerCode();
+        partner.setCode(code);
         // 2. Save the partner first to generate ID
         Partner savedPartner = partnerDao.save(partner);
 
-        // 3. Link partner to contracts (which are inside the company)
-        Company company = partner.getCompany();
-        for (PartnerContract contract : partner.getContracts()) {
-            contract.setPartner(savedPartner);
-            contract.setStatus(ContractStatus.ACTIVE);
-            contractRepository.save(contract);
-        }
-
-        // 4. Save company
-        companyRepository.save(company);
-
-        // 5. Link saved company back to partner and update
-        savedPartner.setCompany(company);
         savedPartner = partnerDao.save(savedPartner);
 
         // 6. Map to response
@@ -84,13 +65,6 @@ public class PartnerServiceImpl implements PartnerService {
         if (request.getAddress() != null && !request.getAddress().isEmpty()) partner.setAddress(request.getAddress());
         if (request.getEmail() != null && !request.getEmail().isEmpty()) partner.setEmail(request.getEmail());
         if (request.getPhone() != null && !request.getPhone().isEmpty()) partner.setPhone(request.getPhone());
-        if (request.getCompany() != null && !request.getPhone().isEmpty()) {
-            if(request.getCompany().getName()!= null && !request.getCompany().getName().isEmpty()) partner.getCompany().setName(request.getCompany().getName());
-            if(request.getCompany().getAddress()!= null && !request.getCompany().getAddress().isEmpty()) partner.getCompany().setAddress(request.getCompany().getAddress());
-            if(request.getCompany().getTaxId()!= null && !request.getCompany().getTaxId().isEmpty()) partner.getCompany().setTaxId(request.getCompany().getTaxId());
-            if(request.getCompany().getContactEmail()!= null && !request.getCompany().getContactEmail().isEmpty()) partner.getCompany().setContactEmail(request.getCompany().getContactEmail());
-            if(request.getCompany().getContactPhone()!= null && !request.getCompany().getContactPhone().isEmpty()) partner.getCompany().setContactPhone(request.getCompany().getContactPhone());
-        }
         if (request.getPassportSeries() != null && !request.getPassportSeries().isEmpty()) partner.setPassportSeries(request.getPassportSeries());
         if (request.getPassportNumber() != null && !request.getPassportNumber().isEmpty()) partner.setPassportNumber(request.getPassportNumber());
         if (request.getBankTIN() != null && !request.getBankTIN().isEmpty()) partner.setBankTIN(request.getBankTIN());
@@ -98,6 +72,7 @@ public class PartnerServiceImpl implements PartnerService {
         if (request.getBankAccountNumber() != null && !request.getBankAccountNumber().isEmpty()) partner.setBankAccountNumber(request.getBankAccountNumber());
         if (request.getReceivingBankName() != null && !request.getReceivingBankName().isEmpty()) partner.setReceivingBankName(request.getReceivingBankName());
         if (request.getReceivingBankCurrency() != null && !request.getReceivingBankCurrency().isEmpty()) partner.setReceivingBankCurrency(request.getReceivingBankCurrency());
+        if (request.getCompanyName() != null && !request.getCompanyName().isEmpty()) partner.setCompanyName(request.getCompanyName());
 
         Partner updated = partnerDao.save(partner);
 

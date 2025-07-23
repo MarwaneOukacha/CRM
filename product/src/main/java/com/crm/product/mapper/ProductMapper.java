@@ -43,7 +43,6 @@ public interface ProductMapper {
     @Mapping(target = "materialIds", expression = "java(mapMaterialDTOs(product))")
     @Mapping(target = "colorIds", expression = "java(mapColorDTOs(product))")
     @Mapping(target = "designerIds", expression = "java(mapDesignerDTOs(product))")
-    @Mapping(target = "media", expression = "java(mapMediaListToDTOList(product.getMedia()))")
     ProductResponseDTO toResponseDto(Product product);
 
     // Helpers
@@ -115,24 +114,7 @@ public interface ProductMapper {
         return dto;
     }
 
-    // Map list of Media -> List<MediaResponseDTO>
-    default List<MediaResponseDTO> mapMediaListToDTOList(List<Media> mediaList) {
-        if (mediaList == null) return List.of();
-        return mediaList.stream()
-                .map(this::mapMediaToDTO)
-                .collect(Collectors.toList());
-    }
 
-    default List<Media> fromMediaRequestDTOList(List<MediaRequestDTO> mediaDTOs, Product product) {
-        if (mediaDTOs == null) return Collections.emptyList();
-        return mediaDTOs.stream()
-                .map(dto -> {
-                    Media media = new Media();
-                    media.setName(dto.getName());
-                    media.setType(dto.getType());
-                    media.setProduct(product);
-                    return media;
-                })
-                .collect(Collectors.toList());
-    }
+
+
 }

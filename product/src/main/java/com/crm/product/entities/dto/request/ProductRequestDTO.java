@@ -1,5 +1,6 @@
 package com.crm.product.entities.dto.request;
 
+import com.crm.product.entities.dto.ContractDto;
 import com.crm.product.enums.ProductStatus;
 import lombok.*;
 
@@ -33,6 +34,7 @@ public class ProductRequestDTO {
     private String agencyId;
     private String type;
     private Double weight;
-    private UUID partnerId;
-    private List<MediaRequestDTO> media;
+    private String partnerCode;
+    private ContractDto contractDto;
+    private MediaRequestDTO media;
 }

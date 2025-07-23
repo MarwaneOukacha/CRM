@@ -12,5 +12,4 @@ import java.util.UUID;
 
 @Repository
 public interface MediaRepository extends JpaRepository<Media, UUID>, JpaSpecificationExecutor<Media> {
-    Page<Media> findByProductId(UUID productId, Pageable pageable);
 }

@@ -23,16 +23,13 @@ public class Partner extends AbstractEntity {
     private String phone;
 
     private String address;
+    private String code;
 
     @Enumerated(EnumType.STRING)
     private PartnerStatus status;
 
-    @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "company_id")
-    private Company company;
+    private String companyName;
 
-    @OneToMany(mappedBy = "partner", cascade = CascadeType.ALL)
-    private List<PartnerContract> contracts = new ArrayList<>();
     // Identity Information
     private String passportSeries;
     private String passportNumber;

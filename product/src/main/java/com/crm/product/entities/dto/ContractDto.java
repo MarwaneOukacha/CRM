@@ -1,13 +1,13 @@
-package com.crm.partner.entities.dto;
+package com.crm.product.entities.dto;
 
-import com.crm.partner.enums.ReturnFeePayer;
+import com.crm.product.enums.ReturnFeePayer;
 import lombok.Data;
 
 import java.time.LocalDate;
+
 @Data
 public class ContractDto {
 
-    private String productId;
     private Float saleCompanyPercent;
     private Float salePartnerPercent;
     private Float damageCompanyCompensation;
