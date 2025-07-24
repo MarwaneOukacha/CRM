@@ -145,8 +145,8 @@ const InitialDeliveryActPage = ({ partner, deliveryData, category }) => {
       <Text>Baku city</Text>
 
       <View style={{ marginTop: 10 }}>
-        <Text style={{ marginTop: 5 }}>Company: {partner.company.name}</Text>
-        <Text style={{ marginTop: 5 }}>Tax ID (VÖEN): {partner.company.taxId}</Text>
+        <Text style={{ marginTop: 5 }}>Company: {partner.companyName}</Text>
+        <Text style={{ marginTop: 5 }}>Tax ID (VÖEN): 7889645047</Text>
         <Text style={{ marginTop: 5 }}>Owner: {partner?.name || '__________'}</Text>
         <Text style={{ marginTop: 5 }}>ID №: {partner?.passportNumber || '_______'}  </Text> 
         <Text style={{ marginTop: 5 }}>FIN: {partner?.finCode || '_______'}</Text>

@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate } from "react-router-dom"; 
-import { ArrowLeft, Save, Upload, Image as ImageIcon, PlusCircle, Trash2, Download, Trash2, UploadCloud, Loader2 } from 'lucide-react';
+import { ArrowLeft, Save, Upload, Image as ImageIcon, PlusCircle, Trash2, Download, UploadCloud, Loader2, FileText } from 'lucide-react';
 import image from "../assets/121.jpg"
 
 // --- SERVICE IMPORTS ---
@@ -283,6 +283,7 @@ const AddProduct = () => {
 };
 
 
+
     const triggerFileInput = () => {
     if (fileInputRef.current) {
         fileInputRef.current.click();
@@ -333,6 +334,9 @@ const AddProduct = () => {
                                 <Upload size={16} /> Upload Image
                             </button>
                          </div>
+                         
+
+
                     </div>
 
                     {/* Right Column: Details */}
@@ -443,75 +447,7 @@ const AddProduct = () => {
                         />
 
                     </div>
-                    <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-md">
-  <h3 className="text-lg font-semibold mb-4 text-gray-800 dark:text-gray-100">Files</h3>
-
-  <div className="space-y-3">
-    {/* Partnership Agreement */}
-    <div className="flex gap-3 items-center p-2 bg-gray-50 dark:bg-gray-700/50 rounded-lg justify-between">
-      <span className="text-gray-800 dark:text-white font-medium">PARTNERSHIP AGREEMENT</span>
-      <button
-        type="button"
-        className="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 p-2 rounded-full hover:bg-blue-100 dark:hover:bg-blue-900/50 transition-colors"
-        aria-label="Download Partnership Agreement"
-      >
-        <Download size={16} />
-      </button>
-    </div>
-
-    {/* Initial Delivery Act */}
-    <div className="flex gap-3 items-center p-2 bg-gray-50 dark:bg-gray-700/50 rounded-lg justify-between">
-      <span className="text-gray-800 dark:text-white font-medium">INITIAL DELIVERY ACT</span>
-      <button
-        type="button"
-        className="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 p-2 rounded-full hover:bg-blue-100 dark:hover:bg-blue-900/50 transition-colors"
-        aria-label="Download Initial Delivery Act"
-      >
-        <Download size={16} />
-      </button>
-    </div>
-
-    {/* Final Delivery Act */}
-    <div className="flex gap-3 items-center p-2 bg-gray-50 dark:bg-gray-700/50 rounded-lg justify-between">
-      <span className="text-gray-800 dark:text-white font-medium">FINAL DELIVERY ACT</span>
-      <button
-        type="button"
-        className="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 p-2 rounded-full hover:bg-blue-100 dark:hover:bg-blue-900/50 transition-colors"
-        aria-label="Download Final Delivery Act"
-      >
-        <Download size={16} />
-      </button>
-    </div>
-  </div>
-
-  {/* Upload Section */}
-  <div className="mt-6">
-    <input
-      type="file"
-      ref={fileInputRef}
-      onChange={handleUploadDocument}
-      className="hidden"
-      accept=".pdf,.doc,.docx,.jpg,.png"
-    />
-    <button
-      onClick={triggerFileSelect}
-      disabled={uploading}
-      className="mt-2 bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-semibold shadow flex items-center justify-center space-x-2 disabled:opacity-50"
-    >
-      {uploading ? (
-        <Loader2 className="animate-spin h-5 w-5" />
-      ) : (
-        <UploadCloud className="h-5 w-5" />
-      )}
-      <span>{uploading ? 'Uploading...' : 'Select & Upload Document'}</span>
-    </button>
-    {uploadMessage && (
-      <p className={`mt-2 text-sm ${uploadMessage.includes('failed') ? 'text-red-500' : 'text-green-500'}`}>
-        {uploadMessage}
-      </p>
-    )}
-  </div>
-</div>
+                    
                 </form>
                 
 

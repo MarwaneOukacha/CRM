@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useParams, useNavigate } from "react-router-dom"; 
-import { ArrowLeft, Save, Upload, Image as ImageIcon, PlusCircle, Trash2 } from 'lucide-react';
+import { ArrowLeft, Save, Upload, Image as ImageIcon, PlusCircle, Trash2, FileText } from 'lucide-react';
 import { toast } from 'sonner'; // ✅ ADD this import
 
 // --- SERVICE IMPORTS ---
@@ -13,6 +13,142 @@ import designerService from '../services/designerService';
 import occasionService from '../services/occasionService';
 import colorService from '../services/colorService';
 import { backendBaseUrl, uploadToServer } from '../utils/axiosInstance';
+import partnerService from '../services/partnerService';
+import { pdf, Document, Page, StyleSheet } from '@react-pdf/renderer';
+import InitialDeliveryActPage from './InitialDeliveryActPage'
+import FinalDeliveryActPage from './FinalDeliveryActPage';
+
+const styles = StyleSheet.create({
+  page: {
+    fontFamily: 'Helvetica',
+    fontSize: 11,
+    padding: 40,
+    backgroundColor: '#ffffff',
+    color: '#333333',
+  },
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+    marginBottom: 30,
+    paddingBottom: 20,
+    borderBottomWidth: 1,
+    borderBottomColor: '#e0e0e0',
+    borderBottomStyle: 'solid',
+  },
+  companyTitle: {
+    fontSize: 32,
+    fontWeight: 'bold',
+    color: '#333333',
+    letterSpacing: 2,
+  },
+  headerRight: {
+    alignItems: 'flex-end',
+    fontSize: 10,
+    color: '#666666',
+  },
+  headerRightText: {
+    marginBottom: 2,
+  },
+  providerCustomerSection: {
+    flexDirection: 'row',
+    marginBottom: 30,
+  },
+  providerSection: {
+    flex: 1,
+    marginRight: 40,
+  },
+  customerSection: {
+    flex: 1,
+  },
+  sectionHeader: {
+    fontSize: 12,
+    fontWeight: 'bold',
+    color: '#666666',
+    marginBottom: 15,
+    textTransform: 'uppercase',
+    letterSpacing: 1,
+  },
+  providerText: {
+    fontSize: 10,
+    marginBottom: 3,
+    color: '#333333',
+  },
+  providerCompany: {
+    fontSize: 12,
+    fontWeight: 'bold',
+    marginBottom: 3,
+    color: '#333333',
+  },
+  invoiceSection: {
+    marginBottom: 30,
+  },
+  invoiceTitle: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#333333',
+    marginBottom: 20,
+  },
+  invoiceDetailsTable: {
+    flexDirection: 'row',
+    marginBottom: 30,
+  },
+  invoiceDetailCell: {
+    border: '1px solid #cccccc',
+    padding: 8,
+    minHeight: 40,
+  },
+  invoiceDetailHeader: {
+    backgroundColor: '#f5f5f5',
+    fontWeight: 'bold',
+    fontSize: 10,
+    borderBottom: '1px solid #cccccc',
+    paddingBottom: 5,
+    marginBottom: 5,
+  },
+  invoiceDetailValue: {
+    fontSize: 10,
+    color: '#333333',
+  },
+  servicesSection: {
+    marginBottom: 30,
+  },
+  servicesTitle: {
+    fontSize: 14,
+    fontWeight: 'bold',
+    color: '#333333',
+    marginBottom: 15,
+  },
+  table: {
+    border: '1px solid #cccccc',
+  },
+  tableHeader: {
+    flexDirection: 'row',
+    backgroundColor: '#f5f5f5',
+    borderBottom: '1px solid #cccccc',
+  },
+  tableHeaderCell: {
+    padding: 10,
+    fontSize: 10,
+    fontWeight: 'bold',
+    color: '#333333',
+    textAlign: 'center',
+    borderRight: '1px solid #cccccc',
+  },
+  tableRow: {
+    flexDirection: 'row',
+    borderBottom: '1px solid #cccccc',
+  },
+  tableCell: {
+    padding: 10,
+    fontSize: 10,
+    color: '#333333',
+    textAlign: 'center',
+    borderRight: '1px solid #cccccc',
+  },
+  descriptionCol: { width: '70%' },
+  valueCol: { width: '30%' },
+});
 
 
 
@@ -65,6 +201,7 @@ const DynamicMultiSelect = ({ title, items, availableOptions, onAdd, onRemove, o
 const ProductDetail = () => {
     const { id } = useParams();
     const navigate = useNavigate();
+    const [uploadedDocumentUrl, setUploadedDocumentUrl] = useState(null);
 
     const [product, setProduct] = useState(null);
     const [options, setOptions] = useState({ categories: [], carats: [], materials: [], colors: [], designers: [], occasions: [] });
@@ -217,7 +354,97 @@ const ProductDetail = () => {
     }
 };
 
+const handleGenerateInitialDeliveryAct = async (contract) => {
+  try {
+    const deliveryDataList = [];
+    const categoryResponse = await categoryService.getById(product.categoryId);
+    const partner = await partnerService.getByPartnerCode(product.partnerCode);
+    const category = categoryResponse.data;
 
+     deliveryDataList.push({ contract, product, category });
+
+    const blob = await pdf(
+      <Document>
+        <Page size="A4" style={styles.page}>
+            <InitialDeliveryActPage
+              partner={partner}
+              deliveryData={product}
+              category={category}
+            />
+          </Page>
+      </Document>
+    ).toBlob();
+
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `Initial-Delivery-Act.pdf`;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    URL.revokeObjectURL(url);
+  } catch (error) {
+     toast.error(`Error generating Initial Delivery Act PDF: ${error.message || 'Unknown error'}`);
+    console.error(error);
+
+  }
+};
+
+
+
+
+ 
+  const handleGenerateFinalDeliveryAct = async () => {
+const partner = await partnerService.getByPartnerCode(product.partnerCode);
+  try {
+    const blob = await pdf(
+      <Document>
+        <Page size="A4" style={styles.page}>
+          <FinalDeliveryActPage partner={partner} />
+        </Page>
+      </Document>
+    ).toBlob();
+
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `Final-Delivery-Act-${partner.name || 'unknown'}.pdf`;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    URL.revokeObjectURL(url);
+  } catch (error) {
+     toast.error('Error generating Final Delivery Act PDF:', error);
+  }
+};
+const handleDocumentChange = async (event) => {
+  const file = event.target.files[0];
+  if (!file) return;
+
+  try {
+    toast.loading("Uploading file...");
+    const uploadedUrl = await uploadToServer(file);
+    toast.success("File uploaded successfully!");
+    setUploadedDocumentUrl(uploadedUrl);
+  } catch (error) {
+    console.error("Upload failed:", error);
+    toast.error("Failed to upload file.");
+  }
+};
+
+const handleFileDocumentChange = async (event) => {
+  const file = event.target.files[0];
+  if (!file) return;
+
+  try {
+    const uploadedUrl = await uploadToServer(file);
+    toast.success("File uploaded successfully!");
+    setUploadedDocumentUrl(uploadedUrl);
+  } catch (error) {
+    console.error("Upload failed:", error);
+    toast.error("Failed to upload file.");
+  }
+};
     
     // Render states
     if (loading) return <div className="flex items-center justify-center h-screen bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-200"><div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-blue-500"></div></div>;
@@ -248,11 +475,13 @@ const ProductDetail = () => {
                 <form onSubmit={(e) => { e.preventDefault(); saveProduct(); }} className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                     {/* Left Column: Images */}
                     <div className="lg:col-span-1 space-y-6">
+                         
                          <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-md">
                             <h3 className="text-lg font-semibold mb-4 text-gray-800 dark:text-gray-100">Product Images</h3>
+                            {/* Placeholder for image uploads */}
+                            <div className="aspect-square w-full flex items-center justify-center bg-gray-100 dark:bg-gray-700 rounded-lg overflow-hidden">
                             {productImage ? (
-                                <div className="aspect-square w-full bg-gray-100 dark:bg-gray-700 rounded-lg mb-4 overflow-hidden">
-                                    <img
+                                <img
                                     src={previewImage || `${backendBaseUrl}/${productImage.name}`}
                                     alt={productImage.name || "Product Image"}
                                     className="w-full h-full object-cover"
@@ -261,30 +490,73 @@ const ProductDetail = () => {
                                         e.target.src = 'https://placehold.co/600x600/fecaca/b91c1c?text=Image+Error';
                                     }}
                                     />
-                                </div>
-                                ) : (
-                                <div className="aspect-square w-full flex items-center justify-center bg-gray-100 dark:bg-gray-700 rounded-lg text-gray-400 dark:text-gray-500">
-                                    <ImageIcon size={48} />
-                                </div>
-                                )}
-
+                            ) : (
+                                <ImageIcon size={48} className="text-gray-400 dark:text-gray-500" />
+                            )}
+                            </div>
 
                             <input
-                                                            type="file"
-                                                            accept="image/*"
-                                                            ref={fileInputRef}
-                                                            onChange={handleFileChange}
-                                                            className="hidden"
-                                                        />
-                                                        <button
-                                                            type="button"
-                                                            onClick={triggerFileInput}
-                                                            className="w-full mt-4 flex items-center justify-center gap-2 text-sm text-blue-600 dark:text-blue-400 font-semibold bg-blue-50 dark:bg-blue-900/50 hover:bg-blue-100 dark:hover:bg-blue-900/75 p-2 rounded-md transition"
-                                                        >
-                                                            <Upload size={16} /> Upload Image
-                                                        </button>
-                            
+                                type="file"
+                                accept="image/*"
+                                ref={fileInputRef}
+                                onChange={handleFileChange}
+                                className="hidden"
+                            />
+                            <button
+                                type="button"
+                                onClick={triggerFileInput}
+                                className="w-full mt-4 flex items-center justify-center gap-2 text-sm text-blue-600 dark:text-blue-400 font-semibold bg-blue-50 dark:bg-blue-900/50 hover:bg-blue-100 dark:hover:bg-blue-900/75 p-2 rounded-md transition"
+                            >
+                                <Upload size={16} /> Upload Image
+                            </button>
                          </div>
+                         <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-md mb-6">
+                    <h3 className="text-lg font-semibold mb-4 text-gray-800 dark:text-gray-100">
+                        Files
+                    </h3>
+
+                    <div className="space-y-4">
+                        <div>
+                        <label
+                            htmlFor="document-upload"
+                            className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+                        >
+                            Upload Document (PDF, DOC, JPG, PNG)
+                        </label>
+                        <input
+                            type="file"
+                            id="document-upload"
+                            name="document"
+                            accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
+                            className="block w-full text-sm text-gray-500
+                                    file:mr-4 file:py-2 file:px-4
+                                    file:rounded-full file:border-0
+                                    file:text-sm file:font-semibold
+                                    file:bg-blue-50 file:text-blue-700
+                                    hover:file:bg-blue-100
+                                    dark:file:bg-gray-700 dark:file:text-gray-300 dark:hover:file:bg-gray-600"
+                            onChange={(e)=>handleFileDocumentChange(e)}
+                            />
+                                                    </div>
+
+                        <div className="flex gap-4">
+                        <button
+                            type="button"
+                            onClick={handleGenerateInitialDeliveryAct}
+                            className="flex items-center justify-center gap-2 px-4 py-2 bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-sm font-medium rounded-md"
+                            >
+                            <FileText size={25} /> Generate Initial Act Delivry
+                            </button>
+                        <button
+                            type="button"
+                            onClick={handleGenerateFinalDeliveryAct}
+                            className="flex items-center justify-center gap-2 px-4 py-2 bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-sm font-medium rounded-md"
+                            >
+                            <FileText    size={25} /> Generate final Act Delivry
+                            </button>
+                        </div>
+                    </div>
+                    </div>
                     </div>
 
                     

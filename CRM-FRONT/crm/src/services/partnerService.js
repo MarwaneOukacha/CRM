@@ -14,6 +14,11 @@ const partnerService = {
     const response = await axiosInstance.get(`${BASE_URL}/${partnerId}`);
     return response.data;
   },
+  getByPartnerCode: async (partnercode) => {
+  const trimmedCode = partnercode.trim();
+  const response = await axiosInstance.get(`${BASE_URL}/code/${encodeURIComponent(trimmedCode)}`);
+  return response.data;
+},
 
   // PUT /partners/{partnerId}
   updatePartner: async (partnerId, updatedData) => {

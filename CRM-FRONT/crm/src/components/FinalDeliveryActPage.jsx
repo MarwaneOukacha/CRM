@@ -45,8 +45,8 @@ const FinalDeliveryActPage = ({ partner }) => (
     <Text>Baku city</Text>
 
     <View style={styles.section}>
-      <Text style={{ marginTop: 10 }}>Company: {partner?.company?.name || '“FANCY GROUP” LLC'}</Text>
-      <Text style={{ marginTop: 10 }}>Tax ID (VÖEN): {partner?.company?.taxId || '1406915881'}</Text>
+      <Text style={{ marginTop: 10 }}>Company: FANCY GROUP LLC</Text>
+      <Text style={{ marginTop: 10 }}>Tax ID (VÖEN): 7889645047</Text>
       <Text style={{ marginTop: 10 }}>Owner: {partner?.name || '___________'}</Text>
       <Text style={{ marginTop: 10 }}>
         ID № {partner?.passportNumber || '__________'}, FIN: {partner?.finCode || '__________'}
@@ -61,7 +61,7 @@ const FinalDeliveryActPage = ({ partner }) => (
     </Text>
 
     <View style={styles.section}>
-      <Text>1. Inventory number:</Text>
+      <Text>1. Quantity:</Text>
       <Text>________________________________________</Text>
 
       <Text style={{ marginTop: 10 }}>2. Description of Items upon return:</Text>
