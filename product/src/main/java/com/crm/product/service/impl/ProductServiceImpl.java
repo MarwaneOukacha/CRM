@@ -80,8 +80,9 @@ public class ProductServiceImpl implements ProductService {
             product.setMedia(media);
         }
 
-        Contract contract = contractMapper.toContract(dto.getContractDto());
-        contract.setUrl(uploadDir+product.getCode());
+
+        Contract contract = contractMapper.toContract(dto.getContract());
+        contract.setContractFilePath(uploadDir+product.getCode());
         Contract savedcontract=contractRepository.save(contract);
         product.setContract(savedcontract);
 
@@ -210,11 +211,24 @@ public class ProductServiceImpl implements ProductService {
             media.setUrl(uploadDir+dto.getMedia().getName());
             existingProduct.setMedia(media);
         }
+        Contract contract1 = existingProduct.getContract();
+        if(dto.getContract()!=null){
+            if (dto.getContract().getNotes()!=null && dto.getContract().getNotes().isEmpty()) contract1.setNotes(dto.getContract().getNotes());
+            if (dto.getContract().getPartnerTakebackFeePercent()!=null) contract1.setPartnerTakebackFeePercent(dto.getContract().getPartnerTakebackFeePercent());
+            if (dto.getContract().getDamageCompanyCompensation()!=null ) contract1.setDamageCompanyCompensation(dto.getContract().getDamageCompanyCompensation());
+            if (dto.getContract().getReturnFeePayer()!=null ) contract1.setReturnFeePayer(dto.getContract().getReturnFeePayer());
+            if (dto.getContract().getLossCompanyCompensation()!=null ) contract1.setLossCompanyCompensation(dto.getContract().getLossCompanyCompensation());
+            if (dto.getContract().getRentPartnerPercent()!=null ) contract1.setRentPartnerPercent(dto.getContract().getRentPartnerPercent());
+            if (dto.getContract().getSaleCompanyPercent()!=null ) contract1.setSaleCompanyPercent(dto.getContract().getSaleCompanyPercent());
+            if (dto.getContract().getSalePartnerPercent()!=null ) contract1.setSalePartnerPercent(dto.getContract().getSalePartnerPercent());
+            if (dto.getContract().getValidFrom()!=null ) contract1.setValidFrom(dto.getContract().getValidFrom());
+            if (dto.getContract().getValidTo()!=null ) contract1.setValidTo(dto.getContract().getValidTo());
+        }
 
         if (dto.getAgencyId() != null) existingProduct.setAgencyId(dto.getAgencyId());
         if (dto.getType() != null) existingProduct.setType(dto.getType());
         if (dto.getWeight() != null) existingProduct.setWeight(dto.getWeight());
-        if (dto.getPartnerId() != null) existingProduct.setPartnerId(UUID.fromString(dto.getPartnerId()));
+        if (dto.getPartnerCode() != null) existingProduct.setPartnerCode(dto.getPartnerCode());
 
         // === Save ===
         Product updatedProduct = productDao.updateProduct(existingProduct.getId(), existingProduct);

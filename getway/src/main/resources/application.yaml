@@ -10,28 +10,13 @@ spring:
 
   cloud:
     gateway:
-      globalcors:
-        add-to-simple-url-handler-mapping: true
-        corsConfigurations:
-          '[/**]':
-            allowedOrigins:
-              - "http://62.233.53.11"
-            allowedMethods:
-              - GET
-              - POST
-              - PUT
-              - DELETE
-              - OPTIONS
-            allowedHeaders:
-              - "*"
-            allowCredentials: true
-
+      server:
+        webflux:
           routes:
             - id: product-service
               uri: lb://product-service
               predicates:
-                - Path=/products/** ,/categories/**, /carat/** ,/daily-sales/** ,/colors/** ,/designers/** , /materials/** ,/occasions/** , /upload, /download/**
-
+                - Path=/products/**,/categories/**,/carat/**,/daily-sales/**,/colors/**,/designers/**,/materials/**,/occasions/**,/upload,/download/**
             - id: partner-service
               uri: lb://partner-service
               predicates:
@@ -41,12 +26,25 @@ spring:
               predicates:
                 - Path=/orders/**
 
-
+          globalcors:
+            add-to-simple-url-handler-mapping: true
+            cors-configurations:
+              '[/**]':
+                allowed-origins:
+                  - "http://localhost:3000"
+                allowed-methods:
+                  - GET
+                  - POST
+                  - PUT
+                  - DELETE
+                  - OPTIONS
+                allowed-headers:
+                  - "*"
+                allow-credentials: true
 
 eureka:
   client:
     service-url:
-      defaultZone: http://62.233.53.11:8761/eureka
+      defaultZone: http://localhost:8761/eureka
     register-with-eureka: true
     fetch-registry: true
-

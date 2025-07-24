@@ -19,7 +19,7 @@ public class Contract extends AbstractEntity {
 
     @Enumerated(EnumType.STRING)
     private ContractStatus status;
-
+    private String fileName;
     private String contractFilePath;
     // Percentages
     private Float saleCompanyPercent;
@@ -30,7 +30,6 @@ public class Contract extends AbstractEntity {
     private Float rentCompanyPercent;
     private Float rentPartnerPercent;
     private Float returnFeePercent;
-    private String url;
 
     @Enumerated(EnumType.STRING)
     private ReturnFeePayer returnFeePayer;

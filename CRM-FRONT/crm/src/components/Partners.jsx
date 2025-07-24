@@ -21,7 +21,7 @@ const Partners = () => {
   const fetch = async (page = 0, size = 10, keyword = "") => {
     try {
       const criteria = {};
-      if (keyword.trim()) criteria.companyName = keyword.trim();
+      if (keyword.trim()) criteria.keyword = keyword.trim();
 
       const response = await partnerService.searchPartners(criteria, page, size);
       setPartners(response.content || []);
@@ -46,7 +46,7 @@ const Partners = () => {
       Email: p.email,
       Phone: p.phone,
       Address: p.address,
-      Company: p.company?.name,
+      Company: p.companyName,
       Status: p.status,
     }));
     const worksheet = XLSX.utils.json_to_sheet(data);
@@ -58,15 +58,6 @@ const Partners = () => {
     saveAs(blob, "partners.xlsx");
   };
 
-  const openEditModal = async (partner) => {
-    try {
-      const data = await partnerService.getPartnerById(partner.id);
-      setSelectedPartner(data);
-      setEditOpen(true);
-    } catch (error) {
-      console.error("Failed to fetch partner:", error);
-    }
-  };
 
   const saveEdit = async (e) => {
     e.preventDefault();
@@ -79,10 +70,7 @@ const Partners = () => {
     }
   };
 
-  const openDeleteModal = (partner) => {
-    setSelectedPartner(partner);
-    setDeleteOpen(true);
-  };
+
 
   const confirmDelete = async () => {
     try {
@@ -192,7 +180,7 @@ const Partners = () => {
               <td className="px-6 py-4 text-sm font-medium text-gray-900 dark:text-gray-100">{partner.email}</td>
               <td className="px-6 py-4 text-sm font-medium text-gray-900 dark:text-gray-100">{partner.phone}</td>
               <td className="px-6 py-4 text-sm font-medium text-gray-900 dark:text-gray-100">{partner.address}</td>
-              <td className="px-6 py-4 text-sm font-medium text-gray-900 dark:text-gray-100">{partner.company?.name}</td>
+              <td className="px-6 py-4 text-sm font-medium text-gray-900 dark:text-gray-100">{partner.companyName}</td>
               <td className="px-6 py-4 text-sm font-medium text-gray-900 dark:text-gray-100">
                 <span
                   className={`inline-flex px-2 text-xs leading-5 font-semibold rounded-full ${

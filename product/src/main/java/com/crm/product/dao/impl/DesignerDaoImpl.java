@@ -55,7 +55,7 @@ public class DesignerDaoImpl implements DesignerDao {
             if (criteria.getKeyword() != null && !criteria.getKeyword().isEmpty()) {
                 String keyword=criteria.getKeyword();
                 Predicate namePredicate = cb.like(cb.lower(root.get("name")), keyword);
-                Predicate statusPredicate = cb.like(cb.lower(root.get("status")), keyword);
+                Predicate statusPredicate = cb.equal(cb.lower(root.get("status")), keyword);
 
                 predicates.add(cb.or(namePredicate, statusPredicate));
             }

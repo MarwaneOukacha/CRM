@@ -6,7 +6,6 @@ import lombok.ToString;
 @Data
 @ToString
 public class SearchCaratCriteria {
-    private String name;
-    private String status;
+    private String keyword;
 
 }

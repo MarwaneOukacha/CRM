@@ -35,6 +35,6 @@ public class ProductRequestDTO {
     private String type;
     private Double weight;
     private String partnerCode;
-    private ContractDto contractDto;
+    private ContractDto contract;
     private MediaRequestDTO media;
 }

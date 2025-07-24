@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate } from "react-router-dom"; 
-import { ArrowLeft, Save, Upload, Image as ImageIcon, PlusCircle, Trash2 } from 'lucide-react';
+import { ArrowLeft, Save, Upload, Image as ImageIcon, PlusCircle, Trash2, Download, Trash2, UploadCloud, Loader2 } from 'lucide-react';
 import image from "../assets/121.jpg"
 
 // --- SERVICE IMPORTS ---
@@ -75,20 +75,41 @@ const initialProductState = {
     description: '',
     price: '',
     code: '',
-    raison:'FOR_SALE',
+    raison: 'FOR_SALE',
     size: '',
-    rentPrice:'',
-    quantity:1,
+    rentPrice: '',
+    quantity: 1,
     weight: '',
     status: 'PUBLISHED',
     categoryId: '',
     caratId: '',
+    agencyId: '',
+    type: '',
+    partnerCode: '',
+    clicks: 0,
+    favorite: 0,
+    cart: 0,
+    contract: {
+        saleCompanyPercent: '',
+        salePartnerPercent: '',
+        damageCompanyCompensation: '',
+        lossCompanyCompensation: '',
+        partnerTakebackFeePercent: '',
+        rentCompanyPercent: '',
+        rentPartnerPercent: '',
+        returnFeePercent: '',
+        returnFeePayer: 'PARTNER',
+        validFrom: '',
+        validTo: '',
+        notes: ''
+    },
     occasionIds: [],
     materialIds: [],
     colorIds: [],
     designerIds: [],
-    media: []
+    media: {}
 };
+
 
 // --- Main Component ---
 const AddProduct = () => {
@@ -116,10 +137,10 @@ const AddProduct = () => {
                     status: "ACTIVE"
                     }),
                     caratService.search({
-                    status: "ACTIVE"
+                    keyword: "active"
                     }),
                     searchMaterials({
-                    keyword: "ACTIVE"
+                    keyword: "active"
                     }),
                     colorService.search({
                     page: 0,
@@ -127,10 +148,10 @@ const AddProduct = () => {
                     keyword: "active"
                     }),
                     designerService.search({
-                    keyword: "ACTIVE"
+                    keyword: "active"
                     }),
                     occasionService.search({
-                    keyword: "ACTIVE"
+                    keyword: "active"
                     }),
                 ]);
 
@@ -190,29 +211,35 @@ const AddProduct = () => {
             return { ...prev, [listName]: newList };
         });
     }, []);
-
+    const handleContractChange = (e) => {
+    const { name, value } = e.target;
+    setProduct((prev) => ({
+      ...prev,
+      contract: {
+        ...prev.contract,
+        [name]: value
+      }
+    }));
+  };
     // Create new product
     const addProduct = async () => {
     setSaving(true);
     try {
-        let media = [];
-
+        let uploadedUrl = '';
         if (imagefile) {
-        const uploadedUrl = await uploadToServer(imagefile); // await here!
-        media.push({
-            name: imagefile.name,
-            type: imagefile.type,
-            url: uploadedUrl, // this is what goes to productService.create
-        });
+            uploadedUrl = await uploadToServer(imagefile);
         }
 
         const createDTO = {
-        ...product,
-        media,
-        occasionIds: product.occasionIds.map(o => o.id),
-        materialIds: product.materialIds.map(m => m.id),
-        colorIds: product.colorIds.map(c => c.id),
-        designerIds: product.designerIds.map(d => d.id),
+            ...product,
+            media: {
+                ...product.media,
+                url: uploadedUrl
+            },
+            occasionIds: product.occasionIds.map(o => o.id),
+            materialIds: product.materialIds.map(m => m.id),
+            colorIds: product.colorIds.map(c => c.id),
+            designerIds: product.designerIds.map(d => d.id),
         };
 
         await productService.create(createDTO);
@@ -224,7 +251,8 @@ const AddProduct = () => {
     } finally {
         setSaving(false);
     }
-    };
+};
+
 
 
     
@@ -240,24 +268,20 @@ const AddProduct = () => {
         setImagefile(file);
         const reader = new FileReader();
         reader.onloadend = () => {
-        setPreviewImage(reader.result);
+            setPreviewImage(reader.result);
         };
         reader.readAsDataURL(file);
 
-        // You can later add logic to actually upload to backend or add to product.media
         setProduct(prev => ({
-      ...prev,
-      media: [
-        ...prev.media,
-        {
-          name: file.name,
-          type: "image"
-        },
-      ],
-    }));
-
+            ...prev,
+            media: {
+                name: file.name,
+                type: file.type
+            }
+        }));
     }
-    };
+};
+
 
     const triggerFileInput = () => {
     if (fileInputRef.current) {
@@ -328,10 +352,14 @@ const AddProduct = () => {
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <FormInput id="quantity" name="quantity" label="Quantity" value={product.quantity} onChange={handleChange} type="number" step="0.01" min="0" placeholder="e.g., 3" />
                                 </div>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <FormInput id="partnerCode" name="partnerCode" label="Partner Code" value={product.partnerCode} onChange={handleChange} type="text" placeholder="e.g., PART123" />
+                                </div>
+
                             </div>
 
                         </div>
-
+                        
                         <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-md">
                             <h3 className="text-lg font-semibold mb-4 text-gray-800 dark:text-gray-100">Categorization & Specs</h3>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -358,7 +386,22 @@ const AddProduct = () => {
                                 <FormInput id="weight" name="weight" label="Weight (g)" value={product.weight} onChange={handleChange} type="number" step="0.1" min="0" placeholder="e.g., 4.1" />
                             </div>
                         </div>
-                        
+                        {/* Contract Info */}
+                        <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-md">
+                        <h3 className="text-lg font-semibold mb-4 text-gray-800 dark:text-gray-100">Contract Details</h3>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            {Object.entries(product.contract).map(([key, val]) => (
+                            <FormInput
+                                key={key}
+                                name={key}
+                                label={key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}
+                                value={val}
+                                onChange={handleContractChange}
+                                type={['validFrom', 'validTo'].includes(key) ? 'date' : 'text'}
+                            />
+                            ))}
+                        </div>
+                        </div>
                         <DynamicMultiSelect
                             title="Materials"
                             items={product.materialIds}
@@ -400,7 +443,78 @@ const AddProduct = () => {
                         />
 
                     </div>
+                    <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-md">
+  <h3 className="text-lg font-semibold mb-4 text-gray-800 dark:text-gray-100">Files</h3>
+
+  <div className="space-y-3">
+    {/* Partnership Agreement */}
+    <div className="flex gap-3 items-center p-2 bg-gray-50 dark:bg-gray-700/50 rounded-lg justify-between">
+      <span className="text-gray-800 dark:text-white font-medium">PARTNERSHIP AGREEMENT</span>
+      <button
+        type="button"
+        className="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 p-2 rounded-full hover:bg-blue-100 dark:hover:bg-blue-900/50 transition-colors"
+        aria-label="Download Partnership Agreement"
+      >
+        <Download size={16} />
+      </button>
+    </div>
+
+    {/* Initial Delivery Act */}
+    <div className="flex gap-3 items-center p-2 bg-gray-50 dark:bg-gray-700/50 rounded-lg justify-between">
+      <span className="text-gray-800 dark:text-white font-medium">INITIAL DELIVERY ACT</span>
+      <button
+        type="button"
+        className="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 p-2 rounded-full hover:bg-blue-100 dark:hover:bg-blue-900/50 transition-colors"
+        aria-label="Download Initial Delivery Act"
+      >
+        <Download size={16} />
+      </button>
+    </div>
+
+    {/* Final Delivery Act */}
+    <div className="flex gap-3 items-center p-2 bg-gray-50 dark:bg-gray-700/50 rounded-lg justify-between">
+      <span className="text-gray-800 dark:text-white font-medium">FINAL DELIVERY ACT</span>
+      <button
+        type="button"
+        className="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 p-2 rounded-full hover:bg-blue-100 dark:hover:bg-blue-900/50 transition-colors"
+        aria-label="Download Final Delivery Act"
+      >
+        <Download size={16} />
+      </button>
+    </div>
+  </div>
+
+  {/* Upload Section */}
+  <div className="mt-6">
+    <input
+      type="file"
+      ref={fileInputRef}
+      onChange={handleUploadDocument}
+      className="hidden"
+      accept=".pdf,.doc,.docx,.jpg,.png"
+    />
+    <button
+      onClick={triggerFileSelect}
+      disabled={uploading}
+      className="mt-2 bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-semibold shadow flex items-center justify-center space-x-2 disabled:opacity-50"
+    >
+      {uploading ? (
+        <Loader2 className="animate-spin h-5 w-5" />
+      ) : (
+        <UploadCloud className="h-5 w-5" />
+      )}
+      <span>{uploading ? 'Uploading...' : 'Select & Upload Document'}</span>
+    </button>
+    {uploadMessage && (
+      <p className={`mt-2 text-sm ${uploadMessage.includes('failed') ? 'text-red-500' : 'text-green-500'}`}>
+        {uploadMessage}
+      </p>
+    )}
+  </div>
+</div>
                 </form>
+                
+
             </div>
         </div>
     );

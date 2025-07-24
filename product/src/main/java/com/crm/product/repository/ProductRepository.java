@@ -13,6 +13,6 @@ import java.util.UUID;
 
 @Repository
 public interface ProductRepository extends JpaRepository<Product, UUID>, JpaSpecificationExecutor<Product> {
-    Page<Product> findByPartnerId(UUID partnerId, Pageable pageable );
+    Page<Product> findByPartnerCode(UUID partnerId, Pageable pageable );
     Optional<Product> findByCode(String code);
 }

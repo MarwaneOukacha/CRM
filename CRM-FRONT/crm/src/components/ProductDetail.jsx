@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useParams, useNavigate } from "react-router-dom"; 
 import { ArrowLeft, Save, Upload, Image as ImageIcon, PlusCircle, Trash2 } from 'lucide-react';
-import imageProd from "../assets/121.jpg"
+import { toast } from 'sonner'; // ✅ ADD this import
 
 // --- SERVICE IMPORTS ---
 // The component now relies on these services being correctly configured in your project.
@@ -15,17 +15,7 @@ import colorService from '../services/colorService';
 import { backendBaseUrl, uploadToServer } from '../utils/axiosInstance';
 
 
-// --- Helper Components ---
-const Notification = ({ message, type, onDismiss }) => {
-  if (!message) return null;
-  const baseClasses = 'fixed top-5 right-5 p-4 rounded-lg shadow-lg text-white transition-opacity duration-300 z-50';
-  const typeClasses = { success: 'bg-green-500', error: 'bg-red-500' };
-  useEffect(() => {
-    const timer = setTimeout(onDismiss, 3000);
-    return () => clearTimeout(timer);
-  }, [onDismiss]);
-  return <div className={`${baseClasses} ${typeClasses[type]}`}>{message}</div>;
-};
+
 
 
 // --- Reusable Form Components ---
@@ -88,30 +78,28 @@ const ProductDetail = () => {
     const [imagefile,setImagefile]=useState(null);
     const [previewImage, setPreviewImage] = useState(null);
 
-     const handleFileChange = (event) => {
-    const file = event.target.files[0];
-    if (file) {
-        setImagefile(file);
-        const reader = new FileReader();
-        reader.onloadend = () => {
-        setPreviewImage(reader.result);
-        };
-        reader.readAsDataURL(file);
+    const handleFileChange = (event) => {
+        const file = event.target.files[0];
+        if (file) {
+            setImagefile(file);
 
-        // You can later add logic to actually upload to backend or add to product.media
-        setProduct(prev => ({
-      ...prev,
-      media: [
-        ...prev.media,
-        {
-          name: file.name,
-          type: "image"
-        },
-      ],
-    }));
+            const reader = new FileReader();
+            reader.onloadend = () => {
+            setPreviewImage(reader.result);
+            };
+            reader.readAsDataURL(file);
 
-    }
+            setProduct(prev => ({
+            ...prev,
+            media: {
+                name: file.name,
+                type: file.type,
+            },
+            }));
+        }
     };
+
+
 
     // Fetch all necessary data on component mount
     useEffect(() => {
@@ -158,10 +146,7 @@ const ProductDetail = () => {
         
     }, [id]);
 
-    const showNotification = (message, type) => {
-        setNotification({ message, type });
-    };
-
+    
     // Generic handler for simple form input changes
     const handleChange = useCallback((e) => {
         const { name, value } = e.target;
@@ -199,44 +184,47 @@ const ProductDetail = () => {
 
     // Save product changes
     const saveProduct = async () => {
-        setSaving(true);
-        try {
-            let media = [];
+    setSaving(true);
+    try {
+        let media = [];
 
         if (imagefile) {
-        const uploadedUrl = await uploadToServer(imagefile); // await here!
-        media.push({
-            name: imagefile.name,
-            type: imagefile.type,
-            url: uploadedUrl, // this is what goes to productService.create
-        });
+            const uploadedUrl = await uploadToServer(imagefile);
+            media.push({
+                name: imagefile.name,
+                type: imagefile.type,
+                url: uploadedUrl,
+            });
         }
 
         const updateDTO = {
-        ...product,
-        media,
-        occasionIds: product.occasionIds.map(o => o.id),
-        materialIds: product.materialIds.map(m => m.id),
-        colorIds: product.colorIds.map(c => c.id),
-        designerIds: product.designerIds.map(d => d.id),
+            ...product,
+            media: media.length > 0 ? media[0] : product.media,
+            occasionIds: product.occasionIds.map(o => o.id),
+            materialIds: product.materialIds.map(m => m.id),
+            colorIds: product.colorIds.map(c => c.id),
+            designerIds: product.designerIds.map(d => d.id),
         };
-            await productService.update(id, updateDTO);
-            showNotification('Product saved successfully!', 'success');
-            setTimeout(() => navigate(-1), 1500);
-        } catch (err) {
-            showNotification('Failed to save product.', 'error');
-            console.error("Save Error:", err);
-        } finally {
-            setSaving(false);
-        }
-    };
+
+        await productService.update(id, updateDTO);
+        toast.success('Product saved successfully!');
+        setTimeout(() => navigate(-1), 1500);
+    } catch (err) {
+        toast.error('Failed to save product.');
+        console.error("Save Error:", err);
+    } finally {
+        setSaving(false);
+    }
+};
+
+
     
     // Render states
     if (loading) return <div className="flex items-center justify-center h-screen bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-200"><div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-blue-500"></div></div>;
     if (error) return <div className="p-8 text-center text-red-600 dark:text-red-400 bg-red-50 dark:bg-gray-800 rounded-lg shadow-md max-w-md mx-auto mt-10">{error}</div>;
     if (!product) return <div className="p-8 text-center text-gray-600 dark:text-gray-400">Product not found.</div>;
 
-    const productImages = product.media ? product.media.filter(m => m.type === 'image/jpeg' || m.type === 'image/png') : [];
+    const productImage = (product.media && (product.media.type === 'image/jpeg' || product.media.type === 'image/png'))? product.media: null;
     const triggerFileInput = () => {
     if (fileInputRef.current) {
         fileInputRef.current.click();
@@ -244,7 +232,6 @@ const ProductDetail = () => {
 };
     return (
         <div className="bg-gray-100 dark:bg-gray-900 min-h-screen font-sans text-gray-800 dark:text-gray-200">
-            <Notification message={notification.message} type={notification.type} onDismiss={() => setNotification({ message: '', type: '' })} />
             <div className="max-w-7xl mx-auto p-4 sm:p-6 lg:p-8">
                 <header className="flex items-center justify-between mb-6">
                     <div>
@@ -263,24 +250,25 @@ const ProductDetail = () => {
                     <div className="lg:col-span-1 space-y-6">
                          <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-md">
                             <h3 className="text-lg font-semibold mb-4 text-gray-800 dark:text-gray-100">Product Images</h3>
-                            {productImages.length > 0 ? (
-                                <div>
-                                    <div className="aspect-square w-full bg-gray-100 dark:bg-gray-700 rounded-lg mb-4 overflow-hidden">
-                                    <img 
-                                      src={`${backendBaseUrl}/${productImages[activeImage].name}`} 
-                                      alt={productImages[activeImage]?.name || "Product Image"} 
-                                      className="w-full h-full object-cover"
-                                      onError={(e) => { 
-                                          e.target.onerror = null; 
-                                          e.target.src='https://placehold.co/600x600/fecaca/b91c1c?text=Image+Error'; 
-                                      }}
+                            {productImage ? (
+                                <div className="aspect-square w-full bg-gray-100 dark:bg-gray-700 rounded-lg mb-4 overflow-hidden">
+                                    <img
+                                    src={previewImage || `${backendBaseUrl}/${productImage.name}`}
+                                    alt={productImage.name || "Product Image"}
+                                    className="w-full h-full object-cover"
+                                    onError={(e) => {
+                                        e.target.onerror = null;
+                                        e.target.src = 'https://placehold.co/600x600/fecaca/b91c1c?text=Image+Error';
+                                    }}
                                     />
-                                  </div>
-                                    
                                 </div>
-                            ) : (
-                                <div className="aspect-square w-full flex items-center justify-center bg-gray-100 dark:bg-gray-700 rounded-lg text-gray-400 dark:text-gray-500"><ImageIcon size={48} /></div>
-                            )}
+                                ) : (
+                                <div className="aspect-square w-full flex items-center justify-center bg-gray-100 dark:bg-gray-700 rounded-lg text-gray-400 dark:text-gray-500">
+                                    <ImageIcon size={48} />
+                                </div>
+                                )}
+
+
                             <input
                                                             type="file"
                                                             accept="image/*"
@@ -333,6 +321,121 @@ const ProductDetail = () => {
                                 </div>
                             </div>
                         </div>
+                        <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-md">
+    <h3 className="text-lg font-semibold mb-4 text-gray-800 dark:text-gray-100">Partner & Contract Info</h3>
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <FormInput id="partnerCode" name="partnerCode" label="Partner Code" value={product.partnerCode || ''} onChange={handleChange} />
+    </div>
+
+    <h4 className="text-md font-semibold mt-6 mb-2 text-gray-700 dark:text-gray-200">Contract Details</h4>
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {[
+            { id: "saleCompanyPercent", label: "Sale Company %" },
+            { id: "salePartnerPercent", label: "Sale Partner %" },
+            { id: "damageCompanyCompensation", label: "Damage Compensation" },
+            { id: "lossCompanyCompensation", label: "Loss Compensation" },
+            { id: "partnerTakebackFeePercent", label: "Takeback Fee %" },
+            { id: "rentCompanyPercent", label: "Rent Company %" },
+            { id: "rentPartnerPercent", label: "Rent Partner %" },
+            { id: "returnFeePercent", label: "Return Fee %" },
+        ].map(({ id, label }) => (
+            <FormInput
+                key={id}
+                id={`contract.${id}`}
+                name={id}
+                label={label}
+                value={product.contract?.[id] || ''}
+                onChange={(e) => setProduct(prev => ({
+                    ...prev,
+                    contract: { ...prev.contract, [id]: parseFloat(e.target.value) || 0 }
+                }))}
+                type="number"
+                step="0.01"
+                min="0"
+            />
+        ))}
+
+        <FormSelect
+            id="returnFeePayer"
+            name="returnFeePayer"
+            label="Return Fee Payer"
+            value={product.contract?.returnFeePayer || ''}
+            onChange={(e) => {
+                const val = parseFloat(e.target.value) || 0;
+                setProduct(prev => ({
+                    ...prev,
+                    contract: {
+                    ...prev.contract,
+                    [id]: val,
+                    }
+                }));
+                }}
+
+        >
+            <option value="">Select...</option>
+            <option value="PARTNER">PARTNER</option>
+            <option value="COMPANY">COMPANY</option>
+            <option value="CUSTOMER">CUSTOMER</option>
+        </FormSelect>
+
+        <FormInput
+            id="validFrom"
+            name="validFrom"
+            label="Valid From"
+            type="date"
+            value={product.contract?.validFrom || ''}
+            onChange={(e) => {
+  const val = parseFloat(e.target.value) || 0;
+  setProduct(prev => ({
+    ...prev,
+    contract: {
+      ...prev.contract,
+      [id]: val,
+    }
+  }));
+}}
+
+        />
+        <FormInput
+            id="validTo"
+            name="validTo"
+            label="Valid To"
+            type="date"
+            value={product.contract?.validTo || ''}
+            onChange={(e) => {
+  const val = parseFloat(e.target.value) || 0;
+  setProduct(prev => ({
+    ...prev,
+    contract: {
+      ...prev.contract,
+      [id]: val,
+    }
+  }));
+}}
+
+        />
+        
+        <div className="md:col-span-2">
+            <label className="block text-sm font-medium text-gray-600 dark:text-gray-300 mb-1">Notes</label>
+            <textarea
+                rows={3}
+                className="w-full p-2.5 rounded-md border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+                value={product.contract?.notes || ''}
+                onChange={(e) => {
+  const val = parseFloat(e.target.value) || 0;
+  setProduct(prev => ({
+    ...prev,
+    contract: {
+      ...prev.contract,
+      [id]: val,
+    }
+  }));
+}}
+
+            />
+        </div>
+    </div>
+</div>
 
                         
                         <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-md">

@@ -115,7 +115,7 @@ public class ProductDaoImpl implements ProductDao {
         if (updatedProduct.getAgencyId() != null) existing.setAgencyId(updatedProduct.getAgencyId());
         if (updatedProduct.getType() != null) existing.setType(updatedProduct.getType());
         if (updatedProduct.getWeight() != null) existing.setWeight(updatedProduct.getWeight());
-        if (updatedProduct.getPartnerId() != null) existing.setPartnerId(updatedProduct.getPartnerId());
+        if (updatedProduct.getPartnerCode() != null) existing.setPartnerCode(updatedProduct.getPartnerCode());
 
         // Collections (productOccasion, productMaterials, productColors, productDesigners, media)
         // should be handled separately in service layer if complex logic is needed

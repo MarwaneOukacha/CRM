@@ -52,26 +52,18 @@ public class PartnerDaoImpl implements PartnerDao {
         Specification<Partner> specification = (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
 
-            if (criteria.getCompanyName() != null && !criteria.getCompanyName().isEmpty()) {
-                String companyName = "%" + criteria.getCompanyName().toLowerCase() + "%";
-                predicates.add(cb.like(cb.lower(root.get("companyName")), companyName));
-            }
-
-            if (criteria.getContactEmail() != null && !criteria.getContactEmail().isEmpty()) {
-                String contactEmail = "%" + criteria.getContactEmail().toLowerCase() + "%";
-                predicates.add(cb.like(cb.lower(root.get("contactEmail")), contactEmail));
-            }
-
-            if (criteria.getStatus() != null && !criteria.getStatus().isEmpty()) {
-                predicates.add(cb.equal(cb.lower(root.get("status")), criteria.getStatus().toLowerCase()));
-            }
-
             if (criteria.getKeyword() != null && !criteria.getKeyword().isEmpty()) {
                 String keyword = "%" + criteria.getKeyword().toLowerCase() + "%";
-                predicates.add(cb.or(
-                        cb.like(cb.lower(root.get("contactName")), keyword)
-                ));
+                Predicate name = cb.like(cb.lower(root.get("name")), keyword);
+                Predicate email=cb.like(cb.lower(root.get("email")), keyword);
+                Predicate add=cb.like(cb.lower(root.get("address")), keyword);
+                Predicate status=cb.like(cb.lower(root.get("status")), keyword);
+                Predicate phone=cb.like(cb.lower(root.get("phone")), keyword);
+                Predicate company=cb.like(cb.lower(root.get("companyName")), keyword);
+                predicates.add(cb.or(name, email,add,status,phone,company));
             }
+
+
 
             return cb.and(predicates.toArray(new Predicate[0]));
         };
@@ -84,5 +76,10 @@ public class PartnerDaoImpl implements PartnerDao {
     @Override
     public void deleteById(String id) {
         partnerRepository.deleteById(UUID.fromString(id));
+    }
+
+    @Override
+    public Optional<Partner> findByPartnerCode(String partnerCode) {
+        return partnerRepository.findByCode(partnerCode);
     }
 }

@@ -16,7 +16,7 @@ const occasionService = {
   search: (criteria = {}, page = 0, size = 10) =>
     axiosInstance.get(BASE_URL, {
       params: { ...criteria, page, size },
-    }),
+    })
 };
 
 export default occasionService;

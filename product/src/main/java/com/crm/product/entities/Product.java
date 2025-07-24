@@ -63,7 +63,7 @@ public class Product extends AbstractEntity {
     private String agencyId;
     private String type;
     private Double weight;
-    private UUID partnerId;
+    private String partnerCode;
     private String barcodeImage;
     @OneToOne(cascade = CascadeType.ALL)
     private Media media;

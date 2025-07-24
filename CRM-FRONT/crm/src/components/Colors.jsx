@@ -176,9 +176,7 @@ const Colors = () => {
             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">
               Name
             </th>
-            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">
-              Hex Code
-            </th>
+            
             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">
               Status
             </th>
@@ -192,7 +190,6 @@ const Colors = () => {
             <tr key={color.id} className="hover:bg-gray-100 dark:hover:bg-gray-800">
               <td className="px-6 py-4 text-sm font-medium text-gray-900 dark:text-gray-100">{index + 1}</td>
               <td className="px-6 py-4 text-sm font-medium text-gray-900 dark:text-gray-100">{color.name}</td>
-              <td className="px-6 py-4 text-sm font-medium text-gray-900 dark:text-gray-100">{color.color}</td>
               <td className="px-6 py-4 text-sm whitespace-nowrap">
                 <span
                   className={`inline-flex px-2 text-xs leading-5 font-semibold rounded-full ${
@@ -277,20 +274,7 @@ const Colors = () => {
                 required
               />
             </div>
-            <div>
-              <label htmlFor="hexCode" className="block text-sm font-medium mb-1">
-                Hex Code
-              </label>
-              <input
-                id="color"
-                name="color"
-                type="text"
-                value={selectedColor.color}
-                onChange={handleAddChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md dark:bg-gray-800 dark:border-gray-700 dark:text-gray-100"
-                required
-              />
-            </div>
+            
             <div>
               <label htmlFor="status" className="block text-sm font-medium mb-1">
                 Status
@@ -342,19 +326,7 @@ const Colors = () => {
                 className="w-full px-3 py-2 border rounded-md"
               />
             </div>
-            <div>
-              <label htmlFor="hexCode" className="block text-sm font-medium mb-1">
-                Hex Code
-              </label>
-              <input
-                id="color"
-                name="color"
-                type="text"
-                value={selectedColor.color}
-                onChange={handleEditChange}
-                className="w-full px-3 py-2 border rounded-md"
-              />
-            </div>
+            
             <div>
               <label htmlFor="status" className="block text-sm font-medium mb-1">
                 Status

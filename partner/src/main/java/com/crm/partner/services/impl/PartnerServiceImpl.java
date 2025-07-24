@@ -84,4 +84,12 @@ public class PartnerServiceImpl implements PartnerService {
         Page<Partner> page = partnerDao.findAllWithCriteria(criteria, pageable);
         return page.map(partnerMapper::toProfileResponseDTO);
     }
+
+    @Override
+    public PartnerProfileResponseDTO getPartnerByCode(String partnerCode) {
+        Partner byId = partnerDao.findByPartnerCode(partnerCode).orElseThrow(() -> {
+            return new EntityNotFoundException("Partner not found with code: " + partnerCode);
+        });
+        return partnerMapper.toProfileResponseDTO(byId);
+    }
 }

@@ -45,12 +45,13 @@ public class CaratDaoImpl implements CaratDao {
         Specification<Carat> specification = (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
 
-            if (criteria.getName() != null && !criteria.getName().isEmpty()) {
-                Predicate namePredicate = cb.like(cb.lower(root.get("name")), criteria.getName());
-                Predicate statusPredicate = cb.equal(cb.lower(root.get("status")), criteria.getName());
+            if (criteria.getKeyword() != null && !criteria.getKeyword().isEmpty()) {
+                Predicate namePredicate = cb.like(cb.lower(root.get("name")), criteria.getKeyword());
+                Predicate statusPredicate = cb.equal(cb.lower(root.get("status")), criteria.getKeyword());
 
                 predicates.add(cb.or(namePredicate, statusPredicate));
             }
+
 
 
             return cb.and(predicates.toArray(new Predicate[0]));

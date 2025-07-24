@@ -19,5 +19,7 @@ public class ContractDto {
     private ReturnFeePayer returnFeePayer;
     private LocalDate validFrom;
     private LocalDate validTo;
+    private String contractFilePath;
+    private String fileName;
     private String notes;
 }

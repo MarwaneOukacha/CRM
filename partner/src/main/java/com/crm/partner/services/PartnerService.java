@@ -20,4 +20,7 @@ public interface PartnerService {
     PartnerUpdateResponseDTO updatePartner(String partnerId, PartnerUpdateRequestDTO request);
 
     Page<PartnerProfileResponseDTO> searchPartners(SearchPartnerCriteria criteria, Pageable pageable);
+
+    PartnerProfileResponseDTO getPartnerByCode(String partnerCode);
+
 }

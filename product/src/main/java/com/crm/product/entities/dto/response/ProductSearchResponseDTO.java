@@ -29,6 +29,7 @@ public class ProductSearchResponseDTO {
     private String type;
     private Double weight;
     private double quantity;
-    private ContractDto contractDto;
+    private String partnerCode;
+    private ContractDto contract;
     private MediaRequestDTO media;
 }
