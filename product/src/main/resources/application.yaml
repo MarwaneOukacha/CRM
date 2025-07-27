@@ -21,7 +21,7 @@ spring:
 
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: create
     show-sql: true
     database-platform: org.hibernate.dialect.PostgreSQLDialect
 
@@ -33,4 +33,4 @@ eureka:
       defaultZone: http://localhost:8761/eureka
 
 app:
-  fileUrl: C:\Users\Paylo\Desktop\crm-pic
+  fileUrl: C:\Users\user\Desktop\pic\

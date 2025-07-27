@@ -8,6 +8,7 @@ import java.time.LocalDate;
 @Data
 @ToString
 public class OrderItemRequestDTO {
+    private String productId;
     private String productCode;
     private Double pricePerUnit;
     private Double quantity;

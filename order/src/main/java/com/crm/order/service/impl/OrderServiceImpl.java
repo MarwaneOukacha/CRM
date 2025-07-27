@@ -6,6 +6,7 @@ import com.crm.order.entities.Order;
 import com.crm.order.entities.OrderStatusHistory;
 import com.crm.order.entities.dto.request.OrderItemRequestDTO;
 import com.crm.order.entities.dto.request.OrderRequestDTO;
+import com.crm.order.entities.dto.request.ProductUpdateRequestDTO;
 import com.crm.order.entities.dto.response.OrderResponseDTO;
 import com.crm.order.entities.model.OrderStatusHistoryDTO;
 import com.crm.order.entities.model.SearchCriteria;
@@ -15,6 +16,7 @@ import com.crm.order.repository.FileRepository;
 import com.crm.order.repository.OrderItemRepository;
 import com.crm.order.repository.OrderStatusHistoryRepository;
 import com.crm.order.service.OrderService;
+import com.crm.order.service.external.ProductService;
 import com.crm.order.utils.Utils;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
@@ -41,6 +43,7 @@ public class OrderServiceImpl implements OrderService {
     private final FileRepository fileRepo;
     private final OrderItemRepository orderItemRepository;
     private final OrderStatusHistoryRepository orderStatusHistoryRepository;
+    private final ProductService productService;
     @Value("${app.file-url}")
     private String uploadDir;
 
@@ -78,6 +81,23 @@ public class OrderServiceImpl implements OrderService {
         orderStatusHistory.setOrder(savedOrder);
         orderStatusHistory.setStatus(savedOrder.getStatus());
         orderStatusHistoryRepository.save(orderStatusHistory);
+
+
+        savedOrder.getOrderItems().forEach(orderItemRequestDTO -> {
+            ProductUpdateRequestDTO productUpdateRequestDTO=new ProductUpdateRequestDTO();
+            if(orderItemRequestDTO.getQuantity()!=null && orderItemRequestDTO.getRentalStartDate()!=null && orderItemRequestDTO.getRentalEndDate()!=null){
+                productUpdateRequestDTO.setQuantityRented(orderItemRequestDTO.getQuantity());
+                productService.update(orderItemRequestDTO.getProductId(),productUpdateRequestDTO);
+            }else if(orderItemRequestDTO.getQuantity()!=null){
+                productUpdateRequestDTO.setQuantitySaled(orderItemRequestDTO.getQuantity());
+                productService.update(orderItemRequestDTO.getProductId(),productUpdateRequestDTO);
+            }
+
+
+
+        });
+
+
 
         log.info("Order created with ID: {}", savedOrder.getId());
         return orderMapper.toDTO(savedOrder);

@@ -10,6 +10,7 @@ import java.util.UUID;
 @ToString
 public class OrderItemResponseDTO {
     private UUID id;
+    private String productId;
     private String productCode;
     private Double quantity;
     private Double pricePerUnit;

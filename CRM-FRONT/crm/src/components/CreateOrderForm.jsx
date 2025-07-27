@@ -17,7 +17,7 @@ const CreateOrderForm = () => {
   const [orderData, setOrderData] = useState({
     customerCode: '',
     customerEmail: '',
-    orderCode:'',
+    orderCode: '',
     type: 'SALE',
     paymentType: '',
     depositPaid: 0.0,
@@ -35,17 +35,19 @@ const CreateOrderForm = () => {
   const [searchLoading, setSearchLoading] = useState(false);
   const [searchError, setSearchError] = useState('');
   const [submitLoading, setSubmitLoading] = useState(false);
-  const [code,setCode]=useState(false);
-  
-  const navigate=useNavigate();
+  const [code, setCode] = useState(false);
+
+
+  const navigate = useNavigate();
 
   useEffect(() => {
     const total = orderData.orderItems.reduce((sum, item) => {
-      const price = orderData.type === 'RENT' ? item.rentPrice : item.price;
+      const price = item.orderType === 'RENT' ? item.rentPrice : item.price;
       return sum + price * item.quantity;
     }, 0);
     setOrderData(prev => ({ ...prev, totalPrice: total.toFixed(2) }));
-  }, [orderData.orderItems, orderData.type]);
+  }, [orderData.orderItems]);
+
 
   const handleFormChange = (e) => {
     const { name, value } = e.target;
@@ -53,18 +55,18 @@ const CreateOrderForm = () => {
   };
 
   const handleFileChange = (e) => {
-  if (e.target.files && e.target.files.length > 0) {
-    const file = e.target.files[0];
-    const fileInfo = {
-      name: file.name,
-      size: +(file.size / 1024).toFixed(2), // KB
-      type: file.type,
-      url: null, 
-    };
-    setContractFileData(fileInfo);
-    setContractFile(file);
-  }
-};
+    if (e.target.files && e.target.files.length > 0) {
+      const file = e.target.files[0];
+      const fileInfo = {
+        name: file.name,
+        size: +(file.size / 1024).toFixed(2), // KB
+        type: file.type,
+        url: null,
+      };
+      setContractFileData(fileInfo);
+      setContractFile(file);
+    }
+  };
 
 
   const handleSearchProduct = async () => {
@@ -83,90 +85,101 @@ const CreateOrderForm = () => {
 
   const handleAddItemToOrder = () => {
     if (!searchedProduct || quantityToAdd <= 0) return;
-    const newItem = { ...searchedProduct, quantity: Number(quantityToAdd) };
+
+    const newItem = {
+      ...JSON.parse(JSON.stringify(searchedProduct)), // deep clone to prevent mutations
+      quantity: Number(quantityToAdd),
+      orderType: orderData.type,
+    };
+
     setOrderData(prev => ({
       ...prev,
       orderItems: [...prev.orderItems, newItem],
     }));
+
     setSearchedProduct(null);
     setProductCodeInput('');
     setQuantityToAdd(1);
     setSearchError('');
   };
 
-  const removeOrderItem = (productCode) => {
+
+  const removeOrderItem = (productCode, orderType) => {
     setOrderData(prev => ({
       ...prev,
-      orderItems: prev.orderItems.filter(item => item.code !== productCode),
+      orderItems: prev.orderItems.filter(
+        item => !(item.code === productCode && item.orderType === orderType)
+      ),
     }));
   };
 
   const handleGenerateContract = async () => {
-  try {
-    toast('Generating contract...');
-    const orderCode=generateOrderCode();
-    setCode(orderCode);
-    const blob = await pdf(<ContractPDF order={orderData} orderCode={orderCode} />).toBlob();
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = `Contract-${orderCode}.pdf`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+    try {
+      toast('Generating contract...');
+      const orderCode = generateOrderCode();
+      setCode(orderCode);
+      const blob = await pdf(<ContractPDF order={orderData} orderCode={orderCode} />).toBlob();
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `Contract-${orderCode}.pdf`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
 
-    toast.success('Contract generated successfully!');
-  } catch (error) {
-    console.error('Error generating contract:', error);
-    toast.error('Failed to generate contract.');
-  }
-};
+      toast.success('Contract generated successfully!');
+    } catch (error) {
+      console.error('Error generating contract:', error);
+      toast.error('Failed to generate contract.');
+    }
+  };
 
   const handleSubmit = async (e) => {
-  e.preventDefault();
-  setSubmitLoading(true);
-  orderData.orderCode=code;
-  try {
-    const payload = {
-      ...orderData,
-      orderItems: orderData.orderItems.map(item => ({
-        pricePerUnit:item.price,
-        productCode: item.code,
-        quantity: item.quantity,
-      })),
-      file: contractFileData,
-    };
-    await orderService.createOrder(payload);
-    
-    toast.success("Order created successfully");
-    await orderService.uploadToServer(contractFile);
-    toast.success('Document uploaded successfully!');
-    
-    setOrderData({
-      customerCode: '',
-      customerEmail: '',
-      type: 'SALE',
-      paymentType: '',
-      depositPaid: 0.0,
-      penaltyFee: 0.0,
-      damageFee: 0.0,
-      totalPrice: 0.0,
-      orderItems: [],
-    });
+    e.preventDefault();
+    setSubmitLoading(true);
+    orderData.orderCode = code;
+    try {
+      const payload = {
+        ...orderData,
+        orderItems: orderData.orderItems.map(item => ({
+          pricePerUnit: item.price,
+          productId: item.id,
+          productCode: item.code,
+          quantity: item.quantity,
+        })),
+        file: contractFileData,
+      };
+      await orderService.createOrder(payload);
 
-    
+      toast.success("Order created successfully");
+      await orderService.uploadToServer(contractFile);
+      toast.success('Document uploaded successfully!');
 
-    setContractFile(null);
-    navigate("/orders")
-  } catch (error) {
-    console.error('Create order failed:', error.response ?? error);
-    toast.error("Failed to create order");
-    e.target.value = null;
-  } finally {
-    setSubmitLoading(false);
-  }
-};
- 
+      setOrderData({
+        customerCode: '',
+        customerEmail: '',
+        type: 'SALE',
+        paymentType: '',
+        depositPaid: 0.0,
+        penaltyFee: 0.0,
+        damageFee: 0.0,
+        totalPrice: 0.0,
+        orderItems: [],
+      });
+
+
+
+      setContractFile(null);
+      navigate("/orders")
+    } catch (error) {
+      console.error('Create order failed:', error.response ?? error);
+      toast.error("Failed to create order");
+      e.target.value = null;
+    } finally {
+      setSubmitLoading(false);
+    }
+  };
+
 
 
 
@@ -269,7 +282,7 @@ const CreateOrderForm = () => {
               className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md dark:bg-gray-800 dark:border-gray-600 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
             />
           </div>
-        
+
 
           <div>
             <label className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">Upload Signed Contract</label>
@@ -338,6 +351,8 @@ const CreateOrderForm = () => {
                 <div>
                   <strong className="text-gray-600 dark:text-gray-300 w-24 inline-block">Rent Price:</strong> ${searchedProduct.rentPrice.toFixed(2)}
                 </div>
+
+
               </div>
 
               <div className="flex items-center gap-4 pt-3 border-t border-gray-200 dark:border-gray-600">
@@ -404,7 +419,7 @@ const CreateOrderForm = () => {
             <tbody className="bg-white dark:bg-gray-900 divide-y divide-gray-200 dark:divide-gray-700">
               {orderData.orderItems.length > 0 ? (
                 orderData.orderItems.map((item) => {
-                  const unitPrice = orderData.type === 'RENT' ? item.rentPrice : item.price;
+                  const unitPrice = item.orderType === 'RENT' ? item.rentPrice : item.price;
                   return (
                     <tr key={item.code}>
                       <td className="px-4 py-3 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-gray-100">{item.name}</td>
@@ -416,7 +431,7 @@ const CreateOrderForm = () => {
                       <td className="px-4 py-3 whitespace-nowrap text-right text-sm font-medium">
                         <button
                           type="button"
-                          onClick={() => removeOrderItem(item.code)}
+                          onClick={() => removeOrderItem(item.code, item.orderType)}
                           className="text-red-600 hover:text-red-900 dark:hover:text-red-400"
                         >
                           <Trash2 size={18} />

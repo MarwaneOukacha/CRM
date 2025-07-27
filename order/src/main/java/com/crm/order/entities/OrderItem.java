@@ -14,6 +14,7 @@ public class OrderItem extends AbstractEntity {
     @ManyToOne
     @JoinColumn(name = "order_id")
     private Order order;
+    private String productId;
     private String productCode;
     private Double quantity;
     private Double pricePerUnit;

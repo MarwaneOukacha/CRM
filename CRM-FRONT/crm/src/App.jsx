@@ -7,7 +7,7 @@ import DashboardPage from "@/routes/dashboard/page";
 import Customers from "./components/materials";
 import CreateCustomer from "./components/createCustomer";
 import Bookings from "./components/bookings";
-import  Settings  from "./components/settings";
+import Settings from "./components/settings";
 import CalendarComponent from "./components/calendar";
 import Materials from "./components/materials";
 import Designers from "./components/designers";
@@ -26,6 +26,7 @@ import Orders from "./components/orders";
 import CreateOrderForm from "./components/CreateOrderForm";
 import OrderDetails from "./components/OrderDetails";
 import { Toaster } from "sonner";
+import TelegramOrdersMock from "./components/TelegramOrders";
 
 function App() {
     const router = createBrowserRouter([
@@ -39,7 +40,7 @@ function App() {
                 },
                 {
                     path: "calendar",
-                    element: <CalendarComponent/>,
+                    element: <CalendarComponent />,
                 },
                 {
                     path: "reports",
@@ -47,75 +48,80 @@ function App() {
                 },
                 {
                     path: "materials",
-                    element: <Materials/>,
+                    element: <Materials />,
                 },
                 {
                     path: "designers",
-                    element: <Designers/>,
+                    element: <Designers />,
                 },
                 {
                     path: "colors",
-                    element: <Colors/>,
+                    element: <Colors />,
                 },
                 {
                     path: "daily-Sales",
-                    element: <DailySales/>,
+                    element: <DailySales />,
                 },
                 {
                     path: "categorys",
-                    element: <Category/>,
+                    element: <Category />,
                 },
                 {
                     path: "Occasions",
-                    element: <Occasions/>,
+                    element: <Occasions />,
                 },
                 {
                     path: "carats",
-                    element: <Carats/>,
+                    element: <Carats />,
                 },
-                
+
                 {
                     path: "settings",
-                    element: <Settings/>,
+                    element: <Settings />,
                 },
                 {
                     path: "products",
-                    element: <Products/>,
+                    element: <Products />,
                 },
                 {
                     path: "products/:id",
-                    element: <ProductDetail/>,
+                    element: <ProductDetail />,
                 },
                 {
                     path: "products/add",
-                    element: <AddProduct/>,
+                    element: <AddProduct />,
                 },
                 {
                     path: "partners",
-                    element: <Partners/>,
+                    element: <Partners />,
                 },
                 {
                     path: "partners/add",
-                    element: <AddPartner/>,
+                    element: <AddPartner />,
                 },
                 {
                     path: "partners/:id",
-                    element: <PartnerDetails/>,
+                    element: <PartnerDetails />,
                 },
                 {
                     path: "orders",
-                    element: <Orders/>,
+                    element: <Orders />,
                 },
                 {
                     path: "create/order",
-                    element: <CreateOrderForm/>,
+                    element: <CreateOrderForm />,
                 }
                 ,
                 {
                     path: "/order/:id",
-                    element: <OrderDetails/>,
+                    element: <OrderDetails />,
+                },
+                {
+                    path: "/customOrders",
+                    element: <TelegramOrdersMock></TelegramOrdersMock>
                 }
-                
+
+
             ],
         },
     ]);

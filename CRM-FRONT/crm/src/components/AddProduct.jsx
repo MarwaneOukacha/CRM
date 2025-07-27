@@ -1,7 +1,6 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { useNavigate } from "react-router-dom"; 
+import react, { useState, useEffect, useCallback, useRef } from 'react';
+import { useNavigate } from "react-router-dom";
 import { ArrowLeft, Save, Upload, Image as ImageIcon, PlusCircle, Trash2, Download, UploadCloud, Loader2, FileText } from 'lucide-react';
-import image from "../assets/121.jpg"
 
 // --- SERVICE IMPORTS ---
 // The component relies on these services being correctly configured in your project.
@@ -14,17 +13,19 @@ import occasionService from '../services/occasionService';
 import colorService from '../services/colorService';
 import axios from 'axios';
 import axiosInstance, { uploadToServer } from '../utils/axiosInstance';
+import partnerService from '../services/partnerService';
+
 
 // --- Helper Components ---
 const Notification = ({ message, type, onDismiss }) => {
-  if (!message) return null;
-  const baseClasses = 'fixed top-5 right-5 p-4 rounded-lg shadow-lg text-white transition-opacity duration-300 z-50';
-  const typeClasses = { success: 'bg-green-500', error: 'bg-red-500' };
-  useEffect(() => {
-    const timer = setTimeout(onDismiss, 3000);
-    return () => clearTimeout(timer);
-  }, [onDismiss]);
-  return <div className={`${baseClasses} ${typeClasses[type]}`}>{message}</div>;
+    if (!message) return null;
+    const baseClasses = 'fixed top-5 right-5 p-4 rounded-lg shadow-lg text-white transition-opacity duration-300 z-50';
+    const typeClasses = { success: 'bg-green-500', error: 'bg-red-500' };
+    useEffect(() => {
+        const timer = setTimeout(onDismiss, 3000);
+        return () => clearTimeout(timer);
+    }, [onDismiss]);
+    return <div className={`${baseClasses} ${typeClasses[type]}`}>{message}</div>;
 };
 
 // --- Reusable Form Components ---
@@ -122,7 +123,7 @@ const AddProduct = () => {
     const [error, setError] = useState(null);
     const [notification, setNotification] = useState({ message: '', type: '' });
     const fileInputRef = useRef(null);
-    const [imagefile,setImagefile]=useState(null);
+    const [imagefile, setImagefile] = useState(null);
     const [previewImage, setPreviewImage] = useState(null);
     // Note: No activeImage state needed for a new product initially
 
@@ -132,27 +133,14 @@ const AddProduct = () => {
             setLoading(true);
             setError(null);
             try {
-                const [catRes, caratRes, matRes, colorRes, desRes, occRes] = await Promise.all([
-                    categoryService.search({
-                    status: "ACTIVE"
-                    }),
-                    caratService.search({
-                    keyword: "active"
-                    }),
-                    searchMaterials({
-                    keyword: "active"
-                    }),
-                    colorService.search({
-                    page: 0,
-                    size: 10,
-                    keyword: "active"
-                    }),
-                    designerService.search({
-                    keyword: "active"
-                    }),
-                    occasionService.search({
-                    keyword: "active"
-                    }),
+                const [catRes, caratRes, matRes, colorRes, desRes, occRes, partnerRes] = await Promise.all([
+                    categoryService.search({ status: "ACTIVE" }),
+                    caratService.search({ keyword: "active" }),
+                    searchMaterials({ keyword: "active" }),
+                    colorService.search({ page: 0, size: 10, keyword: "active" }),
+                    designerService.search({ keyword: "active" }),
+                    occasionService.search({ keyword: "active" }),
+                    partnerService.searchPartners({ status: "VERIFIED" }) // 🆕 fetch partner list
                 ]);
 
                 setOptions({
@@ -162,6 +150,7 @@ const AddProduct = () => {
                     colors: colorRes.data.content,
                     designers: desRes.content,
                     occasions: occRes.data.content,
+                    partners: partnerRes.content // 🆕 save to options
                 });
             } catch (err) {
                 setError("Failed to load options for creating a product.");
@@ -172,6 +161,7 @@ const AddProduct = () => {
         };
         fetchLookupData();
     }, []);
+
 
     const showNotification = (message, type) => {
         setNotification({ message, type });
@@ -212,83 +202,83 @@ const AddProduct = () => {
         });
     }, []);
     const handleContractChange = (e) => {
-    const { name, value } = e.target;
-    setProduct((prev) => ({
-      ...prev,
-      contract: {
-        ...prev.contract,
-        [name]: value
-      }
-    }));
-  };
+        const { name, value } = e.target;
+        setProduct((prev) => ({
+            ...prev,
+            contract: {
+                ...prev.contract,
+                [name]: value
+            }
+        }));
+    };
     // Create new product
     const addProduct = async () => {
-    setSaving(true);
-    try {
-        let uploadedUrl = '';
-        if (imagefile) {
-            uploadedUrl = await uploadToServer(imagefile);
+        setSaving(true);
+        try {
+            let uploadedUrl = '';
+            if (imagefile) {
+                uploadedUrl = await uploadToServer(imagefile);
+            }
+
+            const createDTO = {
+                ...product,
+                media: {
+                    ...product.media,
+                    url: uploadedUrl
+                },
+                occasionIds: product.occasionIds.map(o => o.id),
+                materialIds: product.materialIds.map(m => m.id),
+                colorIds: product.colorIds.map(c => c.id),
+                designerIds: product.designerIds.map(d => d.id),
+            };
+
+            await productService.create(createDTO);
+            showNotification('Product created successfully!', 'success');
+            setTimeout(() => navigate('/products'), 1500);
+        } catch (err) {
+            showNotification('Failed to create product.', 'error');
+            console.error("Create Error:", err);
+        } finally {
+            setSaving(false);
         }
-
-        const createDTO = {
-            ...product,
-            media: {
-                ...product.media,
-                url: uploadedUrl
-            },
-            occasionIds: product.occasionIds.map(o => o.id),
-            materialIds: product.materialIds.map(m => m.id),
-            colorIds: product.colorIds.map(c => c.id),
-            designerIds: product.designerIds.map(d => d.id),
-        };
-
-        await productService.create(createDTO);
-        showNotification('Product created successfully!', 'success');
-        setTimeout(() => navigate('/products'), 1500);
-    } catch (err) {
-        showNotification('Failed to create product.', 'error');
-        console.error("Create Error:", err);
-    } finally {
-        setSaving(false);
-    }
-};
+    };
 
 
 
-    
+
     // Render states
     if (loading) return <div className="flex items-center justify-center h-screen bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-200"><div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-blue-500"></div></div>;
     if (error) return <div className="p-8 text-center text-red-600 dark:text-red-400 bg-red-50 dark:bg-gray-800 rounded-lg shadow-md max-w-md mx-auto mt-10">{error}</div>;
-    
-    
+
+
 
     const handleFileChange = (event) => {
-    const file = event.target.files[0];
-    if (file) {
-        setImagefile(file);
-        const reader = new FileReader();
-        reader.onloadend = () => {
-            setPreviewImage(reader.result);
-        };
-        reader.readAsDataURL(file);
+        const file = event.target.files[0];
+        if (file) {
+            setImagefile(file);
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                setPreviewImage(reader.result);
+            };
+            reader.readAsDataURL(file);
 
-        setProduct(prev => ({
-            ...prev,
-            media: {
-                name: file.name,
-                type: file.type
-            }
-        }));
-    }
-};
+            setProduct(prev => ({
+                ...prev,
+                media: {
+                    name: file.name,
+                    type: file.type
+                }
+            }));
+        }
+    };
 
 
 
     const triggerFileInput = () => {
-    if (fileInputRef.current) {
-        fileInputRef.current.click();
-    }
-};
+        if (fileInputRef.current) {
+            fileInputRef.current.click();
+        }
+    };
     return (
         <div className="bg-gray-100 dark:bg-gray-900 min-h-screen font-sans text-gray-800 dark:text-gray-200">
             <Notification message={notification.message} type={notification.type} onDismiss={() => setNotification({ message: '', type: '' })} />
@@ -308,15 +298,15 @@ const AddProduct = () => {
                 <form onSubmit={(e) => { e.preventDefault(); addProduct(); }} className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                     {/* Left Column: Images */}
                     <div className="lg:col-span-1 space-y-6">
-                         <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-md">
+                        <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-md">
                             <h3 className="text-lg font-semibold mb-4 text-gray-800 dark:text-gray-100">Product Images</h3>
                             {/* Placeholder for image uploads */}
                             <div className="aspect-square w-full flex items-center justify-center bg-gray-100 dark:bg-gray-700 rounded-lg overflow-hidden">
-                            {previewImage ? (
-                                <img src={previewImage} alt="Preview" className="object-cover w-full h-full" />
-                            ) : (
-                                <ImageIcon size={48} className="text-gray-400 dark:text-gray-500" />
-                            )}
+                                {previewImage ? (
+                                    <img src={previewImage} alt="Preview" className="object-cover w-full h-full" />
+                                ) : (
+                                    <ImageIcon size={48} className="text-gray-400 dark:text-gray-500" />
+                                )}
                             </div>
 
                             <input
@@ -333,8 +323,8 @@ const AddProduct = () => {
                             >
                                 <Upload size={16} /> Upload Image
                             </button>
-                         </div>
-                         
+                        </div>
+
 
 
                     </div>
@@ -347,7 +337,7 @@ const AddProduct = () => {
                                 <FormInput id="name" name="name" label="Product Name" value={product.name} onChange={handleChange} type="text" required placeholder="e.g., Elegant Diamond Ring" />
                                 <div>
                                     <label htmlFor="description" className="block text-sm font-medium text-gray-600 dark:text-gray-300 mb-1">Description</label>
-                                    <textarea id="description" name="description" value={product.description} onChange={handleChange} rows={5} className="w-full p-2.5 rounded-md border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition" placeholder="Describe the product..."/>
+                                    <textarea id="description" name="description" value={product.description} onChange={handleChange} rows={5} className="w-full p-2.5 rounded-md border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition" placeholder="Describe the product..." />
                                 </div>
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <FormInput id="price" name="price" label="Price ($)" value={product.price} onChange={handleChange} type="number" step="0.01" min="0" placeholder="e.g., 1499.99" />
@@ -357,13 +347,21 @@ const AddProduct = () => {
                                     <FormInput id="quantity" name="quantity" label="Quantity" value={product.quantity} onChange={handleChange} type="number" step="0.01" min="0" placeholder="e.g., 3" />
                                 </div>
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    <FormInput id="partnerCode" name="partnerCode" label="Partner Code" value={product.partnerCode} onChange={handleChange} type="text" placeholder="e.g., PART123" />
+                                    <FormSelect id="partnerCode" name="partnerCode" label="Partner Code" value={product.partnerCode} onChange={handleChange}>
+                                        <option value="">Select a partner...</option>
+                                        {options.partners?.map((partner) => (
+                                            <option key={partner.code} value={partner.code}>
+                                                {partner.name} ({partner.code})
+                                            </option>
+                                        ))}
+                                    </FormSelect>
+
                                 </div>
 
                             </div>
 
                         </div>
-                        
+
                         <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-md">
                             <h3 className="text-lg font-semibold mb-4 text-gray-800 dark:text-gray-100">Categorization & Specs</h3>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -392,19 +390,19 @@ const AddProduct = () => {
                         </div>
                         {/* Contract Info */}
                         <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-md">
-                        <h3 className="text-lg font-semibold mb-4 text-gray-800 dark:text-gray-100">Contract Details</h3>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            {Object.entries(product.contract).map(([key, val]) => (
-                            <FormInput
-                                key={key}
-                                name={key}
-                                label={key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}
-                                value={val}
-                                onChange={handleContractChange}
-                                type={['validFrom', 'validTo'].includes(key) ? 'date' : 'text'}
-                            />
-                            ))}
-                        </div>
+                            <h3 className="text-lg font-semibold mb-4 text-gray-800 dark:text-gray-100">Contract Details</h3>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                {Object.entries(product.contract).map(([key, val]) => (
+                                    <FormInput
+                                        key={key}
+                                        name={key}
+                                        label={key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}
+                                        value={val}
+                                        onChange={handleContractChange}
+                                        type={['validFrom', 'validTo'].includes(key) ? 'date' : 'text'}
+                                    />
+                                ))}
+                            </div>
                         </div>
                         <DynamicMultiSelect
                             title="Materials"
@@ -447,9 +445,9 @@ const AddProduct = () => {
                         />
 
                     </div>
-                    
+
                 </form>
-                
+
 
             </div>
         </div>

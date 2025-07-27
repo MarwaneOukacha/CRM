@@ -21,50 +21,50 @@ import java.util.stream.Collectors;
 @Slf4j
 public class GlobalExceptionHandler {
 
-//    @ExceptionHandler(Exception.class)
-//    public ResponseEntity<Object> handleAllExceptions(Exception ex, WebRequest request) {
-//        log.error("Unhandled exception: ", ex);
-//        return buildResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR, "An unexpected error occurred", request);
-//    }
-//
-//    @ExceptionHandler(IllegalArgumentException.class)
-//    public ResponseEntity<Object> handleIllegalArgumentException(IllegalArgumentException ex, WebRequest request) {
-//        log.warn("Bad request: {}", ex.getMessage());
-//        return buildResponseEntity(HttpStatus.BAD_REQUEST, ex.getMessage(), request);
-//    }
-//
-//    @ExceptionHandler(EntityNotFoundException.class)
-//    public ResponseEntity<Object> handleEntityNotFoundException(EntityNotFoundException ex, WebRequest request) {
-//        log.info("Entity not found: {}", ex.getMessage());
-//        return buildResponseEntity(HttpStatus.NOT_FOUND, ex.getMessage(), request);
-//    }
-//
-//    @ExceptionHandler(MethodArgumentNotValidException.class)
-//    public ResponseEntity<Object> handleValidationException(MethodArgumentNotValidException ex, WebRequest request) {
-//        log.warn("Validation failed: {}", ex.getMessage());
-//
-//        List<String> errors = ex.getBindingResult().getFieldErrors()
-//                .stream()
-//                .map(err -> err.getField() + ": " + err.getDefaultMessage())
-//                .collect(Collectors.toList());
-//
-//        return buildResponseEntity(HttpStatus.BAD_REQUEST, "Validation failed", errors, request);
-//    }
-//
-//    private ResponseEntity<Object> buildResponseEntity(HttpStatus status, String message, WebRequest request) {
-//        return buildResponseEntity(status, message, null, request);
-//    }
-//
-//    private ResponseEntity<Object> buildResponseEntity(HttpStatus status, String message, Object errors, WebRequest request) {
-//        Map<String, Object> body = new LinkedHashMap<>();
-//        body.put("timestamp", LocalDateTime.now());
-//        body.put("status", status.value());
-//        body.put("error", status.getReasonPhrase());
-//        body.put("message", message);
-//        body.put("path", request.getDescription(false).replace("uri=", ""));
-//        if (errors != null) {
-//            body.put("details", errors);
-//        }
-//        return new ResponseEntity<>(body, status);
-//    }
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<Object> handleAllExceptions(Exception ex, WebRequest request) {
+        log.error("Unhandled exception: ", ex);
+        return buildResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR, "An unexpected error occurred", request);
+    }
+
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<Object> handleIllegalArgumentException(IllegalArgumentException ex, WebRequest request) {
+        log.warn("Bad request: {}", ex.getMessage());
+        return buildResponseEntity(HttpStatus.BAD_REQUEST, ex.getMessage(), request);
+    }
+
+    @ExceptionHandler(EntityNotFoundException.class)
+    public ResponseEntity<Object> handleEntityNotFoundException(EntityNotFoundException ex, WebRequest request) {
+        log.info("Entity not found: {}", ex.getMessage());
+        return buildResponseEntity(HttpStatus.NOT_FOUND, ex.getMessage(), request);
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<Object> handleValidationException(MethodArgumentNotValidException ex, WebRequest request) {
+        log.warn("Validation failed: {}", ex.getMessage());
+
+        List<String> errors = ex.getBindingResult().getFieldErrors()
+                .stream()
+                .map(err -> err.getField() + ": " + err.getDefaultMessage())
+                .collect(Collectors.toList());
+
+        return buildResponseEntity(HttpStatus.BAD_REQUEST, "Validation failed", errors, request);
+    }
+
+    private ResponseEntity<Object> buildResponseEntity(HttpStatus status, String message, WebRequest request) {
+        return buildResponseEntity(status, message, null, request);
+    }
+
+    private ResponseEntity<Object> buildResponseEntity(HttpStatus status, String message, Object errors, WebRequest request) {
+        Map<String, Object> body = new LinkedHashMap<>();
+        body.put("timestamp", LocalDateTime.now());
+        body.put("status", status.value());
+        body.put("error", status.getReasonPhrase());
+        body.put("message", message);
+        body.put("path", request.getDescription(false).replace("uri=", ""));
+        if (errors != null) {
+            body.put("details", errors);
+        }
+        return new ResponseEntity<>(body, status);
+    }
 }
