@@ -28,7 +28,7 @@ const mockOrders = [
     },
 ];
 
-export default function TelegramOrdersStyledPanel() {
+const TelegramOrders = () => {
     const [expandedId, setExpandedId] = useState(null);
 
     const toggleDetails = (id) => {
@@ -104,3 +104,5 @@ export default function TelegramOrdersStyledPanel() {
         </div>
     );
 }
+
+export default TelegramOrders;

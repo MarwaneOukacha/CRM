@@ -1,4 +1,4 @@
-import { House   ,Calendar , Home, NotepadText, Package, PackagePlus, Settings, Gem ,PenTool,Palette, BarChart ,Layers, PartyPopper, Tag, Users, ShoppingCart  } from "lucide-react";
+import { House, Calendar, Home, NotepadText, Package, PackagePlus, Settings, Gem, PenTool, Palette, BarChart, Layers, PartyPopper, Tag, Users, ShoppingCart } from "lucide-react";
 
 import ProfileImage from "@/assets/profile.jpg";
 import RoomImage from "@/assets/121.jpg";
@@ -21,7 +21,7 @@ export const navbarLinks = [
             },
             {
                 label: "Calendar",
-                icon: Calendar ,
+                icon: Calendar,
                 path: "/calendar",
             },
             {
@@ -36,44 +36,44 @@ export const navbarLinks = [
         links: [
             {
                 label: "Materials",
-                icon: Gem ,
+                icon: Gem,
                 path: "/materials",
-            },{
+            }, {
                 label: "Designers",
-                icon: PenTool  ,
+                icon: PenTool,
                 path: "/designers",
             },
             {
                 label: "Colors",
-                icon: Palette   ,
+                icon: Palette,
                 path: "/colors",
             },
             {
                 label: "Daily Sales",
-                icon: BarChart    ,
+                icon: BarChart,
                 path: "/daily-Sales",
             },
             {
                 label: "Category",
-                icon: Layers    ,
+                icon: Layers,
                 path: "/categorys",
             },
             {
                 label: "Occasions",
-                icon: PartyPopper     ,
+                icon: PartyPopper,
                 path: "/occasions",
             }
-            ,{
+            , {
                 label: "Karats",
-                icon: Tag     ,
+                icon: Tag,
                 path: "/carats",
             },
             {
                 label: "Products",
-                icon: ShoppingCart      ,
+                icon: ShoppingCart,
                 path: "/products",
             }
-            
+
         ],
     },
     {
@@ -81,7 +81,7 @@ export const navbarLinks = [
         links: [
             {
                 label: "Partners",
-                icon: Users   ,
+                icon: Users,
                 path: "/partners",
             }
         ],
@@ -94,6 +94,11 @@ export const navbarLinks = [
                 icon: Package,
                 path: "/orders",
             },
+            {
+                label: "Telegram Orders",
+                icon: Package,
+                path: "/telegram-orders"
+            }
         ],
     },
     {
@@ -212,64 +217,64 @@ export const recentSalesData = [
 ];
 
 export const topOrders = [
-  {
-    number: 1,
-    orderCode: "ORD-20250708-001",
-    orderType: "Online",
-    product: {
-      name: "Gold Ring",
-      category: "Jewelry",
-      image: RoomImage,
+    {
+        number: 1,
+        orderCode: "ORD-20250708-001",
+        orderType: "Online",
+        product: {
+            name: "Gold Ring",
+            category: "Jewelry",
+            image: RoomImage,
+        },
+        shippingAddress: "123 Avenue Hassan II, Casablanca",
+        status: "PENDING",
     },
-    shippingAddress: "123 Avenue Hassan II, Casablanca",
-    status: "PENDING",
-  },
-  {
-    number: 2,
-    orderCode: "ORD-20250708-002",
-    orderType: "In-store",
-    product: {
-      name: "Sterling Silver Necklace",
-      category: "Jewelry",
-      image: RoomImage2,
+    {
+        number: 2,
+        orderCode: "ORD-20250708-002",
+        orderType: "In-store",
+        product: {
+            name: "Sterling Silver Necklace",
+            category: "Jewelry",
+            image: RoomImage2,
+        },
+        shippingAddress: "456 Boulevard Zerktouni, Marrakech",
+        status: "SHIPPED",
     },
-    shippingAddress: "456 Boulevard Zerktouni, Marrakech",
-    status: "SHIPPED",
-  },
-  {
-    number: 3,
-    orderCode: "ORD-20250708-003",
-    orderType: "Online",
-    product: {
-      name: "Men's Titanium Bracelet",
-      category: "Bracelets",
-      image: RoomImage3,
+    {
+        number: 3,
+        orderCode: "ORD-20250708-003",
+        orderType: "Online",
+        product: {
+            name: "Men's Titanium Bracelet",
+            category: "Bracelets",
+            image: RoomImage3,
+        },
+        shippingAddress: "789 Quartier des Fleurs, Rabat",
+        status: "DELIVERED",
     },
-    shippingAddress: "789 Quartier des Fleurs, Rabat",
-    status: "DELIVERED",
-  },
-  {
-    number: 4,
-    orderCode: "ORD-20250708-004",
-    orderType: "Online",
-    product: {
-      name: "Black Leather Watch",
-      category: "Watches",
-      image: RoomImage4,
+    {
+        number: 4,
+        orderCode: "ORD-20250708-004",
+        orderType: "Online",
+        product: {
+            name: "Black Leather Watch",
+            category: "Watches",
+            image: RoomImage4,
+        },
+        shippingAddress: "12 Lotissement Al Qods, Fes",
+        status: "CANCELLED",
     },
-    shippingAddress: "12 Lotissement Al Qods, Fes",
-    status: "CANCELLED",
-  },
-  {
-    number: 5,
-    orderCode: "ORD-20250708-005",
-    orderType: "In-store",
-    product: {
-      name: "Diamond Earrings",
-      category: "Luxury",
-      image: RoomImage5,
+    {
+        number: 5,
+        orderCode: "ORD-20250708-005",
+        orderType: "In-store",
+        product: {
+            name: "Diamond Earrings",
+            category: "Luxury",
+            image: RoomImage5,
+        },
+        shippingAddress: "99 Résidence El Amal, Agadir",
+        status: "PENDING",
     },
-    shippingAddress: "99 Résidence El Amal, Agadir",
-    status: "PENDING",
-  },
 ];

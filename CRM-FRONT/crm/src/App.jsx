@@ -117,7 +117,7 @@ function App() {
                     element: <OrderDetails />,
                 },
                 {
-                    path: "/customOrders",
+                    path: "/telegram-orders",
                     element: <TelegramOrdersMock></TelegramOrdersMock>
                 }
 
