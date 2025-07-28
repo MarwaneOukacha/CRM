@@ -27,6 +27,7 @@ import CreateOrderForm from "./components/CreateOrderForm";
 import OrderDetails from "./components/OrderDetails";
 import { Toaster } from "sonner";
 import TelegramOrdersMock from "./components/TelegramOrders";
+import CampaignDiscounts from "./components/CampaignDiscounts";
 
 function App() {
     const router = createBrowserRouter([
@@ -119,8 +120,12 @@ function App() {
                 {
                     path: "/telegram-orders",
                     element: <TelegramOrdersMock></TelegramOrdersMock>
+                },
+                {
+                    path: "/discounts",
+                    element: <CampaignDiscounts/>
                 }
-
+                
 
             ],
         },
