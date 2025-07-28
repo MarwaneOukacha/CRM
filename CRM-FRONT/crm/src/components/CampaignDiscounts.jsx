@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Eye, Plus, X } from "lucide-react";
+import { Plus, X, Trash2, Edit2 } from "lucide-react"; // Edit2 is pencil icon in lucide-react
 import { Dialog } from "@headlessui/react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
@@ -7,12 +7,13 @@ import * as XLSX from 'xlsx';
 import { saveAs } from 'file-saver';
 import campaignDiscountService from "../services/campaignDiscountService";
 
-
 const CampaignDiscounts = () => {
   const [discounts, setDiscounts] = useState([]);
   const [loading, setLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [selectedDiscountId, setSelectedDiscountId] = useState(null);
   const [form, setForm] = useState({
     title: '',
     description: '',
@@ -20,6 +21,7 @@ const CampaignDiscounts = () => {
     startDate: '',
     endDate: ''
   });
+  const [isEditMode, setIsEditMode] = useState(false);
 
   const navigate = useNavigate();
 
@@ -78,6 +80,47 @@ const CampaignDiscounts = () => {
     }
   };
 
+  const handleUpdate = async (e) => {
+    e.preventDefault();
+    try {
+      await campaignDiscountService.update(selectedDiscountId, form);
+      toast.success("Discount updated");
+      setIsModalOpen(false);
+      setSelectedDiscountId(null);
+      setForm({ title: '', description: '', discountPercent: 0, startDate: '', endDate: '' });
+      setIsEditMode(false);
+      fetchDiscounts();
+    } catch {
+      toast.error("Failed to update discount");
+    }
+  };
+
+  const handleDelete = async () => {
+    try {
+      await campaignDiscountService.deleteById(selectedDiscountId);
+      toast.success("Discount deleted");
+      setDeleteModalOpen(false);
+      setSelectedDiscountId(null);
+      fetchDiscounts();
+    } catch {
+      toast.error("Failed to delete discount");
+    }
+  };
+
+  // Open modal in edit mode with pre-filled data
+  const openEditModal = (discount) => {
+    setSelectedDiscountId(discount.id);
+    setForm({
+      title: discount.title,
+      description: discount.description,
+      discountPercent: discount.discountPercent,
+      startDate: discount.startDate,
+      endDate: discount.endDate,
+    });
+    setIsEditMode(true);
+    setIsModalOpen(true);
+  };
+
   return (
     <div className="card">
       <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
@@ -105,7 +148,11 @@ const CampaignDiscounts = () => {
 
         <div className="flex gap-2">
           <button
-            onClick={() => setIsModalOpen(true)}
+            onClick={() => {
+              setIsEditMode(false);
+              setForm({ title: '', description: '', discountPercent: 0, startDate: '', endDate: '' });
+              setIsModalOpen(true);
+            }}
             className="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-md"
           >
             <Plus className="mr-2 h-4 w-4" /> Create Discount
@@ -145,12 +192,21 @@ const CampaignDiscounts = () => {
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">{discount.discountPercent}%</td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">{discount.startDate}</td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">{discount.endDate}</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium flex gap-3 justify-end">
                       <button
                         className="text-blue-600 hover:text-blue-900 dark:hover:text-blue-400"
-                        onClick={() => navigate(`/discount/${discount.id}`)}
+                        onClick={() => openEditModal(discount)}
                       >
-                        <Eye size={20} />
+                        <Edit2 size={20} />
+                      </button>
+                      <button
+                        className="text-red-600 hover:text-red-800 dark:hover:text-red-400"
+                        onClick={() => {
+                          setSelectedDiscountId(discount.id);
+                          setDeleteModalOpen(true);
+                        }}
+                      >
+                        <Trash2 size={20} />
                       </button>
                     </td>
                   </tr>
@@ -166,7 +222,7 @@ const CampaignDiscounts = () => {
         )}
       </div>
 
-      {/* MODAL FORM */}
+      {/* CREATE / UPDATE MODAL */}
       <Dialog open={isModalOpen} onClose={() => setIsModalOpen(false)} className="fixed inset-0 z-50 overflow-y-auto">
         <div className="flex items-center justify-center min-h-screen p-4 bg-black/30">
           <Dialog.Panel className="bg-white dark:bg-gray-900 rounded-lg shadow-lg max-w-lg w-full p-6 relative">
@@ -176,8 +232,10 @@ const CampaignDiscounts = () => {
             >
               <X />
             </button>
-            <Dialog.Title className="text-lg font-semibold mb-4">Create Discount</Dialog.Title>
-            <form onSubmit={handleCreate} className="space-y-4">
+            <Dialog.Title className="text-lg font-semibold mb-4">
+              {isEditMode ? "Update Discount" : "Create Discount"}
+            </Dialog.Title>
+            <form onSubmit={isEditMode ? handleUpdate : handleCreate} className="space-y-4">
               <div>
                 <label className="block text-sm font-medium">Title</label>
                 <input name="title" type="text" value={form.title} onChange={handleChange} required className="w-full border p-2 rounded dark:bg-gray-800 dark:text-white" />
@@ -202,9 +260,29 @@ const CampaignDiscounts = () => {
               </div>
               <div className="flex justify-end gap-2">
                 <button type="button" onClick={() => setIsModalOpen(false)} className="px-4 py-2 bg-gray-500 text-white rounded">Cancel</button>
-                <button type="submit" className="px-4 py-2 bg-blue-600 text-white rounded">Save</button>
+                <button type="submit" className="px-4 py-2 bg-blue-600 text-white rounded">{isEditMode ? "Update" : "Save"}</button>
               </div>
             </form>
+          </Dialog.Panel>
+        </div>
+      </Dialog>
+
+      {/* DELETE CONFIRMATION MODAL */}
+      <Dialog open={deleteModalOpen} onClose={() => setDeleteModalOpen(false)} className="fixed inset-0 z-50 overflow-y-auto">
+        <div className="flex items-center justify-center min-h-screen p-4 bg-black/30">
+          <Dialog.Panel className="bg-white dark:bg-gray-900 rounded-lg shadow-lg max-w-sm w-full p-6 relative">
+            <button
+              onClick={() => setDeleteModalOpen(false)}
+              className="absolute top-4 right-4 text-gray-500 hover:text-gray-700"
+            >
+              <X />
+            </button>
+            <Dialog.Title className="text-lg font-semibold mb-4">Confirm Deletion</Dialog.Title>
+            <p className="text-gray-700 dark:text-gray-300 mb-6">Are you sure you want to delete this discount?</p>
+            <div className="flex justify-end gap-2">
+              <button onClick={() => setDeleteModalOpen(false)} className="px-4 py-2 bg-gray-500 text-white rounded">Cancel</button>
+              <button onClick={handleDelete} className="px-4 py-2 bg-red-600 text-white rounded">Delete</button>
+            </div>
           </Dialog.Panel>
         </div>
       </Dialog>
