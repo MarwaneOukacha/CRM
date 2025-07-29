@@ -40,3 +40,5 @@ external:
 
 app:
   file-url: C:\Users\user\Desktop\pic\
+  telegram-token: AAEfiEN-P4YMDFBfSXDWGcsH3MNvvwjpYcE
+  telegram-url: https://api.telegram.org/bot

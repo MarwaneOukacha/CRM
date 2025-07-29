@@ -14,6 +14,7 @@ public class OrderResponseDTO {
     private UUID id;
     private String customerCode;
     private String customerEmail;
+    private String telegramName;
     private OrderType type;
     private OrderStatus status;
     private String orderCode;

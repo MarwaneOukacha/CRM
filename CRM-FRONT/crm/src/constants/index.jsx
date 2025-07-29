@@ -98,6 +98,11 @@ export const navbarLinks = [
                 label: "Telegram Orders",
                 icon: Package,
                 path: "/telegram-orders"
+            },
+            {
+                label: "Message Orders",
+                icon: Package,
+                path: "/messages"
             }
         ],
     },

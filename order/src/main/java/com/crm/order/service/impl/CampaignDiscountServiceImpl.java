@@ -47,4 +47,14 @@ public class CampaignDiscountServiceImpl implements CampaignDiscountService {
         return campaignDiscountDao.search(CampaignDiscountSearchCriteriaDTO, pageable)
                 .map(campaignDiscountMapper::toDto);
     }
+
+
+
+    @Override
+    public CampaignDiscountDTO update(String id,CampaignDiscountDTO campaignDiscountDTO) {
+
+        CampaignDiscount update = campaignDiscountDao.update(id, campaignDiscountDTO);
+
+        return campaignDiscountMapper.toDto(update);
+    }
 }

@@ -2,6 +2,7 @@ package com.crm.order.dao.impl;
 
 import com.crm.order.dao.CampaignDiscountDao;
 import com.crm.order.entities.CampaignDiscount;
+import com.crm.order.entities.model.CampaignDiscountDTO;
 import com.crm.order.entities.model.CampaignDiscountSearchCriteriaDTO;
 import com.crm.order.repository.CampaignDiscountRepository;
 import jakarta.persistence.criteria.Predicate;
@@ -29,8 +30,14 @@ public class CampaignDiscountDaoImpl implements CampaignDiscountDao {
     }
 
     @Override
-    public CampaignDiscount update(CampaignDiscount campaignDiscount) {
-        return repository.save(campaignDiscount);
+    public CampaignDiscount update(String id, CampaignDiscountDTO campaignDiscount) {
+        CampaignDiscount discountFound = repository.findById(UUID.fromString(id)).orElseThrow(() -> new RuntimeException("No discount found"));
+        if(campaignDiscount.getDiscountPercent()!=null) discountFound.setDiscountPercent(campaignDiscount.getDiscountPercent());
+        if(campaignDiscount.getTitle()!=null) discountFound.setTitle(campaignDiscount.getTitle());
+        if(campaignDiscount.getDescription()!=null) discountFound.setDescription(campaignDiscount.getDescription());
+        if(campaignDiscount.getStartDate()!=null) discountFound.setStartDate(campaignDiscount.getStartDate());
+        if(campaignDiscount.getEndDate()!=null) discountFound.setEndDate(campaignDiscount.getEndDate());
+        return repository.save(discountFound);
     }
 
     @Override

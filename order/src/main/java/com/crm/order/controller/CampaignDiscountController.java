@@ -21,6 +21,11 @@ public class CampaignDiscountController {
         return ResponseEntity.ok(campaignDiscountService.save(campaignDiscountDTO));
     }
 
+    @PutMapping("/{id}")
+    public ResponseEntity<CampaignDiscountDTO> update(@PathVariable String id,@RequestBody CampaignDiscountDTO campaignDiscountDTO) {
+        return ResponseEntity.ok(campaignDiscountService.update(id,campaignDiscountDTO));
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<CampaignDiscountDTO> findById(@PathVariable String id) {
         return ResponseEntity.ok(campaignDiscountService.findById(id));

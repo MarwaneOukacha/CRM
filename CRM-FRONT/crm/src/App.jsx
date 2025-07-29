@@ -28,6 +28,7 @@ import OrderDetails from "./components/OrderDetails";
 import { Toaster } from "sonner";
 import TelegramOrdersMock from "./components/TelegramOrders";
 import CampaignDiscounts from "./components/CampaignDiscounts";
+import MessageOrders from "./components/MessageOrders";
 
 function App() {
     const router = createBrowserRouter([
@@ -124,6 +125,10 @@ function App() {
                 {
                     path: "/discounts",
                     element: <CampaignDiscounts/>
+                },
+                {
+                    path: "/messages",
+                    element: <MessageOrders/>
                 }
                 
 

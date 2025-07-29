@@ -18,6 +18,7 @@ public class Order extends AbstractEntity {
 
     private String customerCode;
     private String customerEmail;
+    private String telegramName;
     @Enumerated(EnumType.STRING)
     private OrderType type;
 

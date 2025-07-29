@@ -29,9 +29,10 @@ const deleteById = async (id) => {
   const response = await axiosInstance.delete(`${API_BASE_URL}/${id}`);
   return response.data;
 };
-
+const update=(id, campaignDiscountDTO) => axiosInstance.put(`${API_BASE_URL}/${id}`, campaignDiscountDTO);
 export default {
   search,
+  update,
   findById,
   save,
   deleteById,

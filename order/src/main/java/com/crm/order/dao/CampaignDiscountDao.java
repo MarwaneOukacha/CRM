@@ -1,6 +1,7 @@
 package com.crm.order.dao;
 
 import com.crm.order.entities.CampaignDiscount;
+import com.crm.order.entities.model.CampaignDiscountDTO;
 import com.crm.order.entities.model.CampaignDiscountSearchCriteriaDTO;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -12,7 +13,7 @@ public interface CampaignDiscountDao {
 
     CampaignDiscount save(CampaignDiscount campaignDiscount);
 
-    CampaignDiscount update(CampaignDiscount campaignDiscount);
+    CampaignDiscount update(String id, CampaignDiscountDTO campaignDiscount);
 
     void deleteById(UUID id);
 

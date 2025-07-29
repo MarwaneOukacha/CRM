@@ -24,7 +24,7 @@ spring:
             - id: order-service
               uri: lb://order-service
               predicates:
-                - Path=/orders/**,/campaign-discounts/**
+                - Path=/orders/**,/campaign-discounts/**,/messages/**
 
           globalcors:
             add-to-simple-url-handler-mapping: true

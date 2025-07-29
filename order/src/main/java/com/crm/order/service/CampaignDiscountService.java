@@ -11,4 +11,7 @@ public interface CampaignDiscountService {
     CampaignDiscountDTO findById(String id);
     CampaignDiscountDTO deleteById(String id);
     Page<CampaignDiscountDTO> search(CampaignDiscountSearchCriteriaDTO searchCriteria, Pageable pageable);
+
+    CampaignDiscountDTO update(String id,CampaignDiscountDTO campaignDiscountDTO);
+
 }

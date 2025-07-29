@@ -14,6 +14,7 @@ import java.util.List;
 public class OrderRequestDTO {
     private String customerCode;
     private String customerEmail;
+    private String telegramName;
     private OrderType type;
     private String orderCode;
     private PaymentType paymentType;
