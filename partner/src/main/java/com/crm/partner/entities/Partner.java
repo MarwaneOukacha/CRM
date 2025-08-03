@@ -33,6 +33,7 @@ public class Partner extends AbstractEntity {
     // Identity Information
     private String passportSeries;
     private String passportNumber;
+    @Column(unique = true)
     private String finCode;
 
     // Bank Details

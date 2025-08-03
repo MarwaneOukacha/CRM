@@ -12,6 +12,7 @@ public interface PartnerRepository extends JpaRepository<Partner, UUID>, JpaSpec
     Optional<Partner> findByEmail(String contactEmail);
 
     Optional<Partner> findByCode(String code);
+    Optional<Partner> findByFinCode(String finCode);
     boolean existsByEmail(String contactEmail);
 }
 

@@ -22,5 +22,6 @@ public interface PartnerService {
     Page<PartnerProfileResponseDTO> searchPartners(SearchPartnerCriteria criteria, Pageable pageable);
 
     PartnerProfileResponseDTO getPartnerByCode(String partnerCode);
+    PartnerProfileResponseDTO getPartnerByFinCode(String partnerCode);
 
 }

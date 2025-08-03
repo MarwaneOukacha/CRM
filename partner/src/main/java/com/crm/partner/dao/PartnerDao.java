@@ -24,5 +24,7 @@ public interface PartnerDao {
 
     Optional<Partner> findByPartnerCode(String partnerCode);
 
+    Optional<Partner> findByPartnerFinCode(String partnerCode);
+
 }
 

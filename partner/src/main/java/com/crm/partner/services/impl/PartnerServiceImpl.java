@@ -73,7 +73,7 @@ public class PartnerServiceImpl implements PartnerService {
         if (request.getReceivingBankName() != null && !request.getReceivingBankName().isEmpty()) partner.setReceivingBankName(request.getReceivingBankName());
         if (request.getReceivingBankCurrency() != null && !request.getReceivingBankCurrency().isEmpty()) partner.setReceivingBankCurrency(request.getReceivingBankCurrency());
         if (request.getCompanyName() != null && !request.getCompanyName().isEmpty()) partner.setCompanyName(request.getCompanyName());
-
+        if (request.getFinCode() != null && !request.getFinCode().isEmpty()) partner.setFinCode(request.getFinCode());
         Partner updated = partnerDao.save(partner);
 
         return partnerMapper.toUpdateResponseDTO(updated);
@@ -88,6 +88,14 @@ public class PartnerServiceImpl implements PartnerService {
     @Override
     public PartnerProfileResponseDTO getPartnerByCode(String partnerCode) {
         Partner byId = partnerDao.findByPartnerCode(partnerCode).orElseThrow(() -> {
+            return new EntityNotFoundException("Partner not found with code: " + partnerCode);
+        });
+        return partnerMapper.toProfileResponseDTO(byId);
+    }
+
+    @Override
+    public PartnerProfileResponseDTO getPartnerByFinCode(String partnerCode) {
+        Partner byId = partnerDao.findByPartnerFinCode(partnerCode).orElseThrow(() -> {
             return new EntityNotFoundException("Partner not found with code: " + partnerCode);
         });
         return partnerMapper.toProfileResponseDTO(byId);

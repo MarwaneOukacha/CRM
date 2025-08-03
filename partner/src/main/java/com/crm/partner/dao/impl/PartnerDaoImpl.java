@@ -82,4 +82,9 @@ public class PartnerDaoImpl implements PartnerDao {
     public Optional<Partner> findByPartnerCode(String partnerCode) {
         return partnerRepository.findByCode(partnerCode);
     }
+
+    @Override
+    public Optional<Partner> findByPartnerFinCode(String partnerFinCode) {
+        return partnerRepository.findByFinCode(partnerFinCode);
+    }
 }

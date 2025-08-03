@@ -1,6 +1,6 @@
 import react, { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Save, Upload, Image as ImageIcon, PlusCircle, Trash2, Download, UploadCloud, Loader2, FileText } from 'lucide-react';
+import { ArrowLeft, Save, Upload, Image as ImageIcon, PlusCircle, Trash2, Download, UploadCloud, Loader2, FileText, Search, Check } from 'lucide-react';
 
 // --- SERVICE IMPORTS ---
 // The component relies on these services being correctly configured in your project.
@@ -123,9 +123,15 @@ const AddProduct = () => {
     const [error, setError] = useState(null);
     const [notification, setNotification] = useState({ message: '', type: '' });
     const fileInputRef = useRef(null);
+    const [searchError, setSearchError] = useState('');
+    const [searchedPartner, setSearchedPartner] = useState(null);
     const [imagefile, setImagefile] = useState(null);
     const [previewImage, setPreviewImage] = useState(null);
-    // Note: No activeImage state needed for a new product initially
+    const [partnerCodeSearch, setPartnerCodeSearch] = useState('');
+    const [searchingPartner, setSearchingPartner] = useState(false);
+    const [partnerSelected, setPartnerSelected] = useState(false);
+
+
 
     // Fetch all lookup data for dropdowns on component mount
     useEffect(() => {
@@ -273,6 +279,31 @@ const AddProduct = () => {
     };
 
 
+    const handleSearchPartner = async () => {
+    if (!partnerCodeSearch.trim()) {
+        setSearchError("Please enter a partner code.");
+        return;
+    }
+
+    setSearchingPartner(true);
+    setSearchError('');
+    setSearchedPartner(null);
+
+    try {
+        const response = await partnerService.getByPartnerFinCode({ code: partnerCodeSearch });
+        const results = response;
+        if (results.length === 0) {
+            setSearchError("No partner found with that code.");
+        } else {
+            setSearchedPartner(results);
+        }
+    } catch (err) {
+        setSearchError("Error fetching partner info.");
+        console.error(err);
+    } finally {
+        setSearchingPartner(false);
+    }
+};
 
     const triggerFileInput = () => {
         if (fileInputRef.current) {
@@ -346,8 +377,9 @@ const AddProduct = () => {
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <FormInput id="quantity" name="quantity" label="Quantity" value={product.quantity} onChange={handleChange} type="number" step="0.01" min="0" placeholder="e.g., 3" />
                                 </div>
+                                {/*
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    <FormSelect id="partnerCode" name="partnerCode" label="Partner Code" value={product.partnerCode} onChange={handleChange}>
+                                <FormSelect id="partnerCode" name="partnerCode" label="Partner Code" value={product.partnerCode} onChange={handleChange}>
                                         <option value="">Select a partner...</option>
                                         {options.partners?.map((partner) => (
                                             <option key={partner.code} value={partner.code}>
@@ -355,8 +387,59 @@ const AddProduct = () => {
                                             </option>
                                         ))}
                                     </FormSelect>
-
                                 </div>
+                                */}
+                                    
+                                <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-200">Find Partner</h3>
+                                        <div className="flex items-start gap-2">
+                                            <input
+                                            type="text"
+                                            value={partnerCodeSearch}
+                                            onChange={(e) => setPartnerCodeSearch(e.target.value)}
+                                            className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md dark:bg-gray-800 dark:border-gray-600 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                            placeholder="Enter Partner Code"
+                                        />
+
+                                        <button
+                                            type="button"
+                                            onClick={handleSearchPartner}
+                                            className="inline-flex items-center justify-center p-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 transition-colors"
+                                            disabled={searchingPartner}
+                                        >
+                                            {searchingPartner ? (
+                                                <div className="w-5 h-5 border-2 border-white/50 border-t-white rounded-full animate-spin"></div>
+                                            ) : (
+                                                <Search size={20} />
+                                            )}
+                                        </button>
+
+                                            
+                                            
+                                            
+
+                                        </div>
+                                        {searchError && <p className="text-sm text-red-500 mt-2">{searchError}</p>}
+                                        {searchedPartner && (
+                                                <div className="mt-2 p-3 border rounded-md bg-gray-50 dark:bg-gray-700/50 space-y-3">
+                                                    <h4 className="font-semibold text-gray-800 dark:text-gray-100">{searchedPartner.name}</h4>
+                                                    <p className="text-sm text-gray-500 dark:text-gray-400">{searchedPartner.email}</p>
+                                                    <p className="text-sm text-gray-500 dark:text-gray-400">Code: {searchedPartner.code}</p>
+                                                    <p className="text-sm text-gray-500 dark:text-gray-400">Phone: {searchedPartner.phone}</p>
+
+                                                    <button
+                                                    type="button"
+                                                    onClick={() => {
+                                                        setProduct((prev) => ({ ...prev, partnerCode: searchedPartner.code }));
+                                                        setPartnerSelected(true); // update icon
+                                                    }}
+                                                    className="inline-flex items-center justify-center gap-2 mt-2 px-4 py-2 text-sm bg-green-600 text-white rounded-md hover:bg-green-700"
+                                                    >
+                                                    {partnerSelected ? <Check size={16} /> : <PlusCircle size={16} />}
+                                                    {partnerSelected ? 'Partner Selected' : 'Select This Partner'}
+                                                    </button>
+
+                                                </div>
+                                            )}
 
                             </div>
 

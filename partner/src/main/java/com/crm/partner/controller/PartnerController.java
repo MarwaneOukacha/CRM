@@ -44,6 +44,12 @@ public class PartnerController {
         return partnerService.getPartnerByCode(partnerCode);
     }
 
+    @GetMapping("/finCode/{partnerFinCode}")
+    public PartnerProfileResponseDTO getPartnerByFinCode(
+            @PathVariable String partnerFinCode) {
+        return partnerService.getPartnerByFinCode(partnerFinCode);
+    }
+
     // PUT /partners/{partnerId}
     @PutMapping("/{partnerId}")
     public ResponseEntity<PartnerUpdateResponseDTO> updatePartner(

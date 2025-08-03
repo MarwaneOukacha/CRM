@@ -15,8 +15,17 @@ const partnerService = {
     return response.data;
   },
   getByPartnerCode: async (partnercode) => {
-  const trimmedCode = partnercode.trim();
+  const trimmedCode = typeof partnercode === 'string' 
+  ? partnercode.trim() 
+  : (partnercode?.code || '').trim();
   const response = await axiosInstance.get(`${BASE_URL}/code/${encodeURIComponent(trimmedCode)}`);
+  return response.data;
+},
+getByPartnerFinCode: async (partnercode) => {
+  const trimmedCode = typeof partnercode === 'string' 
+  ? partnercode.trim() 
+  : (partnercode?.code || '').trim();
+  const response = await axiosInstance.get(`${BASE_URL}/finCode/${encodeURIComponent(trimmedCode)}`);
   return response.data;
 },
 
