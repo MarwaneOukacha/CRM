@@ -166,7 +166,7 @@ const [pageInfo, setPageInfo] = useState({ page: 0, size: 10, totalElements: 0 }
           </tr>
         </thead>
         <tbody className="bg-white dark:bg-gray-900 divide-y divide-gray-200 dark:divide-gray-700">
-          {designers.map((designer, index) => (
+          {designers?.map((designer, index) => (
             <tr key={designer.id} className="hover:bg-gray-100 dark:hover:bg-gray-800">
               <td className="px-6 py-4 text-sm text-gray-900 dark:text-gray-100">{index + 1}</td>
               <td className="px-6 py-4 text-sm font-medium text-gray-900 dark:text-gray-100">{designer.name}</td>

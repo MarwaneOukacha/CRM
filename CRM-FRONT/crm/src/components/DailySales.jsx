@@ -164,7 +164,7 @@ const DailySales = () => {
           </tr>
         </thead>
         <tbody className="bg-white dark:bg-gray-900 divide-y divide-gray-200 dark:divide-gray-700">
-          {sales.map((sale, index) => (
+          {sales?.map((sale, index) => (
             <tr key={sale.id} className="hover:bg-gray-100 dark:hover:bg-gray-800">
               <td className="px-6 py-4 text-sm text-gray-900 dark:text-gray-100">{index + 1}</td>
               <td className="px-6 py-4 text-sm font-medium text-gray-900 dark:text-gray-100">{sale.days}</td>
